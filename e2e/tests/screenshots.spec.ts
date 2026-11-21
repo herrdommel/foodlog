@@ -16,40 +16,37 @@ const variants = [
   { name: 'mobile-dark', viewport: { width: 390, height: 844 }, scheme: 'dark' as const },
 ];
 
+function yesterday() {
+  return new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Berlin' }).format(
+    new Date(Date.now() - 24 * 3_600_000),
+  );
+}
+
 async function seedEntries(page: Page) {
   const find = async (q: string) =>
     (
       (await (await page.request.get(`/api/ingredients?q=${q}&limit=1`)).json()) as { id: string }[]
     )[0]!.id;
-  const now = new Date();
-  const wall = (hours: number) => {
-    const date = new Date(now.getTime() - hours * 3_600_000);
-    return new Intl.DateTimeFormat('sv-SE', {
-      timeZone: 'Europe/Berlin',
-      dateStyle: 'short',
-      timeStyle: 'short',
-    })
-      .format(date)
-      .replace(' ', 'T');
-  };
+  const day = yesterday();
+  const wall = (time: string) => `${day}T${time}`;
   const post = (data: object) =>
     page.request.post('/api/entries', { headers: { origin: ORIGIN }, data });
   await post({
     type: 'meal',
-    occurredAt: wall(6),
+    occurredAt: wall('08:10'),
     title: 'Porridge',
     ingredientIds: [await find('oats'), await find('milk'), await find('banana')],
     note: 'with a little honey',
   });
   await post({
     type: 'drink',
-    occurredAt: wall(5),
+    occurredAt: wall('09:15'),
     title: 'Coffee',
     ingredientIds: [await find('coffee')],
   });
-  await post({ type: 'symptom', occurredAt: wall(3), symptomType: 'bloating', severity: 6 });
-  await post({ type: 'stool', occurredAt: wall(2), bristol: 5 });
-  await post({ type: 'medication', occurredAt: wall(1), title: 'Ibuprofen 400' });
+  await post({ type: 'symptom', occurredAt: wall('11:30'), symptomType: 'bloating', severity: 6 });
+  await post({ type: 'stool', occurredAt: wall('12:45'), bristol: 5 });
+  await post({ type: 'medication', occurredAt: wall('14:00'), title: 'Ibuprofen 400' });
 }
 
 async function shot(page: Page, name: string) {
@@ -74,13 +71,16 @@ for (const variant of variants) {
       await shot(page, `${variant.name}-register`);
       await page.goto('/forgot-password');
       await shot(page, `${variant.name}-forgot-password`);
+      await page.goto('/privacy');
+      await page.getByRole('article').waitFor();
+      await shot(page, `${variant.name}-privacy`);
     });
 
     test('signed-in pages', async ({ page }) => {
       const { email } = await registerVerified(page);
       await loginViaApi(page, email);
       await seedEntries(page);
-      await page.goto('/');
+      await page.goto(`/?date=${yesterday()}`);
       await page.getByRole('button', { name: /^(Meal|Mahlzeit)$/ }).waitFor();
       await page.getByRole('listitem').first().waitFor();
       await shot(page, `${variant.name}-dashboard`);

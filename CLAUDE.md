@@ -152,7 +152,7 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 
 - Admin routes live in `backend/src/routes/admin-*.ts`, all behind `app.requireAdmin`. Every admin mutation writes a row to `admin_audit` (shown on the settings page). Add `recordAudit` to new admin actions.
 - Audit log (`admin_audit`) references people by id only (`actor_id`, `target_user_id`, both `ON DELETE SET NULL`). Names and emails are resolved when the log is read, so they follow changes and disappear with a deleted account. `detail` may only hold non-personal values (setting values, feature keys). Never write email addresses or names into the log.
-- Admins cannot demote or deactivate themselves (`cannot_modify_self`), which also guarantees that at least one active admin remains. Do not add a separate last-admin rule, it could never trigger.
+- Admins cannot demote or deactivate themselves (`cannot_modify_self`), so no admin can remove the last admin through the admin API. The one remaining way to lose the last admin is self-deletion, which `POST /api/me/delete` blocks (`last_admin`).
 - Changing a user's email as admin sets it unverified, ends all sessions and mails a verification link to the new address. Deactivating ends all sessions.
 - Password help is always a reset link (email, or shown once for the admin to hand over), never a password chosen by the admin.
 - Invitation links are only returned at creation (only the hash is stored). Public registration is a setting (`public_registration`, default off). Feature flags: global switch beats per-user override (see "Feature flags").
@@ -168,6 +168,15 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - The preview and the request are built by the same function (`services/ai/payload.ts`); `payloadHash` (sha256 of system + user message) is returned by both so the UI can show that exactly the previewed data was sent. Notes, email and name are never sent. User text is JSON inside `<data>` tags, the system prompt calls it untrusted; the answer is rendered as plain text only.
 - `AI_MOCK_PROVIDER=true` (dev, tests, E2E) replaces both providers; keys `mock-invalid`, `mock-ratelimit`, `mock-refuse`, `mock-down`, `mock-broken` simulate failures. It is refused in production by `loadConfig`.
 - Primary button hover uses `bg-brand-hover` (a darker tone). Opacity hovers lower contrast below 4.5:1.
+
+## Privacy and operations notes (M6)
+
+- Registration requires `acceptPrivacy: true` and stores `users.privacy_consent_at`. Google sign-up of a new account needs the `consent=1` query on `/api/auth/google` (cookie), otherwise the callback redirects to `/login?error=consent_required`. Existing accounts sign in with Google without it. Accounts created by the CLI or the seed have no consent date; there is deliberately no forced re-consent flow.
+- `POST /api/me/delete` (confirm email, password if set) deletes the user; the foreign keys do the rest (`CASCADE` for personal data, `SET NULL` for audit and invite references). A test reads `information_schema` and fails if any foreign key to `users` is neither, so new tables are covered automatically. Always choose `CASCADE` or `SET NULL` for a new reference to `users`.
+- `GET /api/me/export` (JSON, all own data, no secrets) is a GDPR right and is not gated by `data_export` (that flag only controls the CSV export and the report). Keep it ungated. When you add personal data, add it to `services/account-export.ts` and to its test.
+- Retention (`services/retention.ts`): auth tokens 7 days after expiry or use, expired sessions, invite emails 7 days after use or expiry, invites 90 days, admin audit 12 months. Runs daily from `server.ts` (first run one minute after start) and via `node dist/cli/retention.js`. Keep the privacy text in `docs/legal-templates` in sync with these numbers.
+- Legal pages: the operator provides `privacy.<lang>.md` and `imprint.<lang>.md` in `LEGAL_DIR`; nothing personal lives in this repo. Missing files show "not configured". The frontend renders them with a small safe Markdown renderer (`components/Markdown.tsx`, no HTML, only http, https and mailto links).
+- Legal text on the page and in `docs/legal-templates` is a developer draft, not legal advice. It needs a review before go-live.
 
 ## Conventions
 

@@ -44,7 +44,9 @@
     "confirmPassword": "Repeat password",
     "passwordMismatch": "The passwords do not match.",
     "resetDone": "Your password has been changed. You can sign in now.",
-    "missingToken": "The link is incomplete."
+    "missingToken": "The link is incomplete.",
+    "acceptPrivacy": "I have read the <privacy>privacy policy</privacy> and consent to the processing of my health data to provide the app (Art. 9(2)(a) GDPR). I can withdraw my consent at any time by deleting my account.",
+    "privacyRequired": "Please accept the privacy policy to register."
   },
   "profile": {
     "title": "Profile",
@@ -71,7 +73,21 @@
     "passwordSent": "The link has been sent.",
     "sendResetLink": "Send reset link",
     "emailConfirmTitle": "Confirm email address",
-    "emailConfirmed": "Your new email address is confirmed."
+    "emailConfirmed": "Your new email address is confirmed.",
+    "data": {
+      "title": "Your data",
+      "text": "You can download all data stored about you as a JSON file. It contains your profile, entries, custom ingredients, templates and settings, but no passwords or keys.",
+      "export": "Download data as JSON"
+    },
+    "delete": {
+      "title": "Delete account",
+      "text": "Your account and all related data are deleted immediately and permanently: entries, custom ingredients, templates, stored AI keys and settings. This cannot be undone. Backups can still contain data until their retention period ends. Download your data first if you want to keep it.",
+      "start": "Delete account …",
+      "confirmEmail": "Enter your email address to confirm",
+      "password": "Password",
+      "submit": "Delete account permanently",
+      "cancel": "Cancel"
+    }
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -106,9 +122,12 @@
     "ai_refused": "The provider declined to answer.",
     "provider_unreachable": "The provider could not be reached.",
     "ai_failed": "The AI request failed.",
-    "consent_required": "Your consent is required for this.",
+    "consent_required": "Your consent is required for this. To sign up with Google, first use “Sign up” and accept the privacy policy.",
     "ai_not_configured": "Choose a provider and a model and store a key first.",
-    "key_unreadable": "The stored key can no longer be read. Please enter it again."
+    "key_unreadable": "The stored key can no longer be read. Please enter it again.",
+    "email_mismatch": "The email address does not match your account.",
+    "last_admin": "The last administrator cannot delete the account. Make another person an administrator first.",
+    "not_configured": "The operator has not provided this text yet."
   },
   "tracking": {
     "today": "Today",
@@ -481,5 +500,14 @@
       "differentData": "The data changed since the preview."
     },
     "link": "AI analysis"
+  },
+  "legal": {
+    "privacy": "Privacy policy",
+    "imprint": "Imprint",
+    "footer": "Legal",
+    "notConfigured": "The operator has not provided this text yet.",
+    "onlyGerman": "Dieser Text liegt nur auf Deutsch vor.",
+    "onlyEnglish": "This text is only available in English.",
+    "loading": "Loading …"
   }
 }

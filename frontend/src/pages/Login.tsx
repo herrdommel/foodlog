@@ -6,16 +6,31 @@ import { ApiError } from '../api/client.ts';
 import { Button, ErrorMessage, Field, Notice } from '../components/ui.tsx';
 import { PublicLayout } from '../components/Layout.tsx';
 
-export function GoogleButton({ invite }: { invite?: string | null }) {
+export function GoogleButton({
+  invite,
+  consent = false,
+  disabled = false,
+}: {
+  invite?: string | null;
+  consent?: boolean;
+  disabled?: boolean;
+}) {
   const { t } = useTranslation();
-  const href = invite
-    ? `/api/auth/google?invite=${encodeURIComponent(invite)}`
-    : '/api/auth/google';
+  const parameters = new URLSearchParams();
+  if (invite) parameters.set('invite', invite);
+  if (consent) parameters.set('consent', '1');
+  const query = parameters.size > 0 ? `?${parameters}` : '';
+  const classes =
+    'block rounded-lg border border-fg/20 bg-raised px-4 py-2 text-center font-medium';
+  if (disabled) {
+    return (
+      <span aria-disabled="true" role="link" className={`${classes} cursor-not-allowed opacity-50`}>
+        {t('auth.google')}
+      </span>
+    );
+  }
   return (
-    <a
-      href={href}
-      className="block rounded-lg border border-fg/20 bg-raised px-4 py-2 text-center font-medium hover:border-accent"
-    >
+    <a href={`/api/auth/google${query}`} className={`${classes} hover:border-accent`}>
       {t('auth.google')}
     </a>
   );

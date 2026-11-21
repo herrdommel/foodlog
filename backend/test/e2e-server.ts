@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm';
+import { eq, ne, sql } from 'drizzle-orm';
 import { migrate } from 'drizzle-orm/mysql2/migrator';
 import { syncCatalog } from '../src/catalog/sync.ts';
 import { buildApp } from '../src/app.ts';
@@ -58,6 +58,13 @@ app.get('/__test/promote', async (request) => {
   const { email } = request.query as { email: string };
   await db.update(users).set({ role: 'admin' }).where(eq(users.email, email));
   return { promoted: true };
+});
+
+app.get('/__test/only-admin', async (request) => {
+  const { email } = request.query as { email: string };
+  await db.update(users).set({ role: 'user' }).where(ne(users.email, email));
+  await db.update(users).set({ role: 'admin' }).where(eq(users.email, email));
+  return { onlyAdmin: true };
 });
 
 app.get('/__test/invite', async () => {

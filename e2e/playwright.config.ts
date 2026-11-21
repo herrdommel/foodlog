@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig, devices } from '@playwright/test';
 
 const BACKEND_PORT = 3100;
@@ -40,6 +41,7 @@ export default defineConfig({
         DATABASE_URL,
         API_KEY_ENCRYPTION_KEY: Buffer.alloc(32, 7).toString('base64'),
         AI_MOCK_PROVIDER: 'true',
+        LEGAL_DIR: fileURLToPath(new URL('./fixtures/legal', import.meta.url)),
         SMTP_HOST: '127.0.0.1',
         SMTP_PORT: '1025',
         SMTP_FROM: 'Foodlog <foodlog@example.com>',

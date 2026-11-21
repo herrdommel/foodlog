@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router';
+import { Link, NavLink, Outlet } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import type { Locale } from '@foodlog/shared';
 import { useLogout, useMe } from '../api/hooks.ts';
@@ -21,14 +21,39 @@ export function LanguageSwitch() {
   );
 }
 
-export function PublicLayout({ children }: { children: React.ReactNode }) {
+export function LegalLinks() {
+  const { t } = useTranslation();
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col gap-8 px-4 py-8">
+    <footer className="py-6 text-sm text-fg/75 print:hidden">
+      <nav aria-label={t('legal.footer')} className="flex gap-4">
+        <Link to="/privacy" className="hover:underline">
+          {t('legal.privacy')}
+        </Link>
+        <Link to="/imprint" className="hover:underline">
+          {t('legal.imprint')}
+        </Link>
+      </nav>
+    </footer>
+  );
+}
+
+export function PublicLayout({
+  children,
+  wide = false,
+}: {
+  children: React.ReactNode;
+  wide?: boolean;
+}) {
+  return (
+    <div
+      className={`mx-auto flex min-h-screen w-full flex-col gap-8 px-4 py-8 ${wide ? 'max-w-3xl' : 'max-w-md'}`}
+    >
       <header className="flex items-center justify-between">
         <Logo />
         <LanguageSwitch />
       </header>
       <main className="flex-1">{children}</main>
+      <LegalLinks />
     </div>
   );
 }
@@ -81,6 +106,7 @@ export function AppLayout() {
       <main className="space-y-6 py-4">
         <Outlet />
       </main>
+      <LegalLinks />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AI_CONSENT_VERSION } from '@foodlog/shared';
+import { AI_CONSENT_VERSION, type LegalDoc } from '@foodlog/shared';
 import type {
   AdminSettingsDto,
   AiModelsDto,
@@ -78,6 +78,7 @@ export function useRegister() {
       password: string;
       locale: string;
       inviteToken?: string;
+      acceptPrivacy: true;
     }) => api('/api/auth/register', { body }),
   });
 }
@@ -476,5 +477,36 @@ export function useAiAnalyze() {
   return useMutation({
     mutationFn: (body: Record<string, string | number>) =>
       api<AiResultDto>('/api/ai/analyze', { body }),
+  });
+}
+
+export function useLegalDocument(doc: LegalDoc, language: string) {
+  return useQuery({
+    queryKey: ['legal', doc, language],
+    queryFn: async () => {
+      const fallback = language === 'de' ? 'en' : 'de';
+      try {
+        const primary = await api<{ markdown: string }>(`/api/legal/${doc}?lang=${language}`);
+        return { markdown: primary.markdown, language };
+      } catch (error) {
+        if (!(error instanceof ApiError) || error.status !== 404) throw error;
+        const other = await api<{ markdown: string }>(`/api/legal/${doc}?lang=${fallback}`);
+        return { markdown: other.markdown, language: fallback };
+      }
+    },
+    retry: false,
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useDeleteAccount() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { confirmEmail: string; password?: string }) =>
+      api('/api/me/delete', { body }),
+    onSuccess: () => {
+      queryClient.clear();
+      queryClient.setQueryData(meKey, null);
+    },
   });
 }

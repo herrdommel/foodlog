@@ -44,7 +44,9 @@
     "confirmPassword": "Passwort wiederholen",
     "passwordMismatch": "Die Passwörter stimmen nicht überein.",
     "resetDone": "Dein Passwort wurde geändert. Du kannst dich jetzt anmelden.",
-    "missingToken": "Der Link ist unvollständig."
+    "missingToken": "Der Link ist unvollständig.",
+    "acceptPrivacy": "Ich habe die <privacy>Datenschutzerklärung</privacy> gelesen und willige in die Verarbeitung meiner Gesundheitsdaten zur Bereitstellung der App ein (Art. 9 Abs. 2 lit. a DSGVO). Die Einwilligung kann ich jederzeit widerrufen, indem ich mein Konto lösche.",
+    "privacyRequired": "Bitte stimme der Datenschutzerklärung zu, um dich zu registrieren."
   },
   "profile": {
     "title": "Profil",
@@ -71,7 +73,21 @@
     "passwordSent": "Der Link wurde gesendet.",
     "sendResetLink": "Reset-Link senden",
     "emailConfirmTitle": "E-Mail-Adresse bestätigen",
-    "emailConfirmed": "Deine neue E-Mail-Adresse ist bestätigt."
+    "emailConfirmed": "Deine neue E-Mail-Adresse ist bestätigt.",
+    "data": {
+      "title": "Deine Daten",
+      "text": "Du kannst alle zu dir gespeicherten Daten als JSON-Datei herunterladen. Sie enthält Profil, Einträge, eigene Zutaten, Vorlagen und Einstellungen, aber keine Passwörter oder Schlüssel.",
+      "export": "Daten als JSON herunterladen"
+    },
+    "delete": {
+      "title": "Konto löschen",
+      "text": "Dein Konto und alle zugehörigen Daten werden sofort und endgültig gelöscht: Einträge, eigene Zutaten, Vorlagen, gespeicherte KI-Schlüssel und Einstellungen. Das kann nicht rückgängig gemacht werden. In Sicherungskopien können Daten noch bis zum Ablauf der Aufbewahrungsfrist enthalten sein. Lade vorher deine Daten herunter, wenn du sie behalten möchtest.",
+      "start": "Konto löschen …",
+      "confirmEmail": "Zur Bestätigung deine E-Mail-Adresse eingeben",
+      "password": "Passwort",
+      "submit": "Konto endgültig löschen",
+      "cancel": "Abbrechen"
+    }
   },
   "errors": {
     "generic": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
@@ -106,9 +122,12 @@
     "ai_refused": "Der Anbieter hat die Antwort verweigert.",
     "provider_unreachable": "Der Anbieter ist nicht erreichbar.",
     "ai_failed": "Die KI-Anfrage ist fehlgeschlagen.",
-    "consent_required": "Dafür ist deine Einwilligung nötig.",
+    "consent_required": "Dafür ist deine Einwilligung nötig. Für eine Neuanmeldung mit Google bitte zuerst über „Registrieren“ der Datenschutzerklärung zustimmen.",
     "ai_not_configured": "Wähle zuerst Anbieter und Modell und speichere einen Key.",
-    "key_unreadable": "Der gespeicherte Key ist nicht mehr lesbar. Bitte gib ihn erneut ein."
+    "key_unreadable": "Der gespeicherte Key ist nicht mehr lesbar. Bitte gib ihn erneut ein.",
+    "email_mismatch": "Die E-Mail-Adresse stimmt nicht mit deinem Konto überein.",
+    "last_admin": "Der letzte Administrator kann das Konto nicht löschen. Ernenne zuerst eine weitere Person zum Administrator.",
+    "not_configured": "Dieser Text wurde vom Betreiber noch nicht hinterlegt."
   },
   "tracking": {
     "today": "Heute",
@@ -481,5 +500,14 @@
       "differentData": "Die Daten haben sich seit der Vorschau geändert."
     },
     "link": "KI-Auswertung"
+  },
+  "legal": {
+    "privacy": "Datenschutzerklärung",
+    "imprint": "Impressum",
+    "footer": "Rechtliches",
+    "notConfigured": "Dieser Text wurde vom Betreiber noch nicht hinterlegt.",
+    "onlyGerman": "Dieser Text liegt nur auf Deutsch vor.",
+    "onlyEnglish": "This text is only available in English.",
+    "loading": "Wird geladen …"
   }
 }

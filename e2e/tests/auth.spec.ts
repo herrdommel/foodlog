@@ -32,6 +32,7 @@ test('registers with an invitation, confirms the email and signs in', async ({ p
   await page.getByLabel('Name').fill('Anna Beispiel');
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password').fill(PASSWORD);
+  await page.getByRole('checkbox', { name: /privacy policy/ }).check();
   await page.getByRole('button', { name: 'Sign up' }).click();
   await expect(page.getByText('Please check your inbox')).toBeVisible();
 

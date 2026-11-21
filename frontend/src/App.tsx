@@ -12,6 +12,7 @@ import { AiPage } from './pages/Ai.tsx';
 import { AnalysisPage } from './pages/Analysis.tsx';
 import { DashboardPage } from './pages/Dashboard.tsx';
 import { IngredientsPage } from './pages/Ingredients.tsx';
+import { LegalPage } from './pages/Legal.tsx';
 import { LoginPage } from './pages/Login.tsx';
 import { ProfilePage } from './pages/Profile.tsx';
 import { ReportPage } from './pages/Report.tsx';
@@ -63,6 +64,8 @@ export function AppRoutes() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       </Route>
+      <Route path="/privacy" element={<LegalPage doc="privacy" />} />
+      <Route path="/imprint" element={<LegalPage doc="imprint" />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/confirm-email" element={<ConfirmEmailChangePage />} />

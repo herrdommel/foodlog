@@ -1,8 +1,10 @@
 import { useRef, useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { LOCALES, PRESET_AVATAR_COUNT, type Locale, type PublicUser } from '@foodlog/shared';
 import {
   useMe,
+  useDeleteAccount,
   useRequestEmailChange,
   useRequestPasswordReset,
   useUpdateProfile,
@@ -205,6 +207,80 @@ function PasswordCard() {
   );
 }
 
+function DataCard() {
+  const { t } = useTranslation();
+  return (
+    <Card title={t('profile.data.title')}>
+      <p className="text-sm text-fg/75">{t('profile.data.text')}</p>
+      <a
+        href="/api/me/export"
+        download
+        className="inline-block rounded-lg border border-fg/20 bg-raised px-4 py-2 font-medium hover:border-accent"
+      >
+        {t('profile.data.export')}
+      </a>
+    </Card>
+  );
+}
+
+function DeleteCard({ user }: { user: PublicUser }) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const remove = useDeleteAccount();
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    remove.mutate(
+      { confirmEmail: email, password: user.hasPassword ? password : undefined },
+      { onSuccess: () => navigate('/login', { replace: true }) },
+    );
+  };
+
+  return (
+    <Card title={t('profile.delete.title')}>
+      <p className="text-sm text-fg/75">{t('profile.delete.text')}</p>
+      {!open ? (
+        <Button type="button" variant="secondary" onClick={() => setOpen(true)}>
+          {t('profile.delete.start')}
+        </Button>
+      ) : (
+        <form onSubmit={submit} className="space-y-4">
+          <ErrorMessage error={remove.error} />
+          <Field
+            label={t('profile.delete.confirmEmail')}
+            type="email"
+            autoComplete="off"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+          {user.hasPassword && (
+            <Field
+              label={t('profile.delete.password')}
+              type="password"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+          )}
+          <div className="flex gap-3">
+            <Button type="submit" disabled={remove.isPending}>
+              {t('profile.delete.submit')}
+            </Button>
+            <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
+              {t('profile.delete.cancel')}
+            </Button>
+          </div>
+        </form>
+      )}
+    </Card>
+  );
+}
+
 export function ProfilePage() {
   const { t } = useTranslation();
   const { data: me } = useMe();
@@ -217,6 +293,8 @@ export function ProfilePage() {
       <AvatarCard user={me.user} />
       <EmailCard user={me.user} />
       <PasswordCard />
+      <DataCard />
+      <DeleteCard user={me.user} />
     </>
   );
 }

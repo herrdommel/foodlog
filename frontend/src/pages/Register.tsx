@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import type { Locale } from '@foodlog/shared';
 import { useAuthConfig, useRegister } from '../api/hooks.ts';
 import { Button, ErrorMessage, Field, Notice } from '../components/ui.tsx';
@@ -16,15 +16,18 @@ export function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [accepted, setAccepted] = useState(false);
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
+    if (!accepted) return;
     register.mutate({
       name,
       email,
       password,
       locale: i18n.language as Locale,
       inviteToken: invite ?? undefined,
+      acceptPrivacy: true,
     });
   };
 
@@ -67,13 +70,37 @@ export function RegisterPage() {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
-          <Button type="submit" disabled={register.isPending} className="w-full">
+          <label className="flex items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              required
+              className="mt-1"
+              checked={accepted}
+              onChange={(event) => setAccepted(event.target.checked)}
+            />
+            <span>
+              <Trans
+                i18nKey="auth.acceptPrivacy"
+                components={{
+                  privacy: (
+                    <Link
+                      to="/privacy"
+                      target="_blank"
+                      rel="noopener"
+                      className="text-accent underline"
+                    />
+                  ),
+                }}
+              />
+            </span>
+          </label>
+          <Button type="submit" disabled={register.isPending || !accepted} className="w-full">
             {t('auth.register')}
           </Button>
           {config.data?.googleLogin && (
             <>
               <p className="text-center text-sm text-fg/75">{t('common.or')}</p>
-              <GoogleButton invite={invite} />
+              <GoogleButton invite={invite} consent={accepted} disabled={!accepted} />
             </>
           )}
         </form>

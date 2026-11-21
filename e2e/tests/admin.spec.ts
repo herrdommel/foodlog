@@ -68,6 +68,7 @@ test('invites a new user who can register with the link', async ({ browser }) =>
   await guest.getByLabel('Name').fill('Invited Person');
   await guest.getByLabel('Email').fill(email);
   await guest.getByLabel('Password').fill(PASSWORD);
+  await guest.getByRole('checkbox', { name: /privacy policy/ }).check();
   await guest.getByRole('button', { name: 'Sign up' }).click();
   await expect(guest.getByText('Please check your inbox')).toBeVisible();
 
@@ -76,7 +77,9 @@ test('invites a new user who can register with the link', async ({ browser }) =>
   await admin.goto('/admin/users');
   await admin.getByLabel('Search by name or email').fill(email);
   await expect(admin.getByRole('table').getByText(email)).toBeVisible();
-  await expect(admin.getByText('Email unconfirmed')).toBeVisible();
+  await expect(
+    admin.getByRole('row').filter({ hasText: email }).getByText('Email unconfirmed'),
+  ).toBeVisible();
 });
 
 test('revokes an open invitation', async ({ browser }) => {
@@ -95,6 +98,7 @@ test('revokes an open invitation', async ({ browser }) => {
   await guest.getByLabel('Name').fill('Too Late');
   await guest.getByLabel('Email').fill('revoke-me@example.com');
   await guest.getByLabel('Password').fill(PASSWORD);
+  await guest.getByRole('checkbox', { name: /privacy policy/ }).check();
   await guest.getByRole('button', { name: 'Sign up' }).click();
   await expect(guest.getByRole('alert')).toHaveText('The invitation is invalid or has expired.');
 });
