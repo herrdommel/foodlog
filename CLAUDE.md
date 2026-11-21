@@ -100,6 +100,14 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Release images get SBOM and provenance attestations.
 - `SECURITY.md` with private vulnerability reporting enabled.
 
+## CI/CD notes
+
+- Workflows: `ci.yml`, `codeql.yml`, `audit.yml` (weekly), `release.yml` (release-please, then image and frontend tarball publish in the same workflow). Deploy workflow is still to do.
+- Tags and PRs created with `GITHUB_TOKEN` do not trigger other workflows. That is why publishing lives inside `release.yml`. Consequence: CI does not run on the release-please PR itself; fix later with a GitHub App or PAT if it matters.
+- Docker base image is pinned by digest, Dependabot keeps it current.
+- `@foodlog/shared` is TypeScript source. Once the backend imports it at runtime, it needs a JS build step (Node does not strip types inside `node_modules`, and `pnpm deploy` copies it there). Solve this when the first runtime import is added.
+- Backend integration tests will need a MariaDB service in `ci.yml`, and Playwright E2E a compose stack. Add both with the first tests that need them.
+
 ## Conventions
 
 - TypeScript strict, ESM, no `any`.
@@ -112,5 +120,6 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - [x] Brainstorming, decisions above
 - [x] CLAUDE.md, git init, logos copied
 - [x] Plan agreed
-- [x] M0 scaffold (monorepo, backend health + env config, Drizzle setup, frontend shell, dev compose, lint/test setup). Docker/DB path not yet verified end to end.
-- [ ] Next: CI workflows, then M1 auth, M2 tracking, M3 analysis, M4 AI, M5 admin (incl. public registration switch), M6 GDPR/ops, deploy
+- [x] M0 scaffold (monorepo, backend health + env config, Drizzle setup, frontend shell, dev compose, lint/test setup). Docker, migration and health check verified locally.
+- [x] CI workflows, Dockerfile, Dependabot, SECURITY.md (not yet run on GitHub)
+- [ ] Next: M1 auth, M2 tracking, M3 analysis, M4 AI, M5 admin (incl. public registration switch), M6 GDPR/ops, deploy
