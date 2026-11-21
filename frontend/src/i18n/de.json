@@ -16,7 +16,8 @@
     "profile": "Profil",
     "ingredients": "Zutaten",
     "analysis": "Auswertung",
-    "admin": "Admin"
+    "admin": "Admin",
+    "ai": "KI"
   },
   "auth": {
     "loginTitle": "Anmelden",
@@ -98,7 +99,16 @@
     "invite_used": "Diese Einladung wurde bereits verwendet.",
     "feature_disabled": "Diese Funktion ist deaktiviert.",
     "forbidden": "Dafür fehlt die Berechtigung.",
-    "unauthenticated": "Bitte melde dich an."
+    "unauthenticated": "Bitte melde dich an.",
+    "invalid_api_key": "Der Anbieter hat den API-Key abgelehnt.",
+    "invalid_model": "Der Anbieter kennt dieses Modell nicht.",
+    "ai_rate_limited": "Das Limit des Anbieters ist erreicht. Bitte später erneut versuchen.",
+    "ai_refused": "Der Anbieter hat die Antwort verweigert.",
+    "provider_unreachable": "Der Anbieter ist nicht erreichbar.",
+    "ai_failed": "Die KI-Anfrage ist fehlgeschlagen.",
+    "consent_required": "Dafür ist deine Einwilligung nötig.",
+    "ai_not_configured": "Wähle zuerst Anbieter und Modell und speichere einen Key.",
+    "key_unreadable": "Der gespeicherte Key ist nicht mehr lesbar. Bitte gib ihn erneut ein."
   },
   "tracking": {
     "today": "Heute",
@@ -420,5 +430,56 @@
       "valueOff": "aus",
       "valueDefault": "Standard"
     }
+  },
+  "ai": {
+    "title": "KI-Auswertung",
+    "intro": "Lass deine Auswertung von einem KI-Modell zusammenfassen und einordnen. Dafür brauchst du einen eigenen API-Key bei Anthropic oder OpenAI. Die Nutzung wird über deinen Key bei dem Anbieter abgerechnet.",
+    "disclaimer": "Die Antwort einer KI ist keine medizinische Beratung und kann Fehler enthalten. Besprich Beschwerden mit einer Ärztin oder einem Arzt.",
+    "provider": {
+      "title": "Anbieter und Schlüssel",
+      "anthropic": "Anthropic (Claude)",
+      "openai": "OpenAI",
+      "choose": "Anbieter",
+      "key": "API-Key",
+      "keyHint": "Der Key wird verschlüsselt gespeichert und nie wieder angezeigt. Wir prüfen ihn beim Speichern beim Anbieter.",
+      "save": "Key speichern",
+      "replace": "Key ersetzen",
+      "stored": "Key gespeichert (endet auf {{last4}})",
+      "remove": "Key löschen",
+      "none": "Noch kein Key gespeichert.",
+      "model": "Modell",
+      "loadingModels": "Modelle werden geladen …",
+      "saveModel": "Modell speichern",
+      "modelSaved": "Modell gespeichert",
+      "suggested": "Empfohlen"
+    },
+    "consent": {
+      "title": "Einwilligung",
+      "text": "Wenn du die Auswertung startest, werden deine Gesundheitsdaten (Einträge des gewählten Zeitraums und die statistische Voranalyse, ohne Name, E-Mail und Notizen) an den gewählten Anbieter gesendet und dort verarbeitet. Das sind Daten besonderer Kategorie nach Art. 9 DSGVO. Die Datenschutzerklärung des Anbieters gilt zusätzlich. Du kannst die Einwilligung jederzeit widerrufen.",
+      "checkbox": "Ich willige ein, dass diese Daten bei Start der KI-Auswertung an den gewählten Anbieter gesendet werden.",
+      "given": "Einwilligung erteilt am {{date}}",
+      "withdraw": "Einwilligung widerrufen",
+      "give": "Einwilligung erteilen"
+    },
+    "run": {
+      "title": "Auswertung starten",
+      "preview": "Gesendete Daten anzeigen",
+      "previewTitle": "Diese Daten werden gesendet",
+      "previewIntro": "Genau diese Anweisung und diese Daten gehen an den Anbieter.",
+      "entries": "{{count}} Einträge",
+      "size": "{{size}} KB",
+      "truncated": "Nur die neuesten {{count}} Einträge sind enthalten.",
+      "systemPrompt": "Anweisung an das Modell",
+      "data": "Daten",
+      "hash": "Prüfsumme",
+      "start": "KI-Auswertung starten",
+      "running": "Die Auswertung läuft, das kann etwas dauern …",
+      "needSetup": "Wähle zuerst Anbieter und Modell, speichere einen Key und erteile die Einwilligung.",
+      "result": "Ergebnis",
+      "by": "Erstellt von {{model}} ({{provider}}) am {{date}}",
+      "sameData": "Es wurden genau die angezeigten Daten gesendet.",
+      "differentData": "Die Daten haben sich seit der Vorschau geändert."
+    },
+    "link": "KI-Auswertung"
   }
 }

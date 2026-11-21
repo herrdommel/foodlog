@@ -8,6 +8,7 @@ import { AdminInvitesPage } from './pages/admin/AdminInvites.tsx';
 import { AdminSettingsPage } from './pages/admin/AdminSettings.tsx';
 import { AdminUserDetailPage } from './pages/admin/AdminUserDetail.tsx';
 import { AdminUsersPage } from './pages/admin/AdminUsers.tsx';
+import { AiPage } from './pages/Ai.tsx';
 import { AnalysisPage } from './pages/Analysis.tsx';
 import { DashboardPage } from './pages/Dashboard.tsx';
 import { IngredientsPage } from './pages/Ingredients.tsx';
@@ -32,6 +33,12 @@ function RequireAuth() {
 function RequireAdmin() {
   const { data: me } = useMe();
   if (me?.user.role !== 'admin') return <Navigate to="/" replace />;
+  return <Outlet />;
+}
+
+function RequireFeature({ feature }: { feature: 'ai_analysis' | 'data_export' | 'google_login' }) {
+  const { data: me } = useMe();
+  if (!me?.features[feature]) return <Navigate to="/" replace />;
   return <Outlet />;
 }
 
@@ -64,6 +71,9 @@ export function AppRoutes() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/analysis" element={<AnalysisPage />} />
           <Route path="/report" element={<ReportPage />} />
+          <Route element={<RequireFeature feature="ai_analysis" />}>
+            <Route path="/ai" element={<AiPage />} />
+          </Route>
           <Route path="/ingredients" element={<IngredientsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin" element={<RequireAdmin />}>

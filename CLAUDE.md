@@ -158,6 +158,17 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Invitation links are only returned at creation (only the hash is stored). Public registration is a setting (`public_registration`, default off). Feature flags: global switch beats per-user override (see "Feature flags").
 - E2E: controlled checkboxes (state comes from the server) must be toggled with `click()` plus `toBeChecked()`, not `check()`. Tests that change global settings restore them in `finally`, the E2E database is shared across tests. Dark accent colour is `#4cb38e` (contrast on cards), keep contrast checks green.
 
+## AI analysis notes (M4)
+
+- Gated by the `ai_analysis` flag (default off per user). All `/api/ai/*` routes require it; the page redirects when it is off.
+- Providers use the official SDKs (`@anthropic-ai/sdk`, `openai`), never hand-written HTTP. The SDKs get an injectable `fetch`, which is how the adapters are tested. The Anthropic SDK 1.x sends `Authorization: Bearer`, not `x-api-key`. OpenAI uses the Responses API with `store: false` (health data must not be stored at the provider). Models are listed live with the user's key (no hard-coded model lists). `claude-opus-5-5` is only the pre-selected suggestion if the account has it.
+- Not enabled on purpose: server-side refusal fallbacks (beta parameter we cannot verify without a live key). A refusal is mapped to `ai_refused`. All provider code is tested against stubbed HTTP only; live calls have never been run.
+- Keys: AES-256-GCM (`lib/secret-box.ts`), ciphertext `v1.<keyId>.<iv>.<tag>.<data>`, bound to `userId:provider` as associated data so a copied value is unreadable for another user. Master key from `API_KEY_ENCRYPTION_KEY`; rotate by setting the new key and listing the old one in `API_KEY_ENCRYPTION_KEY_PREVIOUS`. Keys are never returned, only `last4`. Never log keys, prompts or provider error bodies.
+- Consent: required before any send, versioned (`AI_CONSENT_VERSION`); bump it when the consent text changes, old consents become void. Withdrawing is always possible.
+- The preview and the request are built by the same function (`services/ai/payload.ts`); `payloadHash` (sha256 of system + user message) is returned by both so the UI can show that exactly the previewed data was sent. Notes, email and name are never sent. User text is JSON inside `<data>` tags, the system prompt calls it untrusted; the answer is rendered as plain text only.
+- `AI_MOCK_PROVIDER=true` (dev, tests, E2E) replaces both providers; keys `mock-invalid`, `mock-ratelimit`, `mock-refuse`, `mock-down`, `mock-broken` simulate failures. It is refused in production by `loadConfig`.
+- Primary button hover uses `bg-brand-hover` (a darker tone). Opacity hovers lower contrast below 4.5:1.
+
 ## Conventions
 
 - TypeScript strict, ESM, no `any`.
@@ -179,4 +190,5 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - [x] M3 ingredients page and analysis (suspects, charts)
 - [x] M3 export (CSV, printable report) and feature gate
 - [x] M5 admin (users, invitations, settings, feature flags, activity log)
+- [x] M4 AI analysis (encrypted keys, consent, preview, mock provider)
 - [ ] Next: M1 auth, M2 tracking, M3 analysis, M4 AI, M5 admin (incl. public registration switch), M6 GDPR/ops, deploy

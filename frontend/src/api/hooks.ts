@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AI_CONSENT_VERSION } from '@foodlog/shared';
 import type {
   AdminSettingsDto,
+  AiModelsDto,
+  AiPreviewDto,
+  AiProviderId,
+  AiResultDto,
+  AiSettingsDto,
   AdminUserDetailDto,
   AdminUsersPageDto,
   Allergen,
@@ -395,5 +401,80 @@ export function useAdminAudit() {
   return useQuery({
     queryKey: ['admin', 'audit'],
     queryFn: () => api<AuditEntryDto[]>('/api/admin/audit?limit=30'),
+  });
+}
+
+export const aiSettingsKey = ['ai', 'settings'] as const;
+
+export function useAiSettings() {
+  return useQuery({
+    queryKey: aiSettingsKey,
+    queryFn: () => api<AiSettingsDto>('/api/ai/settings'),
+  });
+}
+
+function useAiSettingsMutation<TVariables>(
+  mutationFn: (variables: TVariables) => Promise<AiSettingsDto>,
+) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn,
+    onSuccess: (data) => {
+      queryClient.setQueryData(aiSettingsKey, data);
+      void queryClient.invalidateQueries({ queryKey: ['ai', 'models'] });
+    },
+  });
+}
+
+export function useSaveAiKey() {
+  return useAiSettingsMutation(({ provider, apiKey }: { provider: AiProviderId; apiKey: string }) =>
+    api<AiSettingsDto>(`/api/ai/keys/${provider}`, { method: 'PUT', body: { apiKey } }),
+  );
+}
+
+export function useDeleteAiKey() {
+  return useAiSettingsMutation((provider: AiProviderId) =>
+    api<AiSettingsDto>(`/api/ai/keys/${provider}`, { method: 'DELETE' }),
+  );
+}
+
+export function useUpdateAiSettings() {
+  return useAiSettingsMutation(
+    (body: Partial<{ provider: AiProviderId | null; model: string | null }>) =>
+      api<AiSettingsDto>('/api/ai/settings', { method: 'PATCH', body }),
+  );
+}
+
+export function useGiveAiConsent() {
+  return useAiSettingsMutation(() =>
+    api<AiSettingsDto>('/api/ai/consent', { body: { version: AI_CONSENT_VERSION } }),
+  );
+}
+
+export function useWithdrawAiConsent() {
+  return useAiSettingsMutation(() => api<AiSettingsDto>('/api/ai/consent', { method: 'DELETE' }));
+}
+
+export function useAiModels(provider: AiProviderId | null, enabled: boolean) {
+  return useQuery({
+    queryKey: ['ai', 'models', provider],
+    queryFn: () => api<AiModelsDto>(`/api/ai/models?provider=${provider}`),
+    enabled: enabled && provider !== null,
+    retry: false,
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useAiPreview() {
+  return useMutation({
+    mutationFn: (body: Record<string, string | number>) =>
+      api<AiPreviewDto>('/api/ai/preview', { body }),
+  });
+}
+
+export function useAiAnalyze() {
+  return useMutation({
+    mutationFn: (body: Record<string, string | number>) =>
+      api<AiResultDto>('/api/ai/analyze', { body }),
   });
 }

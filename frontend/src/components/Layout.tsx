@@ -50,6 +50,11 @@ export function AppLayout() {
           <NavLink to="/analysis" className={link}>
             {t('nav.analysis')}
           </NavLink>
+          {me?.features.ai_analysis && (
+            <NavLink to="/ai" className={link}>
+              {t('nav.ai')}
+            </NavLink>
+          )}
           <NavLink to="/ingredients" className={link}>
             {t('nav.ingredients')}
           </NavLink>

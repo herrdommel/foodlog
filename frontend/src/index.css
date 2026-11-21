@@ -26,6 +26,7 @@
 @theme inline {
   --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
   --color-brand: var(--color-brand);
+  --color-brand-hover: #17503e;
   --color-cream: var(--color-cream);
   --color-coral: var(--color-coral);
   --color-ink: var(--color-ink);

@@ -135,21 +135,36 @@ export function AnalysisPage() {
         </div>
       </Card>
 
-      {me?.features.data_export && (
+      {(me?.features.data_export || me?.features.ai_analysis) && (
         <div className="flex flex-wrap gap-3">
-          <a
-            href={`/api/export/entries.csv?from=${params.from}&to=${params.to}`}
-            download
-            className="rounded-lg border border-fg/20 bg-raised px-4 py-2 font-medium hover:border-accent"
-          >
-            {t('analysis.export.csv')}
-          </a>
-          <Link
-            to={{ pathname: '/report', search: `?${new URLSearchParams(toSearchParams(params))}` }}
-            className="rounded-lg border border-fg/20 bg-raised px-4 py-2 font-medium hover:border-accent"
-          >
-            {t('analysis.export.report')}
-          </Link>
+          {me.features.data_export && (
+            <>
+              <a
+                href={`/api/export/entries.csv?from=${params.from}&to=${params.to}`}
+                download
+                className="rounded-lg border border-fg/20 bg-raised px-4 py-2 font-medium hover:border-accent"
+              >
+                {t('analysis.export.csv')}
+              </a>
+              <Link
+                to={{
+                  pathname: '/report',
+                  search: `?${new URLSearchParams(toSearchParams(params))}`,
+                }}
+                className="rounded-lg border border-fg/20 bg-raised px-4 py-2 font-medium hover:border-accent"
+              >
+                {t('analysis.export.report')}
+              </Link>
+            </>
+          )}
+          {me.features.ai_analysis && (
+            <Link
+              to={{ pathname: '/ai', search: `?${new URLSearchParams(toSearchParams(params))}` }}
+              className="rounded-lg border border-fg/20 bg-raised px-4 py-2 font-medium hover:border-accent"
+            >
+              {t('ai.link')}
+            </Link>
+          )}
         </div>
       )}
 

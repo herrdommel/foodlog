@@ -16,7 +16,8 @@
     "profile": "Profile",
     "ingredients": "Ingredients",
     "analysis": "Analysis",
-    "admin": "Admin"
+    "admin": "Admin",
+    "ai": "AI"
   },
   "auth": {
     "loginTitle": "Sign in",
@@ -98,7 +99,16 @@
     "invite_used": "This invitation was already used.",
     "feature_disabled": "This feature is disabled.",
     "forbidden": "You do not have permission for this.",
-    "unauthenticated": "Please sign in."
+    "unauthenticated": "Please sign in.",
+    "invalid_api_key": "The provider rejected the API key.",
+    "invalid_model": "The provider does not know this model.",
+    "ai_rate_limited": "The provider limit was reached. Please try again later.",
+    "ai_refused": "The provider declined to answer.",
+    "provider_unreachable": "The provider could not be reached.",
+    "ai_failed": "The AI request failed.",
+    "consent_required": "Your consent is required for this.",
+    "ai_not_configured": "Choose a provider and a model and store a key first.",
+    "key_unreadable": "The stored key can no longer be read. Please enter it again."
   },
   "tracking": {
     "today": "Today",
@@ -420,5 +430,56 @@
       "valueOff": "off",
       "valueDefault": "default"
     }
+  },
+  "ai": {
+    "title": "AI analysis",
+    "intro": "Have an AI model summarise and put your analysis into context. You need your own API key from Anthropic or OpenAI. Usage is billed to your key by the provider.",
+    "disclaimer": "An AI answer is not medical advice and can contain mistakes. Talk to a doctor about symptoms.",
+    "provider": {
+      "title": "Provider and key",
+      "anthropic": "Anthropic (Claude)",
+      "openai": "OpenAI",
+      "choose": "Provider",
+      "key": "API key",
+      "keyHint": "The key is stored encrypted and never shown again. It is checked with the provider when you save it.",
+      "save": "Save key",
+      "replace": "Replace key",
+      "stored": "Key stored (ends in {{last4}})",
+      "remove": "Delete key",
+      "none": "No key stored yet.",
+      "model": "Model",
+      "loadingModels": "Loading models …",
+      "saveModel": "Save model",
+      "modelSaved": "Model saved",
+      "suggested": "Recommended"
+    },
+    "consent": {
+      "title": "Consent",
+      "text": "When you start the analysis, your health data (entries of the selected period and the statistical pre-analysis, without name, email and notes) is sent to the selected provider and processed there. This is special category data under Art. 9 GDPR. The provider's privacy policy applies in addition. You can withdraw your consent at any time.",
+      "checkbox": "I consent to this data being sent to the selected provider when I start the AI analysis.",
+      "given": "Consent given on {{date}}",
+      "withdraw": "Withdraw consent",
+      "give": "Give consent"
+    },
+    "run": {
+      "title": "Start analysis",
+      "preview": "Show data to be sent",
+      "previewTitle": "This data will be sent",
+      "previewIntro": "Exactly this instruction and this data go to the provider.",
+      "entries": "{{count}} entries",
+      "size": "{{size}} KB",
+      "truncated": "Only the most recent {{count}} entries are included.",
+      "systemPrompt": "Instruction for the model",
+      "data": "Data",
+      "hash": "Checksum",
+      "start": "Start AI analysis",
+      "running": "The analysis is running, this can take a moment …",
+      "needSetup": "Choose a provider and a model, store a key and give your consent first.",
+      "result": "Result",
+      "by": "Created by {{model}} ({{provider}}) on {{date}}",
+      "sameData": "Exactly the data shown was sent.",
+      "differentData": "The data changed since the preview."
+    },
+    "link": "AI analysis"
   }
 }

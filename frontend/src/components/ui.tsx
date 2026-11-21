@@ -68,7 +68,7 @@ export function Button({
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' }) {
   const styles =
     variant === 'primary'
-      ? 'bg-brand text-cream hover:opacity-90'
+      ? 'bg-brand text-cream hover:bg-brand-hover'
       : 'border border-fg/20 bg-raised hover:border-accent';
   return (
     <button
