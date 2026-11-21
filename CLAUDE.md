@@ -107,7 +107,10 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Tags and PRs created with `GITHUB_TOKEN` do not trigger other workflows. That is why publishing lives inside `release.yml`. Consequence: CI does not run on the release-please PR itself; fix later with a GitHub App or PAT if it matters.
 - Docker base image is pinned by digest, Dependabot keeps it current.
 - `@foodlog/shared` is TypeScript source and a devDependency of the backend. `backend/build.mjs` (esbuild) bundles it into `dist/`, all other dependencies stay external. The frontend consumes it through Vite.
-- Backend integration tests run against a real MariaDB (`foodlog_test`, created by `docker/mariadb-init/`, a service container in CI). Playwright E2E needs a compose stack, add it with the first E2E tests.
+- Backend integration tests run against a real MariaDB (`foodlog_test`, created by `docker/mariadb-init/`, a service container in CI).
+- E2E (`e2e/`, Playwright + axe): `pnpm e2e` runs the suite, `pnpm --filter @foodlog/e2e screenshots` writes PNGs to `e2e/screenshots/` (gitignored). Playwright starts its own backend (`backend/test/e2e-server.ts`, port 3100, in-memory mailer, `/__test/*` helpers) and Vite (port 5174) against the `foodlog_test` database, so it needs the dev DB (`docker compose -f compose.dev.yml up -d db`) and must not run at the same time as the backend tests. Chromium is installed once with `pnpm --filter @foodlog/e2e exec playwright install chromium`.
+- To check UI changes visually: run the screenshots project and look at the PNGs with the Read tool (light/dark, desktop/mobile, DE/EN). Fix a11y findings instead of weakening the axe check (serious/critical must stay at zero).
+- Contrast: use `text-fg/75` or stronger for secondary text, never `text-accent` on `bg-accent/*`.
 
 ## Backend notes
 
@@ -134,4 +137,5 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - [x] CI workflows, Dockerfile, Dependabot, SECURITY.md (not yet run on GitHub)
 - [x] M1 backend (auth, sessions, invites, Google, profile, avatar, email change, feature flag resolution)
 - [x] M1 frontend (login, register, verify, forgot/reset, profile with avatar and email change, DE/EN, brand font)
+- [x] Playwright E2E + a11y + screenshots, CI job
 - [ ] Next: M1 auth, M2 tracking, M3 analysis, M4 AI, M5 admin (incl. public registration switch), M6 GDPR/ops, deploy

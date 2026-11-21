@@ -19,7 +19,7 @@ pnpm dev:frontend
 
 The frontend runs on http://localhost:5173 and proxies `/api` to the backend on port 3000. Mailpit (http://localhost:8025) catches all outgoing mail. If those ports are taken (e.g. by a local Mailpit), set `MAILPIT_SMTP_PORT` and `MAILPIT_UI_PORT` in `.env` and point `SMTP_PORT` to the same SMTP port.
 
-Useful commands: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`.
+Useful commands: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm --filter @foodlog/e2e e2e` (end-to-end tests, needs the dev database and a one-time `pnpm --filter @foodlog/e2e exec playwright install chromium`).
 
 ## License
 
