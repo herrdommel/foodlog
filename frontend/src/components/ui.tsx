@@ -23,7 +23,7 @@ export function Field({
         className="w-full rounded-lg border border-fg/20 bg-raised px-3 py-2 outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
       />
       {hint && (
-        <p id={hintId} className="text-xs text-fg/60">
+        <p id={hintId} className="text-xs text-fg/75">
           {hint}
         </p>
       )}

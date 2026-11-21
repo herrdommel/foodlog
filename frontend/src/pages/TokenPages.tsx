@@ -100,7 +100,7 @@ export function ForgotPasswordPage() {
   return (
     <PublicLayout>
       <h1 className="mb-2 text-2xl font-bold">{t('auth.forgotTitle')}</h1>
-      <p className="mb-6 text-sm text-fg/70">{t('auth.forgotText')}</p>
+      <p className="mb-6 text-sm text-fg/75">{t('auth.forgotText')}</p>
       {forgot.isSuccess ? (
         <Notice>{t('auth.forgotSent')}</Notice>
       ) : (

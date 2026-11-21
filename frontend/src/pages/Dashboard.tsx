@@ -9,7 +9,7 @@ export function DashboardPage() {
     <>
       <h1 className="text-2xl font-bold">{t('dashboard.greeting', { name: me?.user.name })}</h1>
       <Card>
-        <p className="text-fg/70">{t('dashboard.placeholder')}</p>
+        <p className="text-fg/75">{t('dashboard.placeholder')}</p>
       </Card>
     </>
   );

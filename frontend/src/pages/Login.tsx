@@ -81,7 +81,7 @@ export function LoginPage() {
       </form>
       {config.data?.googleLogin && (
         <div className="mt-4 space-y-4">
-          <p className="text-center text-sm text-fg/60">{t('common.or')}</p>
+          <p className="text-center text-sm text-fg/75">{t('common.or')}</p>
           <GoogleButton />
         </div>
       )}

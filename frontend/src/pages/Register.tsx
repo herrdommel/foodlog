@@ -72,7 +72,7 @@ export function RegisterPage() {
           </Button>
           {config.data?.googleLogin && (
             <>
-              <p className="text-center text-sm text-fg/60">{t('common.or')}</p>
+              <p className="text-center text-sm text-fg/75">{t('common.or')}</p>
               <GoogleButton invite={invite} />
             </>
           )}

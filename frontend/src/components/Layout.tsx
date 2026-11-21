@@ -38,12 +38,12 @@ export function AppLayout() {
   const { data: me } = useMe();
   const logout = useLogout();
   const link = ({ isActive }: { isActive: boolean }) =>
-    `rounded-lg px-3 py-1.5 text-sm font-medium ${isActive ? 'bg-accent/15 text-accent' : 'hover:bg-fg/5'}`;
+    `rounded-lg px-3 py-1.5 text-sm font-medium ${isActive ? 'bg-accent/20 text-fg' : 'hover:bg-fg/5'}`;
   return (
     <div className="mx-auto min-h-screen w-full max-w-3xl px-4 pb-12">
       <header className="flex flex-wrap items-center justify-between gap-3 py-4">
         <Logo />
-        <nav className="flex items-center gap-1">
+        <nav className="order-last flex w-full items-center gap-1 sm:order-none sm:w-auto">
           <NavLink to="/" end className={link}>
             {t('nav.dashboard')}
           </NavLink>

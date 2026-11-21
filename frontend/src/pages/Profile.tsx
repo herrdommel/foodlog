@@ -20,13 +20,13 @@ function AccountCard({ user }: { user: PublicUser }) {
   return (
     <Card title={t('profile.account')}>
       <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
-        <dt className="text-fg/60">{t('common.email')}</dt>
+        <dt className="text-fg/75">{t('common.email')}</dt>
         <dd>{user.email}</dd>
-        <dt className="text-fg/60">{t('profile.role')}</dt>
+        <dt className="text-fg/75">{t('profile.role')}</dt>
         <dd>{t(`profile.roles.${user.role}`)}</dd>
         {user.googleLinked && (
           <>
-            <dt className="text-fg/60">Google</dt>
+            <dt className="text-fg/75">Google</dt>
             <dd>{t('profile.googleLinked')}</dd>
           </>
         )}
@@ -113,7 +113,7 @@ function AvatarCard({ user }: { user: PublicUser }) {
           <Button type="button" variant="secondary" onClick={() => input.current?.click()}>
             {t('profile.uploadAvatar')}
           </Button>
-          <p className="text-xs text-fg/60">{t('profile.uploadHint')}</p>
+          <p className="text-xs text-fg/75">{t('profile.uploadHint')}</p>
           <input
             ref={input}
             type="file"
@@ -196,7 +196,7 @@ function PasswordCard() {
   const reset = useRequestPasswordReset();
   return (
     <Card title={t('profile.passwordTitle')}>
-      <p className="text-sm text-fg/70">{t('profile.passwordText')}</p>
+      <p className="text-sm text-fg/75">{t('profile.passwordText')}</p>
       <ErrorMessage error={reset.error} />
       {reset.isSuccess ? (
         <Notice>{t('profile.passwordSent')}</Notice>
