@@ -95,6 +95,11 @@ for (const variant of variants) {
       await page.getByRole('table', { name: 'Possible intolerances: By ingredient' }).waitFor();
       await page.getByRole('img', { name: 'Complaints per day' }).waitFor();
       await shot(page, `${variant.name}-analysis`);
+      await page.getByRole('link', { name: 'Report for your doctor' }).click();
+      await page.getByRole('table', { name: 'Possible intolerances: By category' }).waitFor();
+      await page.getByRole('img', { name: 'Complaints per day' }).waitFor();
+      await page.emulateMedia({ media: 'print' });
+      await shot(page, `${variant.name}-report-print`);
     });
   });
 }

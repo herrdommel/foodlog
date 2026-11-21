@@ -4,7 +4,7 @@ import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import type { AnalysisDto, IngredientDto, SuspectDto } from '@foodlog/shared';
 import { server } from '../test/server.ts';
-import { mockLoggedIn, renderApp } from '../test/render.tsx';
+import { meResponse, mockLoggedIn, renderApp } from '../test/render.tsx';
 
 const milk: IngredientDto = {
   id: '11111111-1111-4111-8111-111111111111',
@@ -139,6 +139,34 @@ describe('analysis page', () => {
       expect(requests.some((query) => query.get('outcome') === 'stool')).toBe(true),
     );
     expect(screen.getByLabelText('Minimum severity')).toBeDisabled();
+  });
+
+  it('offers csv export and report links for the selected period', async () => {
+    mockAnalysis();
+    renderApp('/analysis?from=2026-01-01&to=2026-01-30&window=24&outcome=bloating&minSeverity=5');
+    const csv = await screen.findByRole('link', { name: 'Export as CSV' });
+    expect(csv).toHaveAttribute('href', '/api/export/entries.csv?from=2026-01-01&to=2026-01-30');
+    expect(csv).toHaveAttribute('download');
+    const report = screen.getByRole('link', { name: 'Report for your doctor' });
+    const href = report.getAttribute('href')!;
+    expect(href).toContain('/report?');
+    const query = new URLSearchParams(href.split('?')[1]);
+    expect(Object.fromEntries(query)).toEqual({
+      from: '2026-01-01',
+      to: '2026-01-30',
+      window: '24',
+      outcome: 'bloating',
+      minSeverity: '5',
+    });
+  });
+
+  it('hides export options when the feature is disabled', async () => {
+    mockAnalysis();
+    mockLoggedIn({ ...meResponse, features: { ...meResponse.features, data_export: false } });
+    renderApp('/analysis');
+    await screen.findByRole('note');
+    expect(screen.queryByRole('link', { name: 'Export as CSV' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Report for your doctor' })).not.toBeInTheDocument();
   });
 
   it('applies period presets', async () => {

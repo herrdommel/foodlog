@@ -74,3 +74,10 @@ export async function seedDemoData(page: Page, email: string) {
   });
   expect(response.ok()).toBe(true);
 }
+
+export async function setFeature(page: Page, email: string, key: string, enabled: boolean) {
+  const response = await page.request.get('http://127.0.0.1:3100/__test/feature', {
+    params: { email, key, enabled: String(enabled) },
+  });
+  expect(response.ok()).toBe(true);
+}

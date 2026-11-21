@@ -5,7 +5,7 @@ import { buildApp } from '../src/app.ts';
 import { loadConfig } from '../src/config.ts';
 import { createDb } from '../src/db/client.ts';
 import { insertDemoEntries } from '../src/db/demo-data.ts';
-import { invites, users } from '../src/db/schema.ts';
+import { invites, userFeatureOverrides, users } from '../src/db/schema.ts';
 import { hashToken, newId, newToken } from '../src/lib/crypto.ts';
 import { DAY, inFuture } from '../src/lib/time.ts';
 import { createMemoryMailer } from '../src/services/mail.ts';
@@ -41,6 +41,17 @@ app.get('/__test/seed-demo', async (request) => {
   return {
     inserted: await insertDemoEntries(db, user.id, { timezone: timezone ?? user.timezone }),
   };
+});
+
+app.get('/__test/feature', async (request) => {
+  const { email, key, enabled } = request.query as { email: string; key: string; enabled: string };
+  const [user] = await db.select().from(users).where(eq(users.email, email));
+  if (!user) return { updated: false };
+  await db
+    .insert(userFeatureOverrides)
+    .values({ userId: user.id, key, enabled: enabled === 'true' })
+    .onDuplicateKeyUpdate({ set: { enabled: enabled === 'true' } });
+  return { updated: true };
 });
 
 app.get('/__test/invite', async () => {

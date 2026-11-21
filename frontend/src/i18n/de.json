@@ -263,6 +263,22 @@
       "heatmap": "Beschwerden nach Wochentag und Uhrzeit",
       "weekdays": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
       "noData": "Keine Daten im Zeitraum."
+    },
+    "export": {
+      "csv": "Als CSV exportieren",
+      "report": "Bericht für die Ärztin oder den Arzt"
     }
+  },
+  "report": {
+    "title": "Foodlog-Bericht",
+    "for": "Erstellt für {{name}}",
+    "period": "Zeitraum: {{from}} bis {{to}}",
+    "generated": "Erstellt am {{date}}",
+    "settings": "Einstellungen: {{window}} Stunden Zeitfenster, {{outcome}}",
+    "print": "Drucken oder als PDF speichern",
+    "back": "Zurück zur Auswertung",
+    "summaryTitle": "Zusammenfassung",
+    "methodTitle": "So wurde ausgewertet",
+    "method": "Jede Mahlzeit und jedes Getränk zählt als Gelegenheit. Sie gilt als auffällig, wenn innerhalb des Zeitfensters danach eine Beschwerde eingetragen wurde. Der Risiko-Faktor vergleicht Mahlzeiten mit und ohne die jeweilige Zutat. Zutaten mit weniger als {{exposures}} Mahlzeiten oder {{outcomes}} Beschwerden werden nicht bewertet. Zutaten, die immer gemeinsam gegessen wurden, lassen sich nicht unterscheiden."
   }
 }

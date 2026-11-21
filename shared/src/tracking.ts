@@ -177,6 +177,16 @@ export const analysisQuerySchema = z
   );
 export type AnalysisQuery = z.infer<typeof analysisQuerySchema>;
 
+export const exportQuerySchema = z
+  .object({ from: dateSchema, to: dateSchema })
+  .refine((query) => query.from <= query.to, { message: 'from must not be after to', path: ['to'] })
+  .refine(
+    (query) =>
+      (Date.parse(`${query.to}T00:00:00Z`) - Date.parse(`${query.from}T00:00:00Z`)) / 86_400_000 <
+      MAX_ANALYSIS_DAYS,
+    { message: 'period too long', path: ['to'] },
+  );
+
 export type Confidence = 'low' | 'medium' | 'high';
 
 export interface SuspectDto {

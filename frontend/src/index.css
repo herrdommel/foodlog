@@ -45,3 +45,17 @@ body {
   background-color: var(--surface);
   color: var(--text);
 }
+
+@media print {
+  :root {
+    --surface: #ffffff;
+    --surface-raised: #ffffff;
+    --text: #17261f;
+    --accent: #1f6f54;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: #17261f;
+  }
+}

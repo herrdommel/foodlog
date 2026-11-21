@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import {
   ANALYSIS_OUTCOMES,
   ANALYSIS_WINDOWS,
@@ -134,6 +134,24 @@ export function AnalysisPage() {
           </SelectField>
         </div>
       </Card>
+
+      {me?.features.data_export && (
+        <div className="flex flex-wrap gap-3">
+          <a
+            href={`/api/export/entries.csv?from=${params.from}&to=${params.to}`}
+            download
+            className="rounded-lg border border-fg/20 bg-raised px-4 py-2 font-medium hover:border-accent"
+          >
+            {t('analysis.export.csv')}
+          </a>
+          <Link
+            to={{ pathname: '/report', search: `?${new URLSearchParams(toSearchParams(params))}` }}
+            className="rounded-lg border border-fg/20 bg-raised px-4 py-2 font-medium hover:border-accent"
+          >
+            {t('analysis.export.report')}
+          </Link>
+        </div>
+      )}
 
       <ErrorMessage error={analysis.error} />
       {!data && analysis.isPending && <p className="text-fg/75">{t('analysis.loading')}</p>}

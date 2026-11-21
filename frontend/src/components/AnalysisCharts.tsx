@@ -44,6 +44,7 @@ export function SymptomsPerDayChart({ data }: { data: AnalysisDto['symptomsByDay
               itemStyle={{ color: 'var(--text)' }}
             />
             <Bar
+              isAnimationActive={false}
               dataKey="count"
               name={t('analysis.charts.count')}
               fill="var(--highlight)"
@@ -80,6 +81,7 @@ export function BristolChart({ data }: { data: number[] }) {
               itemStyle={{ color: 'var(--text)' }}
             />
             <Bar
+              isAnimationActive={false}
               dataKey="count"
               name={t('analysis.charts.count')}
               fill="var(--accent)"

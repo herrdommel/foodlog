@@ -263,6 +263,22 @@
       "heatmap": "Complaints by weekday and time of day",
       "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
       "noData": "No data in this period."
+    },
+    "export": {
+      "csv": "Export as CSV",
+      "report": "Report for your doctor"
     }
+  },
+  "report": {
+    "title": "Foodlog report",
+    "for": "Prepared for {{name}}",
+    "period": "Period: {{from}} to {{to}}",
+    "generated": "Created on {{date}}",
+    "settings": "Settings: {{window}} hour window, {{outcome}}",
+    "print": "Print or save as PDF",
+    "back": "Back to analysis",
+    "summaryTitle": "Summary",
+    "methodTitle": "How this was calculated",
+    "method": "Every meal and drink counts as an occasion. It is flagged if a complaint was logged within the time window afterwards. The risk factor compares meals with and without the respective ingredient. Ingredients with fewer than {{exposures}} meals or {{outcomes}} complaints are not rated. Ingredients that were always eaten together cannot be told apart."
   }
 }

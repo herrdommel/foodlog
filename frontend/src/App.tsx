@@ -8,6 +8,7 @@ import { DashboardPage } from './pages/Dashboard.tsx';
 import { IngredientsPage } from './pages/Ingredients.tsx';
 import { LoginPage } from './pages/Login.tsx';
 import { ProfilePage } from './pages/Profile.tsx';
+import { ReportPage } from './pages/Report.tsx';
 import { RegisterPage } from './pages/Register.tsx';
 import {
   ConfirmEmailChangePage,
@@ -51,6 +52,7 @@ export function AppRoutes() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/analysis" element={<AnalysisPage />} />
+          <Route path="/report" element={<ReportPage />} />
           <Route path="/ingredients" element={<IngredientsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>

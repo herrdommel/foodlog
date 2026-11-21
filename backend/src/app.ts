@@ -7,9 +7,11 @@ import type { Config } from './config.ts';
 import type { Database } from './db/client.ts';
 import { AppError } from './lib/errors.ts';
 import { registerAuth } from './plugins/auth.ts';
+import { registerFeatures } from './plugins/features.ts';
 import { authRoutes } from './routes/auth.ts';
 import { analysisRoutes } from './routes/analysis.ts';
 import { entryRoutes } from './routes/entries.ts';
+import { exportRoutes } from './routes/export.ts';
 import { googleRoutes } from './routes/google.ts';
 import { ingredientRoutes } from './routes/ingredients.ts';
 import { meRoutes } from './routes/me.ts';
@@ -82,6 +84,7 @@ export async function buildApp(deps: AppDeps) {
   );
 
   registerAuth(app, deps);
+  registerFeatures(app, deps);
 
   app.get('/api/health', async () => ({ status: 'ok' }));
 
@@ -92,6 +95,7 @@ export async function buildApp(deps: AppDeps) {
   await app.register(entryRoutes, deps);
   await app.register(templateRoutes, deps);
   await app.register(analysisRoutes, deps);
+  await app.register(exportRoutes, deps);
 
   return app;
 }

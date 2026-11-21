@@ -141,6 +141,13 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Always show the "hint, not a diagnosis" disclaimer on analysis and report pages.
 - Charts use Recharts (MIT, current). Selects use `SelectField` (separate label), never a label wrapping a select.
 
+## Export notes (M3)
+
+- `GET /api/export/entries.csv?from&to` is gated by `app.requireFeature('data_export')` (global kill switch beats user overrides, 403 `feature_disabled`). The frontend hides the links when `me.features.data_export` is false. Use `requireFeature` for every new optional feature.
+- CSV: UTF-8 with BOM, CRLF, columns `local_time,utc_time,type,title,ingredients,allergens,symptom_type,severity,bristol,note`. Text cells starting with `=`, `+`, `-`, `@`, tab or CR get a leading apostrophe (spreadsheet formula injection). Do not write the BOM as a literal character, use `BOM` from `lib/csv.ts` (Prettier turns `\uFEFF` escapes into the invisible character, which ESLint rejects).
+- The doctor report is a normal page (`/report`) with print styles, no PDF library. Charts have animations switched off, otherwise they print empty. `page.pdf()` in the E2E test only checks that printing works.
+- E2E server helpers (`/__test/*`): `invite`, `mail`, `seed-demo`, `feature`. They exist only in `backend/test/e2e-server.ts`.
+
 ## Conventions
 
 - TypeScript strict, ESM, no `any`.
@@ -160,4 +167,5 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - [x] Playwright E2E + a11y + screenshots, CI job
 - [x] M2 tracking (catalog, tags, entries, templates, dashboard, seed)
 - [x] M3 ingredients page and analysis (suspects, charts)
+- [x] M3 export (CSV, printable report) and feature gate
 - [ ] Next: M1 auth, M2 tracking, M3 analysis, M4 AI, M5 admin (incl. public registration switch), M6 GDPR/ops, deploy
