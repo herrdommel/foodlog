@@ -15,6 +15,20 @@
       "when": 1795300290431,
       "tag": "20261121223130_admin_audit",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1795302176826,
+      "tag": "20261121230256_audit_target_user_and_detail",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1795302178081,
+      "tag": "20261121230258_audit_drop_target",
+      "breakpoints": true
     }
   ]
 }

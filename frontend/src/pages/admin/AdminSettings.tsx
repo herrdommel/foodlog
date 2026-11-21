@@ -1,4 +1,6 @@
+import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import type { AuditPersonDto } from '@foodlog/shared';
 import {
   useAdminAudit,
   useAdminSettings,
@@ -111,26 +113,73 @@ function AuditCard() {
   const { t, i18n } = useTranslation();
   const audit = useAdminAudit();
   const format = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'short', timeStyle: 'short' });
+
+  const value = (raw: string) =>
+    raw === 'true'
+      ? t('admin.settings.valueOn')
+      : raw === 'false'
+        ? t('admin.settings.valueOff')
+        : raw === 'default'
+          ? t('admin.settings.valueDefault')
+          : raw;
+
+  const detail = (action: string, raw: string | null) => {
+    if (!raw) return null;
+    if (action === 'setting.public_registration') return value(raw);
+    if (action === 'user.feature') {
+      const [key = '', setting = ''] = raw.split('=');
+      return `${i18n.exists(`admin.features.${key}`) ? t(`admin.features.${key}`) : key}: ${value(setting)}`;
+    }
+    return raw;
+  };
+
+  const person = (entry: AuditPersonDto | null) =>
+    entry ? `${entry.name} (${entry.email})` : t('admin.settings.deletedAccount');
+
   return (
     <Card title={t('admin.settings.auditTitle')}>
       <ErrorMessage error={audit.error} />
       {audit.data?.length === 0 && <p className="text-fg/75">{t('admin.settings.auditEmpty')}</p>}
       <ul className="divide-y divide-fg/10 text-sm">
-        {audit.data?.map((entry) => (
-          <li key={entry.id} className="space-y-0.5 py-2">
-            <p>
-              <span className="font-medium">
-                {i18n.exists(`admin.settings.actions.${entry.action}`)
-                  ? t(`admin.settings.actions.${entry.action}`)
-                  : entry.action}
-              </span>
-              {entry.target && <span className="text-fg/75">: {entry.target}</span>}
-            </p>
-            <p className="text-fg/75">
-              {entry.actor ?? '–'} · {format.format(new Date(entry.createdAt))}
-            </p>
-          </li>
-        ))}
+        {audit.data?.map((entry) => {
+          const concernsUser = entry.action.startsWith('user.');
+          const extra = detail(entry.action, entry.detail);
+          return (
+            <li key={entry.id} className="space-y-0.5 py-2">
+              <p>
+                <span className="font-medium">
+                  {i18n.exists(`admin.settings.actions.${entry.action}`)
+                    ? t(`admin.settings.actions.${entry.action}`)
+                    : entry.action}
+                </span>
+                {concernsUser && (
+                  <span className="text-fg/75">
+                    {': '}
+                    {entry.targetUser ? (
+                      <Link
+                        to={`/admin/users/${entry.targetUser.id}`}
+                        className="text-accent hover:underline"
+                      >
+                        {person(entry.targetUser)}
+                      </Link>
+                    ) : (
+                      person(null)
+                    )}
+                  </span>
+                )}
+                {extra && (
+                  <span className="text-fg/75">
+                    {concernsUser ? ' · ' : ': '}
+                    {extra}
+                  </span>
+                )}
+              </p>
+              <p className="text-fg/75">
+                {person(entry.actor)} · {format.format(new Date(entry.createdAt))}
+              </p>
+            </li>
+          );
+        })}
       </ul>
     </Card>
   );

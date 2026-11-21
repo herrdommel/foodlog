@@ -227,7 +227,10 @@ export const adminAudit = mysqlTable(
       onDelete: 'set null',
     }),
     action: varchar('action', { length: 48 }).notNull(),
-    target: varchar('target', { length: 255 }),
+    targetUserId: varchar('target_user_id', { length: 36 }).references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    detail: varchar('detail', { length: 255 }),
     createdAt: datetime('created_at').notNull().default(utcNow),
   },
   (table) => [index('admin_audit_created_idx').on(table.createdAt)],

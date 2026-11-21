@@ -104,11 +104,18 @@ export interface AdminSettingsDto {
   features: AdminFeatureFlagDto[];
 }
 
+export interface AuditPersonDto {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export interface AuditEntryDto {
   id: string;
-  actor: string | null;
+  actor: AuditPersonDto | null;
+  targetUser: AuditPersonDto | null;
   action: string;
-  target: string | null;
+  detail: string | null;
   createdAt: string;
 }
 

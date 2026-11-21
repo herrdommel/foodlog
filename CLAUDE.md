@@ -151,6 +151,7 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 ## Admin notes (M5)
 
 - Admin routes live in `backend/src/routes/admin-*.ts`, all behind `app.requireAdmin`. Every admin mutation writes a row to `admin_audit` (shown on the settings page). Add `recordAudit` to new admin actions.
+- Audit log (`admin_audit`) references people by id only (`actor_id`, `target_user_id`, both `ON DELETE SET NULL`). Names and emails are resolved when the log is read, so they follow changes and disappear with a deleted account. `detail` may only hold non-personal values (setting values, feature keys). Never write email addresses or names into the log.
 - Admins cannot demote or deactivate themselves (`cannot_modify_self`), which also guarantees that at least one active admin remains. Do not add a separate last-admin rule, it could never trigger.
 - Changing a user's email as admin sets it unverified, ends all sessions and mails a verification link to the new address. Deactivating ends all sessions.
 - Password help is always a reset link (email, or shown once for the admin to hand over), never a password chosen by the admin.

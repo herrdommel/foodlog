@@ -54,6 +54,7 @@ export async function createTestApp(
   return {
     app,
     db,
+    pool,
     mailer,
     config,
     async close() {

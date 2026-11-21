@@ -74,7 +74,6 @@ export async function adminInviteRoutes(app: FastifyInstance, { config, db, mail
       await recordAudit(db, {
         actorId: actor.id,
         action: 'invite.create',
-        target: body.email ?? null,
       });
 
       const [row] = await db.select().from(invites).where(eq(invites.id, id));
@@ -89,11 +88,7 @@ export async function adminInviteRoutes(app: FastifyInstance, { config, db, mail
     if (!row) throw new AppError(404, 'not_found', 'Invitation not found');
     if (row.usedAt) throw new AppError(409, 'invite_used', 'This invitation was already used');
     await db.delete(invites).where(eq(invites.id, id));
-    await recordAudit(db, {
-      actorId: request.user!.id,
-      action: 'invite.revoke',
-      target: row.email,
-    });
+    await recordAudit(db, { actorId: request.user!.id, action: 'invite.revoke' });
     return reply.status(204).send();
   });
 }

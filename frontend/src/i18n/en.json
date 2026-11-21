@@ -414,7 +414,11 @@
         "invite.revoke": "Invitation revoked",
         "setting.public_registration": "Public registration changed",
         "feature.update": "Feature changed globally"
-      }
+      },
+      "deletedAccount": "deleted account",
+      "valueOn": "on",
+      "valueOff": "off",
+      "valueDefault": "default"
     }
   }
 }

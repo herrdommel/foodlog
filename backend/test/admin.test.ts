@@ -509,19 +509,13 @@ describe('settings and feature flags', () => {
 });
 
 describe('activity log', () => {
-  it('records admin actions, newest first', async () => {
+  it('records admin actions with stable references, newest first', async () => {
     await patch(t.app, `/api/admin/users/${userId}`, { name: 'Anna B' }, adminCookie);
     await patch(t.app, `/api/admin/users/${userId}`, { active: false }, adminCookie);
     await post(t.app, '/api/admin/invites', { email: 'carl@example.com' }, adminCookie);
     await patch(t.app, '/api/admin/settings', { publicRegistration: true }, adminCookie);
     await send('PUT', '/api/admin/features/data_export', { enabled: false });
     await send('PUT', `/api/admin/users/${userId}/features/ai_analysis`, { enabled: true });
-    await post(
-      t.app,
-      `/api/admin/users/${userId}/reset-link`,
-      { delivery: 'link' },
-      adminCookie,
-    ).catch(() => undefined);
 
     const log = (await get(t.app, '/api/admin/audit', adminCookie)).json();
     const actions = log.map((entry: { action: string }) => entry.action);
@@ -535,10 +529,72 @@ describe('activity log', () => {
         'user.feature',
       ]),
     );
-    expect(log[0].actor).toBe('admin@example.com');
-    expect(log.find((entry: { action: string }) => entry.action === 'user.deactivate').target).toBe(
-      'anna@example.com',
-    );
+    const byAction = (action: string) =>
+      log.find((entry: { action: string }) => entry.action === action);
+    expect(log[0].actor).toMatchObject({ email: 'admin@example.com', name: 'Admin' });
+    expect(byAction('user.deactivate').targetUser).toMatchObject({
+      id: userId,
+      email: 'anna@example.com',
+    });
+    expect(byAction('user.feature')).toMatchObject({ detail: 'ai_analysis=true' });
+    expect(byAction('setting.public_registration').detail).toBe('true');
+    expect(byAction('feature.update').detail).toContain('data_export');
+    expect(byAction('invite.create').targetUser).toBeNull();
     expect((await get(t.app, '/api/admin/audit?limit=2', adminCookie)).json()).toHaveLength(2);
+  });
+
+  it('follows a user across email and name changes', async () => {
+    await patch(t.app, `/api/admin/users/${userId}`, { active: false }, adminCookie);
+    await patch(t.app, `/api/admin/users/${userId}`, { active: true }, adminCookie);
+    await patch(
+      t.app,
+      `/api/admin/users/${userId}`,
+      { email: 'renamed@example.com', name: 'Anna Neu' },
+      adminCookie,
+    );
+
+    const log = (await get(t.app, '/api/admin/audit', adminCookie)).json();
+    const forUser = log.filter(
+      (entry: { targetUser: { id: string } | null }) => entry.targetUser?.id === userId,
+    );
+    expect(forUser.map((entry: { action: string }) => entry.action).sort()).toEqual(
+      ['user.activate', 'user.deactivate', 'user.email', 'user.rename'].sort(),
+    );
+    for (const entry of forUser) {
+      expect(entry.targetUser).toEqual({
+        id: userId,
+        name: 'Anna Neu',
+        email: 'renamed@example.com',
+      });
+    }
+  });
+
+  it('shows the changed identity of an admin as actor', async () => {
+    const [self] = await t.db.select().from(users).where(eq(users.email, 'admin@example.com'));
+    await post(t.app, '/api/admin/invites', {}, adminCookie);
+    await t.db.update(users).set({ email: 'admin-new@example.com' }).where(eq(users.id, self!.id));
+    const log = (await get(t.app, '/api/admin/audit', adminCookie)).json();
+    expect(log[0].actor).toMatchObject({ id: self!.id, email: 'admin-new@example.com' });
+  });
+
+  it('drops the personal reference when the user is deleted and stores no email addresses', async () => {
+    await patch(t.app, `/api/admin/users/${userId}`, { email: 'moved@example.com' }, adminCookie);
+    await post(t.app, `/api/admin/users/${userId}/reset-link`, { delivery: 'link' }, adminCookie);
+    await post(t.app, '/api/admin/invites', { email: 'carl@example.com' }, adminCookie);
+
+    const [raw] = await t.pool.query('SELECT * FROM admin_audit');
+    const text = JSON.stringify(raw);
+    for (const address of ['anna@example.com', 'moved@example.com', 'carl@example.com']) {
+      expect(text).not.toContain(address);
+    }
+
+    await t.db.delete(users).where(eq(users.id, userId));
+    const log = (await get(t.app, '/api/admin/audit', adminCookie)).json();
+    const reset = log.find((entry: { action: string }) => entry.action === 'user.reset_link.link');
+    expect(reset).toBeDefined();
+    expect(reset.targetUser).toBeNull();
+    expect(
+      log.some((entry: { targetUser: { id: string } | null }) => entry.targetUser?.id === userId),
+    ).toBe(false);
   });
 });

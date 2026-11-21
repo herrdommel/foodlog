@@ -41,7 +41,7 @@ export async function adminSettingsRoutes(app: FastifyInstance, { db }: AppDeps)
     await recordAudit(db, {
       actorId: request.user!.id,
       action: 'setting.public_registration',
-      target: String(body.publicRegistration),
+      detail: String(body.publicRegistration),
     });
     return settings();
   });
@@ -62,7 +62,7 @@ export async function adminSettingsRoutes(app: FastifyInstance, { db }: AppDeps)
     await recordAudit(db, {
       actorId: request.user!.id,
       action: 'feature.update',
-      target: `${key}: enabled=${next.enabled}, default=${next.defaultForUsers}`,
+      detail: `${key}: enabled=${next.enabled}, default=${next.defaultForUsers}`,
     });
     return settings();
   });

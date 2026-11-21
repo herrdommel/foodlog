@@ -91,18 +91,21 @@ export async function adminUserRoutes(app: FastifyInstance, { config, db, mailer
 
     if (deactivates || emailChanged) await deleteUserSessions(db, id);
 
-    const label = emailChanged ? body.email! : user.email;
     if (body.name !== undefined && body.name !== user.name) {
-      await recordAudit(db, { actorId: actor.id, action: 'user.rename', target: label });
+      await recordAudit(db, { actorId: actor.id, action: 'user.rename', targetUserId: id });
     }
     if (body.role !== undefined && body.role !== user.role) {
-      await recordAudit(db, { actorId: actor.id, action: `user.role.${body.role}`, target: label });
+      await recordAudit(db, {
+        actorId: actor.id,
+        action: `user.role.${body.role}`,
+        targetUserId: id,
+      });
     }
     if (body.active !== undefined && body.active !== user.active) {
       await recordAudit(db, {
         actorId: actor.id,
         action: body.active ? 'user.activate' : 'user.deactivate',
-        target: label,
+        targetUserId: id,
       });
     }
 
@@ -111,7 +114,7 @@ export async function adminUserRoutes(app: FastifyInstance, { config, db, mailer
       await recordAudit(db, {
         actorId: actor.id,
         action: 'user.email',
-        target: `${user.email} -> ${updated.email}`,
+        targetUserId: id,
       });
       await authMail.sendVerification(updated);
     }
@@ -146,7 +149,7 @@ export async function adminUserRoutes(app: FastifyInstance, { config, db, mailer
       await recordAudit(db, {
         actorId: request.user!.id,
         action: `user.reset_link.${delivery}`,
-        target: user.email,
+        targetUserId: user.id,
       });
       return { delivery, link };
     },
@@ -170,7 +173,8 @@ export async function adminUserRoutes(app: FastifyInstance, { config, db, mailer
     await recordAudit(db, {
       actorId: request.user!.id,
       action: 'user.feature',
-      target: `${user.email}: ${key}=${enabled === null ? 'default' : enabled}`,
+      targetUserId: user.id,
+      detail: `${key}=${enabled === null ? 'default' : enabled}`,
     });
     return toAdminUserDetail(db, user);
   });

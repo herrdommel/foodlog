@@ -382,20 +382,47 @@ describe('settings', () => {
       { key: 'data_export', enabled: false, defaultForUsers: true },
     ],
   };
+  const adminPerson = { id: 'admin-1', name: 'Admin', email: 'admin@example.com' };
   const audit: AuditEntryDto[] = [
     {
       id: 'a1',
-      actor: 'admin@example.com',
+      actor: adminPerson,
+      targetUser: { id: bob.id, name: 'Bob', email: 'bob@example.com' },
       action: 'user.deactivate',
-      target: 'bob@example.com',
+      detail: null,
       createdAt: '2026-11-20T10:00:00.000Z',
     },
     {
       id: 'a2',
-      actor: 'admin@example.com',
-      action: 'something.new',
-      target: null,
+      actor: adminPerson,
+      targetUser: null,
+      action: 'user.rename',
+      detail: null,
       createdAt: '2026-11-19T10:00:00.000Z',
+    },
+    {
+      id: 'a3',
+      actor: null,
+      targetUser: { id: anna.id, name: 'Anna', email: 'anna@example.com' },
+      action: 'user.feature',
+      detail: 'ai_analysis=true',
+      createdAt: '2026-11-18T10:00:00.000Z',
+    },
+    {
+      id: 'a4',
+      actor: adminPerson,
+      targetUser: null,
+      action: 'setting.public_registration',
+      detail: 'false',
+      createdAt: '2026-11-17T10:00:00.000Z',
+    },
+    {
+      id: 'a5',
+      actor: adminPerson,
+      targetUser: null,
+      action: 'something.new',
+      detail: null,
+      createdAt: '2026-11-16T10:00:00.000Z',
     },
   ];
 
@@ -447,11 +474,26 @@ describe('settings', () => {
     expect(screen.getByRole('checkbox', { name: 'Data export: Default for users' })).toBeDisabled();
   });
 
-  it('shows the activity log with readable action names', async () => {
+  it('shows the activity log with names resolved from account ids', async () => {
     mockSettings();
     renderApp('/admin/settings');
-    expect(await screen.findByText('Account deactivated')).toBeInTheDocument();
-    expect(screen.getByText(/bob@example.com/)).toBeInTheDocument();
-    expect(screen.getByText('something.new')).toBeInTheDocument();
+    const log = within(await screen.findByRole('region', { name: 'Activity log' }));
+
+    const deactivated = (await log.findByText('Account deactivated')).closest('li')!;
+    const link = within(deactivated).getByRole('link', { name: 'Bob (bob@example.com)' });
+    expect(link).toHaveAttribute('href', `/admin/users/${bob.id}`);
+    expect(within(deactivated).getByText(/Admin \(admin@example.com\)/)).toBeInTheDocument();
+
+    const renamed = log.getByText('Name changed').closest('li')!;
+    expect(within(renamed).getByText(/deleted account/)).toBeInTheDocument();
+    expect(within(renamed).queryByRole('link')).not.toBeInTheDocument();
+
+    const feature = log.getByText('Feature changed for user').closest('li')!;
+    expect(within(feature).getByText(/AI analysis: on/)).toBeInTheDocument();
+    expect(within(feature).getByText(/deleted account · /)).toBeInTheDocument();
+
+    const registration = log.getByText('Public registration changed').closest('li')!;
+    expect(within(registration).getByText(/off/)).toBeInTheDocument();
+    expect(log.getByText('something.new')).toBeInTheDocument();
   });
 });

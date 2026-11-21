@@ -1,0 +1,1 @@
+ALTER TABLE `admin_audit` DROP COLUMN `target`;

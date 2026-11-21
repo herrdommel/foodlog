@@ -414,7 +414,11 @@
         "invite.revoke": "Einladung widerrufen",
         "setting.public_registration": "Öffentliche Registrierung geändert",
         "feature.update": "Funktion global geändert"
-      }
+      },
+      "deletedAccount": "gelöschtes Konto",
+      "valueOn": "an",
+      "valueOff": "aus",
+      "valueDefault": "Standard"
     }
   }
 }
