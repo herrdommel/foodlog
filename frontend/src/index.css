@@ -24,6 +24,7 @@
 }
 
 @theme inline {
+  --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
   --color-brand: var(--color-brand);
   --color-cream: var(--color-cream);
   --color-coral: var(--color-coral);
@@ -36,6 +37,11 @@
 }
 
 body {
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
   background-color: var(--surface);
   color: var(--text);
 }

@@ -78,6 +78,7 @@ export interface PublicUser {
   email: string;
   name: string;
   avatar: string;
+  avatarVersion: number;
   role: Role;
   locale: Locale;
   timezone: string;

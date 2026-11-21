@@ -1,10 +1,65 @@
+import { useEffect } from 'react';
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router';
+import { useMe } from './api/hooks.ts';
+import { AppLayout } from './components/Layout.tsx';
+import { setLocale } from './i18n/index.ts';
+import { DashboardPage } from './pages/Dashboard.tsx';
+import { LoginPage } from './pages/Login.tsx';
+import { ProfilePage } from './pages/Profile.tsx';
+import { RegisterPage } from './pages/Register.tsx';
+import {
+  ConfirmEmailChangePage,
+  ForgotPasswordPage,
+  ResetPasswordPage,
+  VerifyEmailPage,
+} from './pages/TokenPages.tsx';
+
+function RequireAuth() {
+  const { data: me, isPending } = useMe();
+  if (isPending) return null;
+  if (!me) return <Navigate to="/login" replace />;
+  return <Outlet />;
+}
+
+function GuestOnly() {
+  const { data: me, isPending } = useMe();
+  if (isPending) return null;
+  if (me) return <Navigate to="/" replace />;
+  return <Outlet />;
+}
+
+export function AppRoutes() {
+  const { data: me } = useMe();
+  const locale = me?.user.locale;
+  useEffect(() => {
+    if (locale) setLocale(locale);
+  }, [locale]);
+
+  return (
+    <Routes>
+      <Route element={<GuestOnly />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      </Route>
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
+      <Route path="/confirm-email" element={<ConfirmEmailChangePage />} />
+      <Route element={<RequireAuth />}>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+        </Route>
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
 export function App() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-4 p-6">
-      <img src="/brand/foodlog-icon.svg" alt="" className="h-20 w-20" />
-      <h1 className="text-3xl font-bold">
-        Foodlog <span className="text-accent">I/O</span>
-      </h1>
-    </main>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   );
 }

@@ -34,6 +34,7 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Name "Foodlog I/O" and `frontend/public/brand/` are excluded from the license (all rights reserved), stated in the README.
 - When self-hosting Bricolage Grotesque, ship its `OFL.txt` next to the font files (required by the SIL OFL).
 - Only add dependencies with AGPL-compatible licenses (MIT, Apache-2.0, BSD, ISC, OFL).
+- Before adding a dependency run `npm view <pkg> deprecated` and check maintenance status. `arctic`/`oslo` are deprecated, do not use them (Google OAuth is implemented with plain `fetch` in `backend/src/lib/google.ts`).
 
 ## Branding
 
@@ -132,4 +133,5 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - [x] M0 scaffold (monorepo, backend health + env config, Drizzle setup, frontend shell, dev compose, lint/test setup). Docker, migration and health check verified locally.
 - [x] CI workflows, Dockerfile, Dependabot, SECURITY.md (not yet run on GitHub)
 - [x] M1 backend (auth, sessions, invites, Google, profile, avatar, email change, feature flag resolution)
-- [ ] Next: M1 frontend, then M1 auth, M2 tracking, M3 analysis, M4 AI, M5 admin (incl. public registration switch), M6 GDPR/ops, deploy
+- [x] M1 frontend (login, register, verify, forgot/reset, profile with avatar and email change, DE/EN, brand font)
+- [ ] Next: M1 auth, M2 tracking, M3 analysis, M4 AI, M5 admin (incl. public registration switch), M6 GDPR/ops, deploy
