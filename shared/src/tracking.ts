@@ -1,0 +1,145 @@
+import { z } from 'zod';
+import { isDateString, isWallTime } from './time.ts';
+
+export const ALLERGENS = [
+  'gluten',
+  'lactose',
+  'milk_protein',
+  'egg',
+  'tree_nuts',
+  'peanut',
+  'soy',
+  'fish',
+  'shellfish',
+  'sesame',
+  'celery',
+  'mustard',
+  'lupin',
+  'sulfite',
+  'histamine',
+  'fructose',
+  'sorbitol',
+  'fodmap',
+  'caffeine',
+  'alcohol',
+  'spicy',
+] as const;
+export const allergenSchema = z.enum(ALLERGENS);
+export type Allergen = z.infer<typeof allergenSchema>;
+
+export const SYMPTOM_TYPES = [
+  'abdominal_pain',
+  'cramps',
+  'bloating',
+  'gas',
+  'nausea',
+  'heartburn',
+  'headache',
+  'skin_rash',
+  'itching',
+  'fatigue',
+  'dizziness',
+  'other',
+] as const;
+export const symptomTypeSchema = z.enum(SYMPTOM_TYPES);
+export type SymptomType = z.infer<typeof symptomTypeSchema>;
+
+export const ENTRY_TYPES = ['meal', 'drink', 'symptom', 'stool', 'medication'] as const;
+export const entryTypeSchema = z.enum(ENTRY_TYPES);
+export type EntryType = z.infer<typeof entryTypeSchema>;
+
+export const TEMPLATE_TYPES = ['meal', 'drink', 'medication'] as const;
+export const templateTypeSchema = z.enum(TEMPLATE_TYPES);
+
+export const wallTimeSchema = z.string().refine(isWallTime, 'invalid time');
+export const dateSchema = z.string().refine(isDateString, 'invalid date');
+
+const noteSchema = z.string().trim().max(1000).nullish();
+const titleSchema = z.string().trim().max(120);
+const ingredientIdsSchema = z.array(z.uuid()).max(50).default([]);
+
+const foodEntrySchema = z
+  .object({
+    type: z.enum(['meal', 'drink']),
+    occurredAt: wallTimeSchema,
+    title: titleSchema.nullish(),
+    ingredientIds: ingredientIdsSchema,
+    note: noteSchema,
+  })
+  .refine((entry) => Boolean(entry.title) || entry.ingredientIds.length > 0, {
+    message: 'title or ingredients required',
+    path: ['title'],
+  });
+
+export const entryInputSchema = z.discriminatedUnion('type', [
+  foodEntrySchema,
+  z.object({
+    type: z.literal('symptom'),
+    occurredAt: wallTimeSchema,
+    symptomType: symptomTypeSchema,
+    severity: z.number().int().min(0).max(10),
+    note: noteSchema,
+  }),
+  z.object({
+    type: z.literal('stool'),
+    occurredAt: wallTimeSchema,
+    bristol: z.number().int().min(1).max(7),
+    note: noteSchema,
+  }),
+  z.object({
+    type: z.literal('medication'),
+    occurredAt: wallTimeSchema,
+    title: titleSchema.min(1),
+    note: noteSchema,
+  }),
+]);
+export type EntryInput = z.infer<typeof entryInputSchema>;
+
+export const entriesQuerySchema = z.object({ date: dateSchema });
+
+export const ingredientInputSchema = z.object({
+  name: z.string().trim().min(1).max(80),
+  allergens: z.array(allergenSchema).max(ALLERGENS.length).default([]),
+});
+
+export const ingredientUpdateSchema = ingredientInputSchema.partial();
+
+export const ingredientSearchSchema = z.object({
+  q: z.string().trim().max(80).default(''),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
+});
+
+export const templateInputSchema = z.object({
+  name: z.string().trim().min(1).max(80),
+  type: templateTypeSchema,
+  title: titleSchema.nullish(),
+  ingredientIds: ingredientIdsSchema,
+});
+
+export interface IngredientDto {
+  id: string;
+  nameDe: string;
+  nameEn: string;
+  custom: boolean;
+  allergens: Allergen[];
+}
+
+export interface EntryDto {
+  id: string;
+  type: EntryType;
+  occurredAt: string;
+  title: string | null;
+  note: string | null;
+  symptomType: SymptomType | null;
+  severity: number | null;
+  bristol: number | null;
+  ingredients: IngredientDto[];
+}
+
+export interface TemplateDto {
+  id: string;
+  name: string;
+  type: z.infer<typeof templateTypeSchema>;
+  title: string | null;
+  ingredients: IngredientDto[];
+}

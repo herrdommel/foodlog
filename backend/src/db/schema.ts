@@ -7,6 +7,9 @@ import {
   mysqlEnum,
   mysqlTable,
   primaryKey,
+  text,
+  tinyint,
+  uniqueIndex,
   varchar,
 } from 'drizzle-orm/mysql-core';
 
@@ -123,4 +126,95 @@ export const userFeatureOverrides = mysqlTable(
     enabled: boolean('enabled').notNull(),
   },
   (table) => [primaryKey({ columns: [table.userId, table.key] })],
+);
+
+export const ingredients = mysqlTable(
+  'ingredients',
+  {
+    id: varchar('id', { length: 36 }).primaryKey(),
+    catalogKey: varchar('catalog_key', { length: 64 }).unique(),
+    userId: varchar('user_id', { length: 36 }).references(() => users.id, { onDelete: 'cascade' }),
+    nameDe: varchar('name_de', { length: 80 }).notNull(),
+    nameEn: varchar('name_en', { length: 80 }).notNull(),
+    createdAt: datetime('created_at').notNull().default(utcNow),
+  },
+  (table) => [index('ingredients_user_id_idx').on(table.userId)],
+);
+
+export const ingredientAllergens = mysqlTable(
+  'ingredient_allergens',
+  {
+    ingredientId: varchar('ingredient_id', { length: 36 })
+      .notNull()
+      .references(() => ingredients.id, { onDelete: 'cascade' }),
+    allergen: varchar('allergen', { length: 32 }).notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.ingredientId, table.allergen] })],
+);
+
+export const entries = mysqlTable(
+  'entries',
+  {
+    id: varchar('id', { length: 36 }).primaryKey(),
+    userId: varchar('user_id', { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    type: mysqlEnum('type', ['meal', 'drink', 'symptom', 'stool', 'medication']).notNull(),
+    occurredAt: datetime('occurred_at').notNull(),
+    title: varchar('title', { length: 120 }),
+    note: text('note'),
+    symptomType: varchar('symptom_type', { length: 32 }),
+    severity: tinyint('severity'),
+    bristol: tinyint('bristol'),
+    createdAt: datetime('created_at').notNull().default(utcNow),
+    updatedAt: datetime('updated_at')
+      .notNull()
+      .default(utcNow)
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [index('entries_user_occurred_idx').on(table.userId, table.occurredAt)],
+);
+
+export const entryIngredients = mysqlTable(
+  'entry_ingredients',
+  {
+    entryId: varchar('entry_id', { length: 36 })
+      .notNull()
+      .references(() => entries.id, { onDelete: 'cascade' }),
+    ingredientId: varchar('ingredient_id', { length: 36 })
+      .notNull()
+      .references(() => ingredients.id, { onDelete: 'cascade' }),
+  },
+  (table) => [
+    primaryKey({ columns: [table.entryId, table.ingredientId] }),
+    index('entry_ingredients_ingredient_idx').on(table.ingredientId),
+  ],
+);
+
+export const templates = mysqlTable(
+  'templates',
+  {
+    id: varchar('id', { length: 36 }).primaryKey(),
+    userId: varchar('user_id', { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    name: varchar('name', { length: 80 }).notNull(),
+    type: mysqlEnum('type', ['meal', 'drink', 'medication']).notNull(),
+    title: varchar('title', { length: 120 }),
+    createdAt: datetime('created_at').notNull().default(utcNow),
+  },
+  (table) => [uniqueIndex('templates_user_name_idx').on(table.userId, table.name)],
+);
+
+export const templateIngredients = mysqlTable(
+  'template_ingredients',
+  {
+    templateId: varchar('template_id', { length: 36 })
+      .notNull()
+      .references(() => templates.id, { onDelete: 'cascade' }),
+    ingredientId: varchar('ingredient_id', { length: 36 })
+      .notNull()
+      .references(() => ingredients.id, { onDelete: 'cascade' }),
+  },
+  (table) => [primaryKey({ columns: [table.templateId, table.ingredientId] })],
 );

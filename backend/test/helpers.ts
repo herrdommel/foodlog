@@ -14,6 +14,10 @@ export const ORIGIN = 'http://localhost:5173';
 export const PASSWORD = 'correct horse battery';
 
 const TABLES = [
+  'template_ingredients',
+  'templates',
+  'entry_ingredients',
+  'entries',
   'user_feature_overrides',
   'feature_flags',
   'settings',
@@ -42,6 +46,7 @@ export async function createTestApp(
   const { db, pool } = createDb(config.DATABASE_URL);
   await db.execute(sql`SET FOREIGN_KEY_CHECKS = 0`);
   for (const table of TABLES) await db.execute(sql.raw(`TRUNCATE TABLE ${table}`));
+  await db.execute(sql`DELETE FROM ingredients WHERE user_id IS NOT NULL`);
   await db.execute(sql`SET FOREIGN_KEY_CHECKS = 1`);
   const mailer = createMemoryMailer();
   const app = await buildApp({ config, db, mailer, fetch: fetchStub });

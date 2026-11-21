@@ -8,8 +8,11 @@ import type { Database } from './db/client.ts';
 import { AppError } from './lib/errors.ts';
 import { registerAuth } from './plugins/auth.ts';
 import { authRoutes } from './routes/auth.ts';
+import { entryRoutes } from './routes/entries.ts';
 import { googleRoutes } from './routes/google.ts';
+import { ingredientRoutes } from './routes/ingredients.ts';
 import { meRoutes } from './routes/me.ts';
+import { templateRoutes } from './routes/templates.ts';
 import type { Mailer } from './services/mail.ts';
 
 export interface AppDeps {
@@ -80,6 +83,9 @@ export async function buildApp(deps: AppDeps) {
   await app.register(authRoutes, deps);
   await app.register(meRoutes, deps);
   await app.register(googleRoutes, deps);
+  await app.register(ingredientRoutes, deps);
+  await app.register(entryRoutes, deps);
+  await app.register(templateRoutes, deps);
 
   return app;
 }
