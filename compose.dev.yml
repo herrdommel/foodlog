@@ -1,0 +1,28 @@
+name: foodlog-dev
+
+services:
+  db:
+    image: mariadb:12.3
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: foodlog
+      MARIADB_USER: foodlog
+      MARIADB_PASSWORD: foodlog
+    ports:
+      - '127.0.0.1:3306:3306'
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - '127.0.0.1:${MAILPIT_SMTP_PORT:-1025}:1025'
+      - '127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025'
+
+volumes:
+  db-data:
