@@ -8,6 +8,7 @@ import type { Database } from './db/client.ts';
 import { AppError } from './lib/errors.ts';
 import { registerAuth } from './plugins/auth.ts';
 import { authRoutes } from './routes/auth.ts';
+import { analysisRoutes } from './routes/analysis.ts';
 import { entryRoutes } from './routes/entries.ts';
 import { googleRoutes } from './routes/google.ts';
 import { ingredientRoutes } from './routes/ingredients.ts';
@@ -90,6 +91,7 @@ export async function buildApp(deps: AppDeps) {
   await app.register(ingredientRoutes, deps);
   await app.register(entryRoutes, deps);
   await app.register(templateRoutes, deps);
+  await app.register(analysisRoutes, deps);
 
   return app;
 }

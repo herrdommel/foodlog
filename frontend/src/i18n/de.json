@@ -14,7 +14,8 @@
   "nav": {
     "dashboard": "Übersicht",
     "profile": "Profil",
-    "ingredients": "Zutaten"
+    "ingredients": "Zutaten",
+    "analysis": "Auswertung"
   },
   "auth": {
     "loginTitle": "Anmelden",
@@ -203,5 +204,65 @@
     "cancel": "Abbrechen",
     "confirmDelete_one": "„{{name}}“ löschen? Sie wird in {{count}} Eintrag verwendet. Der Eintrag bleibt erhalten, verliert aber diese Zutat.",
     "confirmDelete_other": "„{{name}}“ löschen? Sie wird in {{count}} Einträgen verwendet. Die Einträge bleiben erhalten, verlieren aber diese Zutat."
+  },
+  "analysis": {
+    "title": "Auswertung",
+    "disclaimer": "Die Ergebnisse sind statistische Anhaltspunkte aus deinen eigenen Einträgen und keine Diagnose. Sprich bei Beschwerden mit einer Ärztin oder einem Arzt.",
+    "period": "Zeitraum",
+    "last7": "7 Tage",
+    "last30": "30 Tage",
+    "last90": "90 Tage",
+    "from": "Von",
+    "to": "Bis",
+    "window": "Zeitfenster nach dem Essen",
+    "windowHours": "{{count}} Stunden",
+    "outcome": "Beschwerde",
+    "outcomes": {
+      "symptoms": "Alle Symptome",
+      "stool": "Auffälliger Stuhlgang (Bristol 1-2 oder 6-7)"
+    },
+    "minSeverity": "Mindeststärke",
+    "loading": "Auswertung wird berechnet …",
+    "summary": {
+      "entries": "Einträge",
+      "days": "Tage mit Einträgen",
+      "food": "Mahlzeiten und Getränke",
+      "events": "Beschwerden",
+      "censored": "{{count}} Einträge sind zu neu für eine Bewertung."
+    },
+    "notEnough": "Für belastbare Aussagen fehlen noch Daten: mindestens {{exposures}}-mal gegessen und {{outcomes}}-mal eine Beschwerde im Fenster.",
+    "suspects": {
+      "title": "Mögliche Unverträglichkeiten",
+      "ingredients": "Nach Zutat",
+      "allergens": "Nach Kategorie",
+      "none": "Keine Auffälligkeiten mit ausreichend Daten gefunden.",
+      "name": "Name",
+      "exposures": "Gegessen",
+      "withOutcome": "Danach Beschwerden",
+      "baseline": "Sonst",
+      "risk": "Risiko-Faktor",
+      "confidence": "Zuverlässigkeit",
+      "delay": "Typische Verzögerung",
+      "delayChart": "Verteilung der Verzögerung",
+      "hint": "Der Risiko-Faktor vergleicht, wie oft nach einer Zutat Beschwerden folgten, mit Mahlzeiten ohne sie. Ein Faktor von 2 heißt: doppelt so oft. Das Intervall zeigt die Unsicherheit.",
+      "confidenceLevels": {
+        "low": "niedrig",
+        "medium": "mittel",
+        "high": "hoch"
+      },
+      "minutes": "{{count}} Min.",
+      "hoursMinutes": "{{hours}} Std. {{minutes}} Min.",
+      "alsoWith": "immer zusammen gegessen mit {{names}}"
+    },
+    "charts": {
+      "symptomsPerDay": "Beschwerden pro Tag",
+      "count": "Anzahl",
+      "maxSeverity": "Stärkste",
+      "bristol": "Stuhlgang nach Bristol-Typ",
+      "topIngredients": "Häufigste Zutaten",
+      "heatmap": "Beschwerden nach Wochentag und Uhrzeit",
+      "weekdays": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
+      "noData": "Keine Daten im Zeitraum."
+    }
   }
 }

@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import { test, type Page } from '@playwright/test';
-import { createInvite, loginViaApi, ORIGIN, registerVerified } from './helpers.ts';
+import { createInvite, loginViaApi, ORIGIN, registerVerified, seedDemoData } from './helpers.ts';
 
 const OUT = 'screenshots';
 
@@ -87,6 +87,14 @@ for (const variant of variants) {
       await page.goto('/profile');
       await page.getByRole('heading', { name: 'Profile' }).waitFor();
       await shot(page, `${variant.name}-profile`);
+      await page.goto('/ingredients');
+      await page.getByRole('heading', { name: 'Ingredients', exact: true }).waitFor();
+      await shot(page, `${variant.name}-ingredients`);
+      await seedDemoData(page, email);
+      await page.goto('/analysis');
+      await page.getByRole('table', { name: 'Possible intolerances: By ingredient' }).waitFor();
+      await page.getByRole('img', { name: 'Complaints per day' }).waitFor();
+      await shot(page, `${variant.name}-analysis`);
     });
   });
 }

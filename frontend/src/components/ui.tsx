@@ -1,4 +1,10 @@
-import { useId, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from 'react';
+import {
+  useId,
+  type ButtonHTMLAttributes,
+  type InputHTMLAttributes,
+  type ReactNode,
+  type SelectHTMLAttributes,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApiError } from '../api/client.ts';
 
@@ -27,6 +33,30 @@ export function Field({
           {hint}
         </p>
       )}
+    </div>
+  );
+}
+
+export function SelectField({
+  label,
+  id,
+  children,
+  ...props
+}: SelectHTMLAttributes<HTMLSelectElement> & { label: string }) {
+  const generatedId = useId();
+  const selectId = id ?? generatedId;
+  return (
+    <div className="space-y-1">
+      <label htmlFor={selectId} className="block text-sm font-medium">
+        {label}
+      </label>
+      <select
+        {...props}
+        id={selectId}
+        className="w-full rounded-lg border border-fg/20 bg-raised px-3 py-2 disabled:opacity-50"
+      >
+        {children}
+      </select>
     </div>
   );
 }

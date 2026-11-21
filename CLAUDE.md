@@ -132,6 +132,15 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Rate limits can only be disabled through `AppDeps.disableRateLimit`, used by the E2E server. Never expose that through config.
 - Not in M2 yet: UI to rename or delete own tags (API exists), context factors (stress, sleep, cycle).
 
+## Analysis notes (M3)
+
+- `GET /api/analysis` (period, window 3/8/12/24/48 h, outcome, min severity) returns an overview plus suspects. The maths lives in `backend/src/services/analysis.ts` and is covered by unit tests.
+- Method: each meal or drink is an exposure. It counts as positive if an outcome event follows within the window. Outcomes are symptoms at or above the minimum severity (optionally one symptom type) or abnormal stool (Bristol 1-2, 6-7). Per ingredient and per allergen the risk ratio of exposed against unexposed meals is computed with a 95 percent interval (continuity correction for zero cells).
+- Guard rails: at least 5 exposures and 3 positive exposures, meals whose window is not finished yet are excluded, only ratios above 1 are listed. Confidence is high when the interval lower bound is above 1 with at least 10 exposures and 5 positives, medium when only the bound is above 1, otherwise low.
+- Ingredients that were always eaten in exactly the same meals are merged into one row (`alsoWith`), because the data cannot tell them apart. Keep this when changing the logic.
+- Always show the "hint, not a diagnosis" disclaimer on analysis and report pages.
+- Charts use Recharts (MIT, current). Selects use `SelectField` (separate label), never a label wrapping a select.
+
 ## Conventions
 
 - TypeScript strict, ESM, no `any`.
@@ -150,4 +159,5 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - [x] M1 frontend (login, register, verify, forgot/reset, profile with avatar and email change, DE/EN, brand font)
 - [x] Playwright E2E + a11y + screenshots, CI job
 - [x] M2 tracking (catalog, tags, entries, templates, dashboard, seed)
+- [x] M3 ingredients page and analysis (suspects, charts)
 - [ ] Next: M1 auth, M2 tracking, M3 analysis, M4 AI, M5 admin (incl. public registration switch), M6 GDPR/ops, deploy

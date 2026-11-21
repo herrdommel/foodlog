@@ -1,10 +1,11 @@
-import { sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { migrate } from 'drizzle-orm/mysql2/migrator';
 import { syncCatalog } from '../src/catalog/sync.ts';
 import { buildApp } from '../src/app.ts';
 import { loadConfig } from '../src/config.ts';
 import { createDb } from '../src/db/client.ts';
-import { invites } from '../src/db/schema.ts';
+import { insertDemoEntries } from '../src/db/demo-data.ts';
+import { invites, users } from '../src/db/schema.ts';
 import { hashToken, newId, newToken } from '../src/lib/crypto.ts';
 import { DAY, inFuture } from '../src/lib/time.ts';
 import { createMemoryMailer } from '../src/services/mail.ts';
@@ -31,6 +32,15 @@ const app = await buildApp({ config, db, mailer, disableRateLimit: true });
 app.get('/__test/mail', async (request) => {
   const { to } = request.query as { to: string };
   return mailer.outbox.filter((mail) => mail.to === to);
+});
+
+app.get('/__test/seed-demo', async (request) => {
+  const { email, timezone } = request.query as { email: string; timezone?: string };
+  const [user] = await db.select().from(users).where(eq(users.email, email));
+  if (!user) return { inserted: 0 };
+  return {
+    inserted: await insertDemoEntries(db, user.id, { timezone: timezone ?? user.timezone }),
+  };
 });
 
 app.get('/__test/invite', async () => {

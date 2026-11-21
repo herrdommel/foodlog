@@ -10,7 +10,7 @@ import {
 } from '../api/hooks.ts';
 import { Avatar } from '../components/Avatar.tsx';
 import { PresetAvatar } from '../components/presetAvatars.tsx';
-import { Button, Card, ErrorMessage, Field, Notice } from '../components/ui.tsx';
+import { Button, Card, ErrorMessage, Field, Notice, SelectField } from '../components/ui.tsx';
 import { setLocale } from '../i18n/index.ts';
 
 const timezones = Intl.supportedValuesOf('timeZone');
@@ -58,34 +58,30 @@ function PreferencesCard({ user }: { user: PublicUser }) {
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">{t('common.language')}</span>
-          <select
-            value={locale}
-            onChange={(event) => setLocaleState(event.target.value as Locale)}
-            className="w-full rounded-lg border border-fg/20 bg-raised px-3 py-2"
-          >
-            {LOCALES.map((value) => (
-              <option key={value} value={value}>
-                {value === 'de' ? 'Deutsch' : 'English'}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">{t('profile.timezone')}</span>
-          <select
-            value={timezone}
-            onChange={(event) => setTimezone(event.target.value)}
-            className="w-full rounded-lg border border-fg/20 bg-raised px-3 py-2"
-          >
-            {timezones.map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
-          </select>
-        </label>
+        <SelectField
+          label={t('common.language')}
+          value={locale}
+          onChange={(event) => setLocaleState(event.target.value as Locale)}
+          className="w-full rounded-lg border border-fg/20 bg-raised px-3 py-2"
+        >
+          {LOCALES.map((value) => (
+            <option key={value} value={value}>
+              {value === 'de' ? 'Deutsch' : 'English'}
+            </option>
+          ))}
+        </SelectField>
+        <SelectField
+          label={t('profile.timezone')}
+          value={timezone}
+          onChange={(event) => setTimezone(event.target.value)}
+          className="w-full rounded-lg border border-fg/20 bg-raised px-3 py-2"
+        >
+          {timezones.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </SelectField>
         <div className="flex items-center gap-3">
           <Button type="submit" disabled={update.isPending}>
             {t('common.save')}

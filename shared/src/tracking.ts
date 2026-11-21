@@ -148,3 +148,71 @@ export interface TemplateDto {
   title: string | null;
   ingredients: IngredientDto[];
 }
+
+export const ANALYSIS_WINDOWS = [3, 8, 12, 24, 48] as const;
+export const ANALYSIS_OUTCOMES = ['symptoms', 'stool', ...SYMPTOM_TYPES] as const;
+export const analysisOutcomeSchema = z.enum(ANALYSIS_OUTCOMES);
+export type AnalysisOutcome = z.infer<typeof analysisOutcomeSchema>;
+
+export const MAX_ANALYSIS_DAYS = 366;
+
+export const analysisQuerySchema = z
+  .object({
+    from: dateSchema,
+    to: dateSchema,
+    window: z.coerce
+      .number()
+      .int()
+      .refine((value) => (ANALYSIS_WINDOWS as readonly number[]).includes(value), 'invalid window')
+      .default(8),
+    outcome: analysisOutcomeSchema.default('symptoms'),
+    minSeverity: z.coerce.number().int().min(0).max(10).default(3),
+  })
+  .refine((query) => query.from <= query.to, { message: 'from must not be after to', path: ['to'] })
+  .refine(
+    (query) =>
+      (Date.parse(`${query.to}T00:00:00Z`) - Date.parse(`${query.from}T00:00:00Z`)) / 86_400_000 <
+      MAX_ANALYSIS_DAYS,
+    { message: 'period too long', path: ['to'] },
+  );
+export type AnalysisQuery = z.infer<typeof analysisQuerySchema>;
+
+export type Confidence = 'low' | 'medium' | 'high';
+
+export interface SuspectDto {
+  key: string;
+  ingredient: IngredientDto | null;
+  allergen: Allergen | null;
+  exposures: number;
+  exposuresWithOutcome: number;
+  rateExposed: number;
+  rateUnexposed: number;
+  relativeRisk: number;
+  ciLow: number;
+  ciHigh: number;
+  confidence: Confidence;
+  medianLagMinutes: number | null;
+  lagHistogram: number[];
+  alsoWith: IngredientDto[];
+}
+
+export interface AnalysisDto {
+  period: { from: string; to: string; days: number };
+  window: number;
+  outcome: AnalysisOutcome;
+  minSeverity: number;
+  summary: {
+    entryCounts: Record<EntryType, number>;
+    daysWithEntries: number;
+    foodEntries: number;
+    outcomeEvents: number;
+    censoredFoodEntries: number;
+  };
+  topIngredients: { ingredient: IngredientDto; count: number }[];
+  symptomsByDay: { date: string; count: number; maxSeverity: number }[];
+  bristolDistribution: number[];
+  symptomHeatmap: number[][];
+  suspects: { ingredients: SuspectDto[]; allergens: SuspectDto[] };
+  minExposures: number;
+  minOutcomes: number;
+}

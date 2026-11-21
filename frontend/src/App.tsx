@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router';
 import { useMe } from './api/hooks.ts';
 import { AppLayout } from './components/Layout.tsx';
 import { setLocale } from './i18n/index.ts';
+import { AnalysisPage } from './pages/Analysis.tsx';
 import { DashboardPage } from './pages/Dashboard.tsx';
 import { IngredientsPage } from './pages/Ingredients.tsx';
 import { LoginPage } from './pages/Login.tsx';
@@ -49,6 +50,7 @@ export function AppRoutes() {
       <Route element={<RequireAuth />}>
         <Route element={<AppLayout />}>
           <Route path="/" element={<DashboardPage />} />
+          <Route path="/analysis" element={<AnalysisPage />} />
           <Route path="/ingredients" element={<IngredientsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>

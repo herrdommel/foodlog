@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   Allergen,
+  AnalysisDto,
   AuthConfig,
   CustomIngredientDto,
   EntryDto,
@@ -246,5 +247,26 @@ export function useDeleteTemplate() {
   return useMutation({
     mutationFn: (id: string) => api(`/api/templates/${id}`, { method: 'DELETE' }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['templates'] }),
+  });
+}
+
+export function useAnalysis(params: {
+  from: string;
+  to: string;
+  window: number;
+  outcome: string;
+  minSeverity: number;
+}) {
+  const query = new URLSearchParams({
+    from: params.from,
+    to: params.to,
+    window: String(params.window),
+    outcome: params.outcome,
+    minSeverity: String(params.minSeverity),
+  });
+  return useQuery({
+    queryKey: ['analysis', query.toString()],
+    queryFn: () => api<AnalysisDto>(`/api/analysis?${query.toString()}`),
+    placeholderData: (previous) => previous,
   });
 }

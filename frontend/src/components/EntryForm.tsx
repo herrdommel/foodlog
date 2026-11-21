@@ -19,7 +19,7 @@ import {
   useUpdateEntry,
 } from '../api/hooks.ts';
 import { IngredientPicker } from './IngredientPicker.tsx';
-import { Button, Card, ErrorMessage, Field } from './ui.tsx';
+import { Button, Card, ErrorMessage, Field, SelectField } from './ui.tsx';
 
 const TEMPLATE_TYPES: EntryType[] = ['meal', 'drink', 'medication'];
 
@@ -181,20 +181,18 @@ export function EntryForm({
 
         {type === 'symptom' && (
           <>
-            <label className="block space-y-1">
-              <span className="text-sm font-medium">{t('tracking.symptomType')}</span>
-              <select
-                value={symptomType}
-                onChange={(event) => setSymptomType(event.target.value as SymptomType)}
-                className="w-full rounded-lg border border-fg/20 bg-raised px-3 py-2"
-              >
-                {SYMPTOM_TYPES.map((value) => (
-                  <option key={value} value={value}>
-                    {t(`tracking.symptoms.${value}`)}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <SelectField
+              label={t('tracking.symptomType')}
+              value={symptomType}
+              onChange={(event) => setSymptomType(event.target.value as SymptomType)}
+              className="w-full rounded-lg border border-fg/20 bg-raised px-3 py-2"
+            >
+              {SYMPTOM_TYPES.map((value) => (
+                <option key={value} value={value}>
+                  {t(`tracking.symptoms.${value}`)}
+                </option>
+              ))}
+            </SelectField>
             <div className="space-y-1">
               <label htmlFor="severity" className="block text-sm font-medium">
                 {t('tracking.severity')}

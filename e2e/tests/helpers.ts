@@ -67,3 +67,10 @@ export async function loginViaApi(page: Page, email: string, password = PASSWORD
   });
   expect(response.ok()).toBe(true);
 }
+
+export async function seedDemoData(page: Page, email: string) {
+  const response = await page.request.get('http://127.0.0.1:3100/__test/seed-demo', {
+    params: { email },
+  });
+  expect(response.ok()).toBe(true);
+}
