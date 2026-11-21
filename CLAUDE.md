@@ -121,6 +121,17 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Initial schema migration was regenerated during M1 (nothing deployed yet). From the first release on, migrations are append-only.
 - CLI: `pnpm admin:create <email> <name>` (password via stdin), `pnpm invite:create [email]`.
 
+## Tracking notes (M2)
+
+- Entries live in one table (`entries`) with nullable type-specific columns (`title`, `symptom_type`, `severity`, `bristol`) and `entry_ingredients` links. Zod schema is a discriminated union in `shared/src/tracking.ts`; `PUT /api/entries/:id` replaces the whole entry, including its type.
+- Time handling: the API receives wall-clock strings (`YYYY-MM-DDTHH:mm`) in the user's time zone and stores UTC. Conversions and day ranges live in `shared/src/time.ts` and use Luxon (moment is legacy, do not use it). Entries more than 10 minutes in the future are rejected. `GET /api/entries?date=` returns one local day.
+- Catalog: `backend/src/catalog/ingredients.ts` is the source of truth (key, DE, EN, allergens). `syncCatalog` upserts it on every `db:migrate`, so catalog edits ship with a release. Custom tags are rows in `ingredients` with a `user_id`; names are stored in both language columns. Catalog items are read-only for users.
+- Allergen assignments are informational hints, not medical advice. Keep wording accordingly in the UI.
+- Templates exist for meal, drink and medication.
+- `pnpm db:seed` creates `demo@example.com` and `admin@example.com` (passwords printed by the script) with 28 days of sample data that contains a lactose to bloating pattern. It refuses to run in production.
+- Rate limits can only be disabled through `AppDeps.disableRateLimit`, used by the E2E server. Never expose that through config.
+- Not in M2 yet: UI to rename or delete own tags (API exists), context factors (stress, sleep, cycle).
+
 ## Conventions
 
 - TypeScript strict, ESM, no `any`.
@@ -138,4 +149,5 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - [x] M1 backend (auth, sessions, invites, Google, profile, avatar, email change, feature flag resolution)
 - [x] M1 frontend (login, register, verify, forgot/reset, profile with avatar and email change, DE/EN, brand font)
 - [x] Playwright E2E + a11y + screenshots, CI job
+- [x] M2 tracking (catalog, tags, entries, templates, dashboard, seed)
 - [ ] Next: M1 auth, M2 tracking, M3 analysis, M4 AI, M5 admin (incl. public registration switch), M6 GDPR/ops, deploy

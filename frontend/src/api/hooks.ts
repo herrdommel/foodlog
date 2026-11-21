@@ -1,5 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { AuthConfig, MeResponse } from '@foodlog/shared';
+import type {
+  Allergen,
+  AuthConfig,
+  EntryDto,
+  EntryInput,
+  IngredientDto,
+  MeResponse,
+  TemplateDto,
+} from '@foodlog/shared';
 import { api, ApiError } from './client.ts';
 
 export const meKey = ['me'] as const;
@@ -123,5 +131,80 @@ export function useRequestEmailChange() {
 export function useRequestPasswordReset() {
   return useMutation({
     mutationFn: () => api('/api/me/password-reset', { method: 'POST' }),
+  });
+}
+
+export function useEntries(date: string) {
+  return useQuery({
+    queryKey: ['entries', date],
+    queryFn: () => api<EntryDto[]>(`/api/entries?date=${date}`),
+  });
+}
+
+function useEntryMutation<TVariables>(mutationFn: (variables: TVariables) => Promise<unknown>) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['entries'] }),
+  });
+}
+
+export function useCreateEntry() {
+  return useEntryMutation((body: EntryInput) => api<EntryDto>('/api/entries', { body }));
+}
+
+export function useUpdateEntry() {
+  return useEntryMutation(({ id, body }: { id: string; body: EntryInput }) =>
+    api<EntryDto>(`/api/entries/${id}`, { method: 'PUT', body }),
+  );
+}
+
+export function useDeleteEntry() {
+  return useEntryMutation((id: string) => api(`/api/entries/${id}`, { method: 'DELETE' }));
+}
+
+export function useIngredientSearch(query: string) {
+  return useQuery({
+    queryKey: ['ingredients', query],
+    queryFn: () => api<IngredientDto[]>(`/api/ingredients?q=${encodeURIComponent(query)}&limit=8`),
+    staleTime: 30_000,
+    placeholderData: (previous) => previous,
+  });
+}
+
+export function useCreateIngredient() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { name: string; allergens: Allergen[] }) =>
+      api<IngredientDto>('/api/ingredients', { body }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ingredients'] }),
+  });
+}
+
+export function useTemplates() {
+  return useQuery({
+    queryKey: ['templates'],
+    queryFn: () => api<TemplateDto[]>('/api/templates'),
+  });
+}
+
+export function useCreateTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: {
+      name: string;
+      type: TemplateDto['type'];
+      title: string | null;
+      ingredientIds: string[];
+    }) => api<TemplateDto>('/api/templates', { body }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['templates'] }),
+  });
+}
+
+export function useDeleteTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api(`/api/templates/${id}`, { method: 'DELETE' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['templates'] }),
   });
 }

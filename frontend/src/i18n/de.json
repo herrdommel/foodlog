@@ -11,7 +11,10 @@
     "logout": "Abmelden",
     "or": "oder"
   },
-  "nav": { "dashboard": "Übersicht", "profile": "Profil" },
+  "nav": {
+    "dashboard": "Übersicht",
+    "profile": "Profil"
+  },
   "auth": {
     "loginTitle": "Anmelden",
     "login": "Anmelden",
@@ -39,15 +42,14 @@
     "resetDone": "Dein Passwort wurde geändert. Du kannst dich jetzt anmelden.",
     "missingToken": "Der Link ist unvollständig."
   },
-  "dashboard": {
-    "greeting": "Hallo, {{name}}",
-    "placeholder": "Hier erscheinen bald deine Einträge für heute."
-  },
   "profile": {
     "title": "Profil",
     "account": "Konto",
     "role": "Rolle",
-    "roles": { "user": "Nutzer", "admin": "Administrator" },
+    "roles": {
+      "user": "Nutzer",
+      "admin": "Administrator"
+    },
     "googleLinked": "Mit Google verknüpft",
     "preferences": "Einstellungen",
     "timezone": "Zeitzone",
@@ -83,6 +85,99 @@
     "invalid_image": "Die Datei ist kein unterstütztes Bild.",
     "google_failed": "Die Anmeldung mit Google ist fehlgeschlagen.",
     "google_unverified": "Die E-Mail-Adresse deines Google-Kontos ist nicht bestätigt.",
-    "google_disabled": "Die Anmeldung mit Google ist derzeit nicht verfügbar."
+    "google_disabled": "Die Anmeldung mit Google ist derzeit nicht verfügbar.",
+    "future_time": "Einträge in der Zukunft sind nicht möglich.",
+    "ingredient_exists": "Diese Zutat gibt es bereits.",
+    "template_exists": "Eine Vorlage mit diesem Namen gibt es bereits.",
+    "invalid_ingredient": "Unbekannte Zutat."
+  },
+  "tracking": {
+    "today": "Heute",
+    "previousDay": "Vorheriger Tag",
+    "nextDay": "Nächster Tag",
+    "goToToday": "Zu heute",
+    "addEntry": "Eintrag hinzufügen",
+    "empty": "Für diesen Tag gibt es noch keine Einträge.",
+    "types": {
+      "meal": "Mahlzeit",
+      "drink": "Getränk",
+      "symptom": "Symptom",
+      "stool": "Stuhlgang",
+      "medication": "Medikament"
+    },
+    "time": "Zeitpunkt",
+    "title": "Bezeichnung",
+    "titleOptional": "Bezeichnung (optional)",
+    "medicationName": "Name des Medikaments",
+    "note": "Notiz",
+    "ingredients": "Zutaten",
+    "searchIngredients": "Zutat suchen oder neu anlegen",
+    "createTag": "„{{name}}“ neu anlegen",
+    "createTagAllergens": "Enthält (optional)",
+    "addTag": "Hinzufügen",
+    "removeIngredient": "{{name}} entfernen",
+    "customTag": "eigene Zutat",
+    "noResults": "Keine Treffer",
+    "symptomType": "Art des Symptoms",
+    "severity": "Stärke",
+    "severityValue": "{{value}} von 10",
+    "bristol": "Konsistenz (Bristol-Skala)",
+    "bristolType": "Typ {{value}}",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "confirmDelete": "Wirklich löschen?",
+    "templates": "Vorlagen",
+    "useTemplate": "Vorlage {{name}} verwenden",
+    "saveAsTemplate": "Als Vorlage speichern",
+    "templateName": "Name der Vorlage",
+    "deleteTemplate": "Vorlage {{name}} löschen",
+    "symptoms": {
+      "abdominal_pain": "Bauchschmerzen",
+      "cramps": "Krämpfe",
+      "bloating": "Blähbauch",
+      "gas": "Blähungen",
+      "nausea": "Übelkeit",
+      "heartburn": "Sodbrennen",
+      "headache": "Kopfschmerzen",
+      "skin_rash": "Hautausschlag",
+      "itching": "Juckreiz",
+      "fatigue": "Müdigkeit",
+      "dizziness": "Schwindel",
+      "other": "Sonstiges"
+    },
+    "bristolDescriptions": {
+      "1": "Harte Klumpen, wie Nüsse",
+      "2": "Klumpig, wurstförmig",
+      "3": "Wurstförmig mit Rissen",
+      "4": "Glatt und weich, wurstförmig",
+      "5": "Weiche Klumpen mit klaren Kanten",
+      "6": "Breiig, unregelmäßige Stücke",
+      "7": "Wässrig, keine festen Stücke"
+    },
+    "allergens": {
+      "gluten": "Gluten",
+      "lactose": "Laktose",
+      "milk_protein": "Milcheiweiß",
+      "egg": "Ei",
+      "tree_nuts": "Schalenfrüchte",
+      "peanut": "Erdnuss",
+      "soy": "Soja",
+      "fish": "Fisch",
+      "shellfish": "Krebstiere",
+      "sesame": "Sesam",
+      "celery": "Sellerie",
+      "mustard": "Senf",
+      "lupin": "Lupine",
+      "sulfite": "Sulfite",
+      "histamine": "Histamin",
+      "fructose": "Fructose",
+      "sorbitol": "Sorbit",
+      "fodmap": "FODMAP",
+      "caffeine": "Koffein",
+      "alcohol": "Alkohol",
+      "spicy": "Scharf"
+    }
   }
 }

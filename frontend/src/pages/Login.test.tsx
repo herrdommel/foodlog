@@ -14,6 +14,7 @@ describe('login page', () => {
     mockGuest();
     let body: unknown;
     server.use(
+      http.get('/api/entries', () => HttpResponse.json([])),
       http.post('/api/auth/login', async ({ request }) => {
         body = await request.json();
         server.use(http.get('/api/me', () => HttpResponse.json(meResponse)));
@@ -26,7 +27,7 @@ describe('login page', () => {
     await user.type(screen.getByLabelText('Password'), 'correct horse battery');
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
 
-    expect(await screen.findByRole('heading', { name: 'Hello, Anna' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Meal' })).toBeInTheDocument();
     expect(body).toEqual({ email: 'anna@example.com', password: 'correct horse battery' });
   });
 

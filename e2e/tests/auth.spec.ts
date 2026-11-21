@@ -42,7 +42,7 @@ test('registers with an invitation, confirms the email and signs in', async ({ p
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password').fill(PASSWORD);
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page.getByRole('heading', { name: 'Hello, Anna Beispiel' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Meal', exact: true })).toBeVisible();
 
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
@@ -76,7 +76,7 @@ test('resets a forgotten password', async ({ page, request }) => {
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password').fill('a brand new password');
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page.getByRole('heading', { name: /Hello/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Meal', exact: true })).toBeVisible();
 });
 
 test('changes profile, avatar and email address', async ({ page, request }) => {

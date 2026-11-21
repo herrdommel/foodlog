@@ -20,6 +20,7 @@ export interface AppDeps {
   db: Database;
   mailer: Mailer;
   fetch?: typeof fetch;
+  disableRateLimit?: boolean;
 }
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
@@ -39,7 +40,10 @@ export async function buildApp(deps: AppDeps) {
 
   await app.register(helmet);
   await app.register(cookie);
-  await app.register(rateLimit, { global: false });
+  await app.register(rateLimit, {
+    global: false,
+    allowList: deps.disableRateLimit ? () => true : undefined,
+  });
   await app.register(multipart, { limits: { fileSize: 2 * 1024 * 1024, files: 1 } });
 
   const allowedOrigin = new URL(config.APP_URL).origin;

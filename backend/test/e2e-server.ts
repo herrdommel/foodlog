@@ -26,7 +26,7 @@ await db.execute(sql`SET FOREIGN_KEY_CHECKS = 1`);
 await syncCatalog(db);
 
 const mailer = createMemoryMailer();
-const app = await buildApp({ config, db, mailer });
+const app = await buildApp({ config, db, mailer, disableRateLimit: true });
 
 app.get('/__test/mail', async (request) => {
   const { to } = request.query as { to: string };

@@ -11,7 +11,10 @@
     "logout": "Sign out",
     "or": "or"
   },
-  "nav": { "dashboard": "Overview", "profile": "Profile" },
+  "nav": {
+    "dashboard": "Overview",
+    "profile": "Profile"
+  },
   "auth": {
     "loginTitle": "Sign in",
     "login": "Sign in",
@@ -39,15 +42,14 @@
     "resetDone": "Your password has been changed. You can sign in now.",
     "missingToken": "The link is incomplete."
   },
-  "dashboard": {
-    "greeting": "Hello, {{name}}",
-    "placeholder": "Your entries for today will show up here soon."
-  },
   "profile": {
     "title": "Profile",
     "account": "Account",
     "role": "Role",
-    "roles": { "user": "User", "admin": "Administrator" },
+    "roles": {
+      "user": "User",
+      "admin": "Administrator"
+    },
     "googleLinked": "Linked with Google",
     "preferences": "Preferences",
     "timezone": "Time zone",
@@ -83,6 +85,99 @@
     "invalid_image": "The file is not a supported image.",
     "google_failed": "Signing in with Google failed.",
     "google_unverified": "The email address of your Google account is not verified.",
-    "google_disabled": "Signing in with Google is currently unavailable."
+    "google_disabled": "Signing in with Google is currently unavailable.",
+    "future_time": "Entries in the future are not possible.",
+    "ingredient_exists": "This ingredient already exists.",
+    "template_exists": "A template with this name already exists.",
+    "invalid_ingredient": "Unknown ingredient."
+  },
+  "tracking": {
+    "today": "Today",
+    "previousDay": "Previous day",
+    "nextDay": "Next day",
+    "goToToday": "Go to today",
+    "addEntry": "Add entry",
+    "empty": "There are no entries for this day yet.",
+    "types": {
+      "meal": "Meal",
+      "drink": "Drink",
+      "symptom": "Symptom",
+      "stool": "Stool",
+      "medication": "Medication"
+    },
+    "time": "Time",
+    "title": "Title",
+    "titleOptional": "Title (optional)",
+    "medicationName": "Medication name",
+    "note": "Note",
+    "ingredients": "Ingredients",
+    "searchIngredients": "Search or create an ingredient",
+    "createTag": "Create “{{name}}”",
+    "createTagAllergens": "Contains (optional)",
+    "addTag": "Add",
+    "removeIngredient": "Remove {{name}}",
+    "customTag": "custom",
+    "noResults": "No results",
+    "symptomType": "Type of symptom",
+    "severity": "Severity",
+    "severityValue": "{{value}} out of 10",
+    "bristol": "Consistency (Bristol scale)",
+    "bristolType": "Type {{value}}",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Really delete?",
+    "templates": "Templates",
+    "useTemplate": "Use template {{name}}",
+    "saveAsTemplate": "Save as template",
+    "templateName": "Template name",
+    "deleteTemplate": "Delete template {{name}}",
+    "symptoms": {
+      "abdominal_pain": "Abdominal pain",
+      "cramps": "Cramps",
+      "bloating": "Bloating",
+      "gas": "Gas",
+      "nausea": "Nausea",
+      "heartburn": "Heartburn",
+      "headache": "Headache",
+      "skin_rash": "Skin rash",
+      "itching": "Itching",
+      "fatigue": "Fatigue",
+      "dizziness": "Dizziness",
+      "other": "Other"
+    },
+    "bristolDescriptions": {
+      "1": "Hard lumps, like nuts",
+      "2": "Lumpy, sausage-shaped",
+      "3": "Sausage-shaped with cracks",
+      "4": "Smooth and soft, sausage-shaped",
+      "5": "Soft blobs with clear edges",
+      "6": "Mushy, ragged pieces",
+      "7": "Watery, no solid pieces"
+    },
+    "allergens": {
+      "gluten": "Gluten",
+      "lactose": "Lactose",
+      "milk_protein": "Milk protein",
+      "egg": "Egg",
+      "tree_nuts": "Tree nuts",
+      "peanut": "Peanut",
+      "soy": "Soy",
+      "fish": "Fish",
+      "shellfish": "Shellfish",
+      "sesame": "Sesame",
+      "celery": "Celery",
+      "mustard": "Mustard",
+      "lupin": "Lupin",
+      "sulfite": "Sulfites",
+      "histamine": "Histamine",
+      "fructose": "Fructose",
+      "sorbitol": "Sorbitol",
+      "fodmap": "FODMAP",
+      "caffeine": "Caffeine",
+      "alcohol": "Alcohol",
+      "spicy": "Spicy"
+    }
   }
 }

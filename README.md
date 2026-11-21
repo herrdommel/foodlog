@@ -13,6 +13,7 @@ pnpm install
 cp .env.example .env
 docker compose -f compose.dev.yml up -d
 pnpm db:migrate
+pnpm db:seed # optional demo data, prints demo logins
 pnpm dev:backend
 pnpm dev:frontend
 ```
