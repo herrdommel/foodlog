@@ -320,6 +320,7 @@ describe('invitations', () => {
 
     const token = new URL(invite.link).searchParams.get('invite');
     const register = await post(t.app, '/api/auth/register', {
+      acceptPrivacy: true,
       name: 'Bob',
       email: 'bob@example.com',
       password: PASSWORD,
@@ -385,6 +386,7 @@ describe('invitations', () => {
     expect((await send('DELETE', `/api/admin/invites/${open.id}`)).statusCode).toBe(204);
     const token = new URL(open.link).searchParams.get('invite');
     const register = await post(t.app, '/api/auth/register', {
+      acceptPrivacy: true,
       name: 'Bob',
       email: 'bob@example.com',
       password: PASSWORD,
@@ -396,6 +398,7 @@ describe('invitations', () => {
       await post(t.app, '/api/admin/invites', {}, adminCookie)
     ).json();
     await post(t.app, '/api/auth/register', {
+      acceptPrivacy: true,
       name: 'Bob',
       email: 'bob@example.com',
       password: PASSWORD,
@@ -419,6 +422,7 @@ describe('settings and feature flags', () => {
     ]);
 
     const closed = await post(t.app, '/api/auth/register', {
+      acceptPrivacy: true,
       name: 'Bob',
       email: 'bob@example.com',
       password: PASSWORD,
@@ -429,6 +433,7 @@ describe('settings and feature flags', () => {
     expect(on.json().publicRegistration).toBe(true);
     expect((await get(t.app, '/api/auth/config')).json().publicRegistration).toBe(true);
     const open = await post(t.app, '/api/auth/register', {
+      acceptPrivacy: true,
       name: 'Bob',
       email: 'bob@example.com',
       password: PASSWORD,

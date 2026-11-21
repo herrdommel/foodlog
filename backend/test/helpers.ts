@@ -118,6 +118,7 @@ export function sessionCookie(response: { cookies: { name: string; value: string
 export async function registerAndLogin(t: TestApp, email = 'anna@example.com', name = 'Anna') {
   const invite = await createInvite(t);
   await post(t.app, '/api/auth/register', {
+    acceptPrivacy: true,
     name,
     email,
     password: PASSWORD,

@@ -72,6 +72,7 @@ export async function authRoutes(app: FastifyInstance, { config, db, mailer }: A
       locale: body.locale,
       passwordHash: await hashPassword(body.password),
       avatar: randomPresetAvatar(),
+      privacyConsentAt: new Date(),
     };
     await db.transaction(async (tx) => {
       await tx.insert(users).values(user);

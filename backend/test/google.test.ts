@@ -25,8 +25,12 @@ function stubGoogle(profile: Record<string, unknown>): typeof fetch {
 
 const google = { GOOGLE_CLIENT_ID: 'client', GOOGLE_CLIENT_SECRET: 'secret' };
 
-async function startFlow(invite?: string) {
-  const start = await get(t.app, `/api/auth/google${invite ? `?invite=${invite}` : ''}`);
+async function startFlow(options: { invite?: string; consent?: boolean } = { consent: true }) {
+  const parameters = new URLSearchParams();
+  if (options.invite) parameters.set('invite', options.invite);
+  if (options.consent) parameters.set('consent', '1');
+  const query = parameters.size > 0 ? `?${parameters}` : '';
+  const start = await get(t.app, `/api/auth/google${query}`);
   const location = new URL(start.headers.location as string);
   const cookies = start.cookies.map((c) => `${c.name}=${c.value}`).join('; ');
   return { start, location, cookies, state: location.searchParams.get('state')! };
@@ -70,6 +74,7 @@ describe('google sign-in', () => {
 
     const [user] = await t.db.select().from(users).where(eq(users.email, 'new@example.com'));
     expect(user?.emailVerifiedAt).not.toBeNull();
+    expect(user?.privacyConsentAt).not.toBeNull();
     expect(user?.passwordHash).toBeNull();
     const me = await get(t.app, '/api/me', `foodlog_session=${sessionCookie!.value}`);
     expect(me.json().user).toMatchObject({ googleLinked: true, hasPassword: false });
@@ -83,6 +88,35 @@ describe('google sign-in', () => {
     const { cookies, state } = await startFlow();
     const response = await callback(cookies, state);
     expect(response.headers.location).toBe(`${ORIGIN}/login?error=registration_closed`);
+  });
+
+  it('does not create a new account without consent to the privacy policy', async () => {
+    t = await createTestApp(
+      google,
+      stubGoogle({ sub: 'g1', email: 'new@example.com', email_verified: true, name: 'New User' }),
+    );
+    await setBooleanSetting(t.db, PUBLIC_REGISTRATION, true);
+    const { cookies, state } = await startFlow({});
+    const response = await callback(cookies, state);
+    expect(response.headers.location).toBe(`${ORIGIN}/login?error=consent_required`);
+    expect(response.cookies.find((c) => c.name === 'foodlog_session')).toBeUndefined();
+    expect(await t.db.select().from(users)).toHaveLength(0);
+  });
+
+  it('lets existing users sign in with Google without giving consent again', async () => {
+    t = await createTestApp(
+      google,
+      stubGoogle({ sub: 'g1', email: 'old@example.com', email_verified: true }),
+    );
+    await t.db.insert(users).values({
+      id: newId(),
+      email: 'old@example.com',
+      name: 'Old',
+      emailVerifiedAt: new Date(),
+    });
+    const { cookies, state } = await startFlow({});
+    const response = await callback(cookies, state);
+    expect(response.headers.location).toBe(`${ORIGIN}/`);
   });
 
   it('rejects a mismatching state', async () => {

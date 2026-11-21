@@ -43,6 +43,7 @@ export const registerSchema = z.object({
   password: passwordSchema,
   locale: localeSchema.default('de'),
   inviteToken: tokenSchema.optional(),
+  acceptPrivacy: z.literal(true),
 });
 
 export const loginSchema = z.object({
@@ -99,3 +100,12 @@ export interface AuthConfig {
 export interface ApiErrorBody {
   error: { code: string; message: string };
 }
+
+export const deleteAccountSchema = z.object({
+  confirmEmail: emailSchema,
+  password: z.string().min(1).max(128).optional(),
+});
+
+export const LEGAL_DOCS = ['privacy', 'imprint'] as const;
+export const legalDocSchema = z.enum(LEGAL_DOCS);
+export type LegalDoc = z.infer<typeof legalDocSchema>;

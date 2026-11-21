@@ -1,18 +1,21 @@
-import { eq } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 import sharp from 'sharp';
 import type { FastifyInstance } from 'fastify';
 import {
   changeEmailSchema,
+  deleteAccountSchema,
   tokenBodySchema,
   updateProfileSchema,
   type MeResponse,
 } from '@foodlog/shared';
 import type { AppDeps } from '../app.ts';
 import { userAvatars, users } from '../db/schema.ts';
+import { clearSessionCookie } from '../lib/cookies.ts';
 import { AppError, parseBody } from '../lib/errors.ts';
 import { verifyPassword } from '../lib/password.ts';
 import { createAuthMail } from '../services/auth-mail.ts';
 import { resolveFeatures } from '../services/features.ts';
+import { buildAccountExport } from '../services/account-export.ts';
 import { consumeAuthToken } from '../services/tokens.ts';
 import { findUserByEmail, toPublicUser, type UserRow } from '../services/users.ts';
 
@@ -138,6 +141,45 @@ export async function meRoutes(app: FastifyInstance, { config, db, mailer }: App
     async (request, reply) => {
       await authMail.sendReset(request.user!);
       return reply.status(202).send({ status: 'ok' });
+    },
+  );
+
+  app.get('/api/me/export', auth, async (request, reply) => {
+    const data = await buildAccountExport(db, request.user!);
+    const day = new Date().toISOString().slice(0, 10);
+    return reply
+      .header('content-type', 'application/json; charset=utf-8')
+      .header('content-disposition', `attachment; filename="foodlog-export-${day}.json"`)
+      .header('cache-control', 'no-store')
+      .send(JSON.stringify(data, null, 2));
+  });
+
+  app.post(
+    '/api/me/delete',
+    { ...auth, config: { rateLimit: { max: 5, timeWindow: '1 minute' } } },
+    async (request, reply) => {
+      const body = parseBody(deleteAccountSchema, request.body);
+      const user = request.user!;
+      if (body.confirmEmail !== user.email) {
+        throw new AppError(400, 'email_mismatch', 'The email address does not match');
+      }
+      if (user.passwordHash) {
+        if (!body.password || !(await verifyPassword(user.passwordHash, body.password))) {
+          throw new AppError(403, 'invalid_password', 'The password is incorrect');
+        }
+      }
+      if (user.role === 'admin') {
+        const [admins] = await db
+          .select({ total: count() })
+          .from(users)
+          .where(and(eq(users.role, 'admin'), eq(users.active, true)));
+        if ((admins?.total ?? 0) <= 1) {
+          throw new AppError(409, 'last_admin', 'The last administrator cannot delete the account');
+        }
+      }
+      await db.delete(users).where(eq(users.id, user.id));
+      clearSessionCookie(reply, config);
+      return reply.status(204).send();
     },
   );
 }

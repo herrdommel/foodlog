@@ -28,7 +28,7 @@ describe('secret box', () => {
     for (let index = 2; index < parts.length; index++) {
       const changed = [...parts];
       const original = changed[index]!;
-      changed[index] = `${original.slice(0, -1)}${original.endsWith('A') ? 'B' : 'A'}`;
+      changed[index] = `${original.startsWith('A') ? 'B' : 'A'}${original.slice(1)}`;
       expect(() => box.decrypt(changed.join('.'), 'c'), `segment ${index}`).toThrow();
     }
   });

@@ -13,6 +13,7 @@ import { findUserByEmail, randomPresetAvatar } from '../services/users.ts';
 const STATE_COOKIE = 'foodlog_oauth_state';
 const VERIFIER_COOKIE = 'foodlog_oauth_verifier';
 const INVITE_COOKIE = 'foodlog_oauth_invite';
+const CONSENT_COOKIE = 'foodlog_oauth_consent';
 
 export async function googleRoutes(app: FastifyInstance, { config, db, fetch }: AppDeps) {
   if (!config.GOOGLE_CLIENT_ID || !config.GOOGLE_CLIENT_SECRET) return;
@@ -35,8 +36,9 @@ export async function googleRoutes(app: FastifyInstance, { config, db, fetch }: 
     const url = google.createAuthorizationUrl(state, verifier);
     setShortLivedCookie(reply, config, STATE_COOKIE, state);
     setShortLivedCookie(reply, config, VERIFIER_COOKIE, verifier);
-    const { invite } = request.query as { invite?: string };
+    const { invite, consent } = request.query as { invite?: string; consent?: string };
     if (invite) setShortLivedCookie(reply, config, INVITE_COOKIE, invite);
+    if (consent === '1') setShortLivedCookie(reply, config, CONSENT_COOKIE, '1');
     return reply.redirect(url.toString());
   });
 
@@ -45,7 +47,8 @@ export async function googleRoutes(app: FastifyInstance, { config, db, fetch }: 
     const storedState = request.cookies[STATE_COOKIE];
     const verifier = request.cookies[VERIFIER_COOKIE];
     const inviteToken = request.cookies[INVITE_COOKIE];
-    for (const name of [STATE_COOKIE, VERIFIER_COOKIE, INVITE_COOKIE]) {
+    const privacyAccepted = request.cookies[CONSENT_COOKIE] === '1';
+    for (const name of [STATE_COOKIE, VERIFIER_COOKIE, INVITE_COOKIE, CONSENT_COOKIE]) {
       clearShortLivedCookie(reply, config, name);
     }
     if (!code || !state || !storedState || !verifier || state !== storedState) {
@@ -90,6 +93,7 @@ export async function googleRoutes(app: FastifyInstance, { config, db, fetch }: 
         userId = existing.id;
         active = existing.active;
       } else {
+        if (!privacyAccepted) return reply.redirect(fail('consent_required'));
         let inviteId: string | null = null;
         if (inviteToken) {
           const [invite] = await db
@@ -117,6 +121,7 @@ export async function googleRoutes(app: FastifyInstance, { config, db, fetch }: 
               email,
               name: (claims.name ?? email.split('@')[0] ?? 'User').slice(0, 100),
               emailVerifiedAt: new Date(),
+              privacyConsentAt: new Date(),
               avatar: randomPresetAvatar(),
             });
             await tx

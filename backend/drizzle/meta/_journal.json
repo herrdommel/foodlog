@@ -36,6 +36,13 @@
       "when": 1795302783166,
       "tag": "20261121231303_ai_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1795303495258,
+      "tag": "20261121232455_privacy_consent",
+      "breakpoints": true
     }
   ]
 }

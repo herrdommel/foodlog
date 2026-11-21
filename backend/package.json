@@ -14,7 +14,8 @@
     "db:migrate": "tsx --env-file-if-exists=../.env src/db/migrate.ts",
     "db:seed": "tsx --env-file-if-exists=../.env src/db/seed.ts",
     "admin:create": "tsx --env-file-if-exists=../.env src/cli/create-admin.ts",
-    "invite:create": "tsx --env-file-if-exists=../.env src/cli/create-invite.ts"
+    "invite:create": "tsx --env-file-if-exists=../.env src/cli/create-invite.ts",
+    "retention:run": "tsx --env-file-if-exists=../.env src/cli/retention.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.12.0",

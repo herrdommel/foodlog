@@ -18,6 +18,7 @@ import { entryRoutes } from './routes/entries.ts';
 import { exportRoutes } from './routes/export.ts';
 import { googleRoutes } from './routes/google.ts';
 import { ingredientRoutes } from './routes/ingredients.ts';
+import { legalRoutes } from './routes/legal.ts';
 import { meRoutes } from './routes/me.ts';
 import { templateRoutes } from './routes/templates.ts';
 import { createProviders, type AiProviders } from './services/ai/providers.ts';
@@ -102,6 +103,7 @@ export async function buildApp(deps: AppDeps) {
   await app.register(templateRoutes, deps);
   await app.register(analysisRoutes, deps);
   await app.register(exportRoutes, deps);
+  await app.register(legalRoutes, deps);
   await app.register(aiRoutes, {
     ...deps,
     aiProviders:

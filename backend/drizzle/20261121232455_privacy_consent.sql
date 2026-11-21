@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `privacy_consent_at` datetime;

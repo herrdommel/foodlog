@@ -24,6 +24,7 @@ export const users = mysqlTable('users', {
   id: varchar('id', { length: 36 }).primaryKey(),
   email: varchar('email', { length: 254 }).notNull().unique(),
   emailVerifiedAt: datetime('email_verified_at'),
+  privacyConsentAt: datetime('privacy_consent_at'),
   passwordHash: varchar('password_hash', { length: 255 }),
   name: varchar('name', { length: 100 }).notNull(),
   avatar: varchar('avatar', { length: 16 }).notNull().default('preset:1'),

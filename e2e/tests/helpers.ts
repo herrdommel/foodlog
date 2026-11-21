@@ -47,7 +47,14 @@ export async function registerVerified(
   const inviteToken = await createInvite(request);
   const register = await request.post('/api/auth/register', {
     headers: { origin: ORIGIN },
-    data: { name, email, password: PASSWORD, locale: options.locale ?? 'en', inviteToken },
+    data: {
+      name,
+      email,
+      password: PASSWORD,
+      locale: options.locale ?? 'en',
+      inviteToken,
+      acceptPrivacy: true,
+    },
   });
   expect(register.status()).toBe(202);
   const link = await latestMailLink(request, email, '/verify-email');

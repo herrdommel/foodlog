@@ -29,6 +29,7 @@ afterAll(async () => {
 describe('registration', () => {
   it('rejects registration without invitation when public registration is off', async () => {
     const response = await post(t.app, '/api/auth/register', {
+      acceptPrivacy: true,
       name: 'Anna',
       email: 'anna@example.com',
       password: PASSWORD,
@@ -40,6 +41,7 @@ describe('registration', () => {
   it('allows registration when public registration is on', async () => {
     await setBooleanSetting(t.db, PUBLIC_REGISTRATION, true);
     const response = await post(t.app, '/api/auth/register', {
+      acceptPrivacy: true,
       name: 'Anna',
       email: 'anna@example.com',
       password: PASSWORD,
@@ -51,6 +53,7 @@ describe('registration', () => {
   it('registers with invitation, verifies email and logs in', async () => {
     const invite = await createInvite(t);
     const register = await post(t.app, '/api/auth/register', {
+      acceptPrivacy: true,
       name: 'Anna',
       email: 'Anna@Example.com',
       password: PASSWORD,
@@ -86,6 +89,7 @@ describe('registration', () => {
   it('does not allow reusing an invitation', async () => {
     const invite = await createInvite(t);
     const body = {
+      acceptPrivacy: true,
       name: 'Anna',
       email: 'anna@example.com',
       password: PASSWORD,
@@ -103,6 +107,7 @@ describe('registration', () => {
   it('enforces the email of an invitation', async () => {
     const invite = await createInvite(t, 'anna@example.com');
     const response = await post(t.app, '/api/auth/register', {
+      acceptPrivacy: true,
       name: 'Bob',
       email: 'bob@example.com',
       password: PASSWORD,
@@ -116,6 +121,7 @@ describe('registration', () => {
     t.mailer.outbox.length = 0;
     const invite = await createInvite(t);
     const response = await post(t.app, '/api/auth/register', {
+      acceptPrivacy: true,
       name: 'Mallory',
       email: 'anna@example.com',
       password: PASSWORD,
@@ -129,6 +135,7 @@ describe('registration', () => {
   it('rejects weak passwords', async () => {
     const invite = await createInvite(t);
     const response = await post(t.app, '/api/auth/register', {
+      acceptPrivacy: true,
       name: 'Anna',
       email: 'anna@example.com',
       password: 'short',

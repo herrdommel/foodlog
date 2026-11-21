@@ -12,6 +12,7 @@ await build({
     'src/db/seed.ts',
     'src/cli/create-admin.ts',
     'src/cli/create-invite.ts',
+    'src/cli/retention.ts',
   ],
   outdir: 'dist',
   outbase: 'src',
