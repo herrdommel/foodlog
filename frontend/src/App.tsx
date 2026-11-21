@@ -1,8 +1,13 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router';
 import { useMe } from './api/hooks.ts';
+import { AdminLayout } from './components/admin/AdminLayout.tsx';
 import { AppLayout } from './components/Layout.tsx';
 import { setLocale } from './i18n/index.ts';
+import { AdminInvitesPage } from './pages/admin/AdminInvites.tsx';
+import { AdminSettingsPage } from './pages/admin/AdminSettings.tsx';
+import { AdminUserDetailPage } from './pages/admin/AdminUserDetail.tsx';
+import { AdminUsersPage } from './pages/admin/AdminUsers.tsx';
 import { AnalysisPage } from './pages/Analysis.tsx';
 import { DashboardPage } from './pages/Dashboard.tsx';
 import { IngredientsPage } from './pages/Ingredients.tsx';
@@ -21,6 +26,12 @@ function RequireAuth() {
   const { data: me, isPending } = useMe();
   if (isPending) return null;
   if (!me) return <Navigate to="/login" replace />;
+  return <Outlet />;
+}
+
+function RequireAdmin() {
+  const { data: me } = useMe();
+  if (me?.user.role !== 'admin') return <Navigate to="/" replace />;
   return <Outlet />;
 }
 
@@ -55,6 +66,15 @@ export function AppRoutes() {
           <Route path="/report" element={<ReportPage />} />
           <Route path="/ingredients" element={<IngredientsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/admin" element={<RequireAdmin />}>
+            <Route element={<AdminLayout />}>
+              <Route index element={<Navigate to="users" replace />} />
+              <Route path="users" element={<AdminUsersPage />} />
+              <Route path="users/:id" element={<AdminUserDetailPage />} />
+              <Route path="invites" element={<AdminInvitesPage />} />
+              <Route path="settings" element={<AdminSettingsPage />} />
+            </Route>
+          </Route>
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

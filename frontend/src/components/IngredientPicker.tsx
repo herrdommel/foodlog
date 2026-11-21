@@ -1,20 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Allergen, IngredientDto } from '@foodlog/shared';
 import { useCreateIngredient, useIngredientSearch } from '../api/hooks.ts';
 import { ingredientName } from '../lib/format.ts';
+import { useDebounced } from '../lib/useDebounced.ts';
 import { AllergenCheckboxes } from './AllergenCheckboxes.tsx';
 import { AllergenChips } from './AllergenChips.tsx';
 import { Button, ErrorMessage } from './ui.tsx';
-
-function useDebounced(value: string, delay = 250) {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const timer = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(timer);
-  }, [value, delay]);
-  return debounced;
-}
 
 export function IngredientPicker({
   selected,

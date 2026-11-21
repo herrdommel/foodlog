@@ -56,6 +56,11 @@ export function AppLayout() {
           <NavLink to="/profile" className={link}>
             {t('nav.profile')}
           </NavLink>
+          {me?.user.role === 'admin' && (
+            <NavLink to="/admin" className={link}>
+              {t('nav.admin')}
+            </NavLink>
+          )}
         </nav>
         <div className="flex items-center gap-3">
           {me && <Avatar user={me.user} />}

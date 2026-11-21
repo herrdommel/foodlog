@@ -1,6 +1,13 @@
 import { mkdirSync } from 'node:fs';
 import { test, type Page } from '@playwright/test';
-import { createInvite, loginViaApi, ORIGIN, registerVerified, seedDemoData } from './helpers.ts';
+import {
+  createInvite,
+  loginViaApi,
+  ORIGIN,
+  promoteToAdmin,
+  registerVerified,
+  seedDemoData,
+} from './helpers.ts';
 
 const OUT = 'screenshots';
 
@@ -100,6 +107,25 @@ for (const variant of variants) {
       await page.getByRole('img', { name: 'Complaints per day' }).waitFor();
       await page.emulateMedia({ media: 'print' });
       await shot(page, `${variant.name}-report-print`);
+      await page.emulateMedia({ media: 'screen', colorScheme: variant.scheme });
+
+      await promoteToAdmin(page, email);
+      await page.goto('/admin/users');
+      await page.getByRole('table', { name: 'User management' }).waitFor();
+      await shot(page, `${variant.name}-admin-users`);
+      await page
+        .getByRole('link', { name: /^Open / })
+        .first()
+        .click();
+      await page.getByRole('region', { name: 'Features' }).waitFor();
+      await shot(page, `${variant.name}-admin-user`);
+      await page.goto('/admin/invites');
+      await page.getByRole('button', { name: 'Create invitation' }).click();
+      await page.getByLabel('Invitation link (shown only now)').waitFor();
+      await shot(page, `${variant.name}-admin-invites`);
+      await page.goto('/admin/settings');
+      await page.getByRole('checkbox', { name: 'Allow public registration' }).waitFor();
+      await shot(page, `${variant.name}-admin-settings`);
     });
   });
 }

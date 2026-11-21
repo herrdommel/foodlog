@@ -15,7 +15,8 @@
     "dashboard": "Übersicht",
     "profile": "Profil",
     "ingredients": "Zutaten",
-    "analysis": "Auswertung"
+    "analysis": "Auswertung",
+    "admin": "Admin"
   },
   "auth": {
     "loginTitle": "Anmelden",
@@ -91,7 +92,13 @@
     "future_time": "Einträge in der Zukunft sind nicht möglich.",
     "ingredient_exists": "Diese Zutat gibt es bereits.",
     "template_exists": "Eine Vorlage mit diesem Namen gibt es bereits.",
-    "invalid_ingredient": "Unbekannte Zutat."
+    "invalid_ingredient": "Unbekannte Zutat.",
+    "cannot_modify_self": "Du kannst dich nicht selbst herabstufen oder deaktivieren.",
+    "mail_failed": "Die E-Mail konnte nicht gesendet werden.",
+    "invite_used": "Diese Einladung wurde bereits verwendet.",
+    "feature_disabled": "Diese Funktion ist deaktiviert.",
+    "forbidden": "Dafür fehlt die Berechtigung.",
+    "unauthenticated": "Bitte melde dich an."
   },
   "tracking": {
     "today": "Heute",
@@ -280,5 +287,134 @@
     "summaryTitle": "Zusammenfassung",
     "methodTitle": "So wurde ausgewertet",
     "method": "Jede Mahlzeit und jedes Getränk zählt als Gelegenheit. Sie gilt als auffällig, wenn innerhalb des Zeitfensters danach eine Beschwerde eingetragen wurde. Der Risiko-Faktor vergleicht Mahlzeiten mit und ohne die jeweilige Zutat. Zutaten mit weniger als {{exposures}} Mahlzeiten oder {{outcomes}} Beschwerden werden nicht bewertet. Zutaten, die immer gemeinsam gegessen wurden, lassen sich nicht unterscheiden."
+  },
+  "admin": {
+    "nav": "Admin",
+    "title": "Administration",
+    "tabs": {
+      "users": "Nutzer",
+      "invites": "Einladungen",
+      "settings": "Einstellungen"
+    },
+    "users": {
+      "title": "Nutzerverwaltung",
+      "search": "Nach Name oder E-Mail suchen",
+      "name": "Name",
+      "email": "E-Mail",
+      "role": "Rolle",
+      "status": "Status",
+      "entries": "Einträge",
+      "created": "Registriert",
+      "empty": "Keine Nutzer gefunden.",
+      "total_one": "{{count}} Nutzer",
+      "total_other": "{{count}} Nutzer",
+      "previous": "Zurück",
+      "next": "Weiter",
+      "page": "Seite {{page}} von {{pages}}",
+      "open": "{{name}} öffnen"
+    },
+    "roles": {
+      "user": "Nutzer",
+      "admin": "Administrator"
+    },
+    "statuses": {
+      "active": "Aktiv",
+      "inactive": "Deaktiviert",
+      "unverified": "E-Mail unbestätigt"
+    },
+    "detail": {
+      "back": "Zurück zur Liste",
+      "profile": "Stammdaten",
+      "save": "Speichern",
+      "saved": "Gespeichert",
+      "emailHint": "Eine geänderte E-Mail-Adresse muss vom Nutzer bestätigt werden. Alle Sitzungen werden beendet.",
+      "facts": "Konto",
+      "verified": "E-Mail bestätigt",
+      "yes": "Ja",
+      "no": "Nein",
+      "google": "Mit Google verknüpft",
+      "password": "Passwort gesetzt",
+      "language": "Sprache",
+      "timezone": "Zeitzone",
+      "selfHint": "Du kannst dich nicht selbst herabstufen oder deaktivieren.",
+      "deactivate": "Konto deaktivieren",
+      "activate": "Konto aktivieren",
+      "confirmDeactivate": "{{name}} wird abgemeldet und kann sich nicht mehr anmelden. Die Daten bleiben erhalten.",
+      "confirm": "Bestätigen",
+      "cancel": "Abbrechen",
+      "resetTitle": "Passwort zurücksetzen",
+      "resetText": "Der Nutzer legt das neue Passwort selbst über einen Link fest. Der Link ist eine Stunde gültig.",
+      "sendEmail": "Link per E-Mail senden",
+      "createLink": "Link erzeugen",
+      "emailSent": "Die E-Mail wurde gesendet.",
+      "linkCreated": "Link zum Weitergeben (wird nur jetzt angezeigt)",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "featuresTitle": "Funktionen",
+      "featuresText": "Überschreibt die Standardeinstellung für diesen Nutzer. Ist eine Funktion global aus, bleibt sie für alle aus.",
+      "featureDefault": "Standard",
+      "featureOn": "An",
+      "featureOff": "Aus",
+      "effective": "Wirksam: {{value}}",
+      "globallyOff": "global deaktiviert"
+    },
+    "features": {
+      "ai_analysis": "KI-Auswertung",
+      "google_login": "Anmeldung mit Google",
+      "data_export": "Datenexport"
+    },
+    "invites": {
+      "title": "Einladungen",
+      "createTitle": "Einladung erstellen",
+      "email": "E-Mail-Adresse (optional)",
+      "emailHint": "Mit Adresse ist die Einladung nur für diese E-Mail-Adresse gültig.",
+      "sendMail": "Einladung per E-Mail senden",
+      "expires": "Gültig für (Tage)",
+      "create": "Einladung erstellen",
+      "created": "Einladungslink (wird nur jetzt angezeigt)",
+      "mailSent": "Die E-Mail wurde gesendet.",
+      "mailNotSent": "Die E-Mail konnte nicht gesendet werden. Gib den Link selbst weiter.",
+      "listTitle": "Bisherige Einladungen",
+      "empty": "Noch keine Einladungen.",
+      "forEmail": "Für",
+      "anyone": "Beliebige Person",
+      "expiresAt": "Gültig bis",
+      "usedBy": "Verwendet von {{email}}",
+      "revoke": "Widerrufen",
+      "revokeAria": "Einladung {{name}} widerrufen",
+      "status": {
+        "open": "Offen",
+        "used": "Verwendet",
+        "expired": "Abgelaufen"
+      }
+    },
+    "settings": {
+      "title": "Einstellungen",
+      "registrationTitle": "Registrierung",
+      "publicRegistration": "Öffentliche Registrierung erlauben",
+      "registrationHint": "Aus: Registrierung nur mit Einladungslink. An: Jeder kann sich registrieren.",
+      "featuresTitle": "Funktionen",
+      "featuresText": "„Aktiv“ ist der globale Schalter (aus = für alle aus). „Standard für Nutzer“ gilt, solange es keine Einzel-Einstellung gibt.",
+      "feature": "Funktion",
+      "enabled": "Aktiv",
+      "defaultForUsers": "Standard für Nutzer",
+      "auditTitle": "Aktivitätsprotokoll",
+      "auditEmpty": "Noch keine Aktivitäten.",
+      "actions": {
+        "user.rename": "Name geändert",
+        "user.email": "E-Mail geändert",
+        "user.activate": "Konto aktiviert",
+        "user.deactivate": "Konto deaktiviert",
+        "user.role.admin": "Zum Admin gemacht",
+        "user.role.user": "Zum Nutzer gemacht",
+        "user.reset_link.email": "Reset-Link per E-Mail",
+        "user.reset_link.link": "Reset-Link erzeugt",
+        "user.feature": "Funktion für Nutzer geändert",
+        "invite.create": "Einladung erstellt",
+        "invite.revoke": "Einladung widerrufen",
+        "setting.public_registration": "Öffentliche Registrierung geändert",
+        "feature.update": "Funktion global geändert"
+      }
+    }
   }
 }

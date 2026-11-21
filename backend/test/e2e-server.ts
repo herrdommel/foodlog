@@ -54,6 +54,12 @@ app.get('/__test/feature', async (request) => {
   return { updated: true };
 });
 
+app.get('/__test/promote', async (request) => {
+  const { email } = request.query as { email: string };
+  await db.update(users).set({ role: 'admin' }).where(eq(users.email, email));
+  return { promoted: true };
+});
+
 app.get('/__test/invite', async () => {
   const token = newToken();
   await db.insert(invites).values({

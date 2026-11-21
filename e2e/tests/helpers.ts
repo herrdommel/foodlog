@@ -81,3 +81,10 @@ export async function setFeature(page: Page, email: string, key: string, enabled
   });
   expect(response.ok()).toBe(true);
 }
+
+export async function promoteToAdmin(page: Page, email: string) {
+  const response = await page.request.get('http://127.0.0.1:3100/__test/promote', {
+    params: { email },
+  });
+  expect(response.ok()).toBe(true);
+}

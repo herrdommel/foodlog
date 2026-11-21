@@ -118,7 +118,7 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Never reveal whether an email exists (register, forgot password, resend). Login uses a dummy hash for unknown users.
 - Google sign-in links to an existing account only because Google verified the email. If the local account was unverified, its password is cleared on linking (prevents pre-registration takeover).
 - All timestamps are UTC (`SET time_zone` on every connection).
-- Initial schema migration was regenerated during M1 (nothing deployed yet). From the first release on, migrations are append-only.
+- Migrations are append-only and use a timestamp prefix (`migrations.prefix: 'timestamp'` in `backend/drizzle.config.ts`, files look like `20261121213212_bent_pandemic.sql`), so parallel branches do not collide on numbers. Never edit or rename a migration that was merged. If two branches both add a migration, `meta/_journal.json` conflicts: keep both entries ordered by `when`. The initial schema was regenerated several times during M1 to M2 while nothing was deployed; that is over.
 - CLI: `pnpm admin:create <email> <name>` (password via stdin), `pnpm invite:create [email]`.
 
 ## Tracking notes (M2)
@@ -148,6 +148,15 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - The doctor report is a normal page (`/report`) with print styles, no PDF library. Charts have animations switched off, otherwise they print empty. `page.pdf()` in the E2E test only checks that printing works.
 - E2E server helpers (`/__test/*`): `invite`, `mail`, `seed-demo`, `feature`. They exist only in `backend/test/e2e-server.ts`.
 
+## Admin notes (M5)
+
+- Admin routes live in `backend/src/routes/admin-*.ts`, all behind `app.requireAdmin`. Every admin mutation writes a row to `admin_audit` (shown on the settings page). Add `recordAudit` to new admin actions.
+- Admins cannot demote or deactivate themselves (`cannot_modify_self`), which also guarantees that at least one active admin remains. Do not add a separate last-admin rule, it could never trigger.
+- Changing a user's email as admin sets it unverified, ends all sessions and mails a verification link to the new address. Deactivating ends all sessions.
+- Password help is always a reset link (email, or shown once for the admin to hand over), never a password chosen by the admin.
+- Invitation links are only returned at creation (only the hash is stored). Public registration is a setting (`public_registration`, default off). Feature flags: global switch beats per-user override (see "Feature flags").
+- E2E: controlled checkboxes (state comes from the server) must be toggled with `click()` plus `toBeChecked()`, not `check()`. Tests that change global settings restore them in `finally`, the E2E database is shared across tests. Dark accent colour is `#4cb38e` (contrast on cards), keep contrast checks green.
+
 ## Conventions
 
 - TypeScript strict, ESM, no `any`.
@@ -168,4 +177,5 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - [x] M2 tracking (catalog, tags, entries, templates, dashboard, seed)
 - [x] M3 ingredients page and analysis (suspects, charts)
 - [x] M3 export (CSV, printable report) and feature gate
+- [x] M5 admin (users, invitations, settings, feature flags, activity log)
 - [ ] Next: M1 auth, M2 tracking, M3 analysis, M4 AI, M5 admin (incl. public registration switch), M6 GDPR/ops, deploy

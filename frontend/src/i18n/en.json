@@ -15,7 +15,8 @@
     "dashboard": "Overview",
     "profile": "Profile",
     "ingredients": "Ingredients",
-    "analysis": "Analysis"
+    "analysis": "Analysis",
+    "admin": "Admin"
   },
   "auth": {
     "loginTitle": "Sign in",
@@ -91,7 +92,13 @@
     "future_time": "Entries in the future are not possible.",
     "ingredient_exists": "This ingredient already exists.",
     "template_exists": "A template with this name already exists.",
-    "invalid_ingredient": "Unknown ingredient."
+    "invalid_ingredient": "Unknown ingredient.",
+    "cannot_modify_self": "You cannot demote or deactivate yourself.",
+    "mail_failed": "The email could not be sent.",
+    "invite_used": "This invitation was already used.",
+    "feature_disabled": "This feature is disabled.",
+    "forbidden": "You do not have permission for this.",
+    "unauthenticated": "Please sign in."
   },
   "tracking": {
     "today": "Today",
@@ -280,5 +287,134 @@
     "summaryTitle": "Summary",
     "methodTitle": "How this was calculated",
     "method": "Every meal and drink counts as an occasion. It is flagged if a complaint was logged within the time window afterwards. The risk factor compares meals with and without the respective ingredient. Ingredients with fewer than {{exposures}} meals or {{outcomes}} complaints are not rated. Ingredients that were always eaten together cannot be told apart."
+  },
+  "admin": {
+    "nav": "Admin",
+    "title": "Administration",
+    "tabs": {
+      "users": "Users",
+      "invites": "Invitations",
+      "settings": "Settings"
+    },
+    "users": {
+      "title": "User management",
+      "search": "Search by name or email",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "entries": "Entries",
+      "created": "Registered",
+      "empty": "No users found.",
+      "total_one": "{{count}} user",
+      "total_other": "{{count}} users",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {{page}} of {{pages}}",
+      "open": "Open {{name}}"
+    },
+    "roles": {
+      "user": "User",
+      "admin": "Administrator"
+    },
+    "statuses": {
+      "active": "Active",
+      "inactive": "Deactivated",
+      "unverified": "Email unconfirmed"
+    },
+    "detail": {
+      "back": "Back to the list",
+      "profile": "Profile data",
+      "save": "Save",
+      "saved": "Saved",
+      "emailHint": "A changed email address must be confirmed by the user. All sessions are ended.",
+      "facts": "Account",
+      "verified": "Email confirmed",
+      "yes": "Yes",
+      "no": "No",
+      "google": "Linked with Google",
+      "password": "Password set",
+      "language": "Language",
+      "timezone": "Time zone",
+      "selfHint": "You cannot demote or deactivate yourself.",
+      "deactivate": "Deactivate account",
+      "activate": "Activate account",
+      "confirmDeactivate": "{{name}} will be signed out and can no longer sign in. The data is kept.",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "resetTitle": "Reset password",
+      "resetText": "The user sets the new password via a link. The link is valid for one hour.",
+      "sendEmail": "Send link by email",
+      "createLink": "Create link",
+      "emailSent": "The email has been sent.",
+      "linkCreated": "Link to hand over (shown only now)",
+      "copy": "Copy",
+      "copied": "Copied",
+      "featuresTitle": "Features",
+      "featuresText": "Overrides the default for this user. If a feature is off globally, it stays off for everyone.",
+      "featureDefault": "Default",
+      "featureOn": "On",
+      "featureOff": "Off",
+      "effective": "Effective: {{value}}",
+      "globallyOff": "disabled globally"
+    },
+    "features": {
+      "ai_analysis": "AI analysis",
+      "google_login": "Sign in with Google",
+      "data_export": "Data export"
+    },
+    "invites": {
+      "title": "Invitations",
+      "createTitle": "Create invitation",
+      "email": "Email address (optional)",
+      "emailHint": "With an address, the invitation is only valid for that email address.",
+      "sendMail": "Send invitation by email",
+      "expires": "Valid for (days)",
+      "create": "Create invitation",
+      "created": "Invitation link (shown only now)",
+      "mailSent": "The email has been sent.",
+      "mailNotSent": "The email could not be sent. Hand over the link yourself.",
+      "listTitle": "Previous invitations",
+      "empty": "No invitations yet.",
+      "forEmail": "For",
+      "anyone": "Anyone",
+      "expiresAt": "Valid until",
+      "usedBy": "Used by {{email}}",
+      "revoke": "Revoke",
+      "revokeAria": "Revoke invitation {{name}}",
+      "status": {
+        "open": "Open",
+        "used": "Used",
+        "expired": "Expired"
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "registrationTitle": "Registration",
+      "publicRegistration": "Allow public registration",
+      "registrationHint": "Off: registration only with an invitation link. On: anyone can register.",
+      "featuresTitle": "Features",
+      "featuresText": "“Enabled” is the global switch (off = off for everyone). “Default for users” applies unless there is a per-user setting.",
+      "feature": "Feature",
+      "enabled": "Enabled",
+      "defaultForUsers": "Default for users",
+      "auditTitle": "Activity log",
+      "auditEmpty": "No activity yet.",
+      "actions": {
+        "user.rename": "Name changed",
+        "user.email": "Email changed",
+        "user.activate": "Account activated",
+        "user.deactivate": "Account deactivated",
+        "user.role.admin": "Made admin",
+        "user.role.user": "Made regular user",
+        "user.reset_link.email": "Reset link sent by email",
+        "user.reset_link.link": "Reset link created",
+        "user.feature": "Feature changed for user",
+        "invite.create": "Invitation created",
+        "invite.revoke": "Invitation revoked",
+        "setting.public_registration": "Public registration changed",
+        "feature.update": "Feature changed globally"
+      }
+    }
   }
 }

@@ -1,13 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
+  AdminSettingsDto,
+  AdminUserDetailDto,
+  AdminUsersPageDto,
   Allergen,
   AnalysisDto,
+  AuditEntryDto,
   AuthConfig,
+  CreatedInviteDto,
   CustomIngredientDto,
   EntryDto,
   EntryInput,
   IngredientDto,
+  InviteDto,
   MeResponse,
+  ResetLinkDto,
   TemplateDto,
 } from '@foodlog/shared';
 import { api, ApiError } from './client.ts';
@@ -268,5 +275,125 @@ export function useAnalysis(params: {
     queryKey: ['analysis', query.toString()],
     queryFn: () => api<AnalysisDto>(`/api/analysis?${query.toString()}`),
     placeholderData: (previous) => previous,
+  });
+}
+
+export function useAdminUsers(params: { q: string; page: number }) {
+  const query = new URLSearchParams({ q: params.q, page: String(params.page), pageSize: '25' });
+  return useQuery({
+    queryKey: ['admin', 'users', query.toString()],
+    queryFn: () => api<AdminUsersPageDto>(`/api/admin/users?${query.toString()}`),
+    placeholderData: (previous) => previous,
+  });
+}
+
+export function useAdminUser(id: string) {
+  return useQuery({
+    queryKey: ['admin', 'user', id],
+    queryFn: () => api<AdminUserDetailDto>(`/api/admin/users/${id}`),
+  });
+}
+
+function useAdminMutation<TVariables, TResult>(
+  mutationFn: (variables: TVariables) => Promise<TResult>,
+  options: { userId?: (variables: TVariables) => string } = {},
+) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn,
+    onSuccess: (result, variables) => {
+      if (options.userId && result && typeof result === 'object' && 'features' in result) {
+        queryClient.setQueryData(['admin', 'user', options.userId(variables)], result);
+      }
+      void queryClient.invalidateQueries({ queryKey: ['admin'] });
+    },
+  });
+}
+
+export function useUpdateAdminUser(id: string) {
+  return useAdminMutation(
+    (body: Partial<{ name: string; email: string; role: 'user' | 'admin'; active: boolean }>) =>
+      api<AdminUserDetailDto>(`/api/admin/users/${id}`, { method: 'PATCH', body }),
+    { userId: () => id },
+  );
+}
+
+export function useAdminResetLink(id: string) {
+  return useMutation({
+    mutationFn: (delivery: 'email' | 'link') =>
+      api<ResetLinkDto>(`/api/admin/users/${id}/reset-link`, { body: { delivery } }),
+  });
+}
+
+export function useSetUserFeature(id: string) {
+  return useAdminMutation(
+    ({ key, enabled }: { key: string; enabled: boolean | null }) =>
+      api<AdminUserDetailDto>(`/api/admin/users/${id}/features/${key}`, {
+        method: 'PUT',
+        body: { enabled },
+      }),
+    { userId: () => id },
+  );
+}
+
+export function useAdminInvites() {
+  return useQuery({
+    queryKey: ['admin', 'invites'],
+    queryFn: () => api<InviteDto[]>('/api/admin/invites'),
+  });
+}
+
+export function useCreateInvite() {
+  return useAdminMutation((body: { email?: string; sendMail: boolean; expiresInDays: number }) =>
+    api<CreatedInviteDto>('/api/admin/invites', { body }),
+  );
+}
+
+export function useRevokeInvite() {
+  return useAdminMutation((id: string) => api(`/api/admin/invites/${id}`, { method: 'DELETE' }));
+}
+
+export function useAdminSettings() {
+  return useQuery({
+    queryKey: ['admin', 'settings'],
+    queryFn: () => api<AdminSettingsDto>('/api/admin/settings'),
+  });
+}
+
+export function useUpdateSettings() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { publicRegistration: boolean }) =>
+      api<AdminSettingsDto>('/api/admin/settings', { method: 'PATCH', body }),
+    onSuccess: (data) => {
+      queryClient.setQueryData(['admin', 'settings'], data);
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'audit'] });
+      void queryClient.invalidateQueries({ queryKey: ['auth-config'] });
+    },
+  });
+}
+
+export function useUpdateFeature() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      key,
+      body,
+    }: {
+      key: string;
+      body: Partial<{ enabled: boolean; defaultForUsers: boolean }>;
+    }) => api<AdminSettingsDto>(`/api/admin/features/${key}`, { method: 'PUT', body }),
+    onSuccess: (data) => {
+      queryClient.setQueryData(['admin', 'settings'], data);
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'audit'] });
+      void queryClient.invalidateQueries({ queryKey: meKey });
+    },
+  });
+}
+
+export function useAdminAudit() {
+  return useQuery({
+    queryKey: ['admin', 'audit'],
+    queryFn: () => api<AuditEntryDto[]>('/api/admin/audit?limit=30'),
   });
 }
