@@ -4,6 +4,7 @@ import { useMe } from './api/hooks.ts';
 import { AppLayout } from './components/Layout.tsx';
 import { setLocale } from './i18n/index.ts';
 import { DashboardPage } from './pages/Dashboard.tsx';
+import { IngredientsPage } from './pages/Ingredients.tsx';
 import { LoginPage } from './pages/Login.tsx';
 import { ProfilePage } from './pages/Profile.tsx';
 import { RegisterPage } from './pages/Register.tsx';
@@ -48,6 +49,7 @@ export function AppRoutes() {
       <Route element={<RequireAuth />}>
         <Route element={<AppLayout />}>
           <Route path="/" element={<DashboardPage />} />
+          <Route path="/ingredients" element={<IngredientsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>
       </Route>

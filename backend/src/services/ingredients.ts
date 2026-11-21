@@ -1,7 +1,7 @@
-import { and, eq, inArray, isNull, like, or, sql } from 'drizzle-orm';
-import type { Allergen, IngredientDto } from '@foodlog/shared';
+import { and, asc, count, eq, inArray, isNull, like, or, sql } from 'drizzle-orm';
+import type { Allergen, CustomIngredientDto, IngredientDto } from '@foodlog/shared';
 import type { Database } from '../db/client.ts';
-import { ingredientAllergens, ingredients } from '../db/schema.ts';
+import { entryIngredients, ingredientAllergens, ingredients } from '../db/schema.ts';
 
 function escapeLike(value: string): string {
   return value.replace(/[\\%_]/g, (char) => `\\${char}`);
@@ -65,6 +65,7 @@ export async function searchIngredients(
   userId: string,
   query: string,
   limit: number,
+  scope: 'all' | 'catalog' = 'all',
 ): Promise<IngredientDto[]> {
   const pattern = `%${escapeLike(query)}%`;
   const prefix = `${escapeLike(query)}%`;
@@ -73,7 +74,7 @@ export async function searchIngredients(
     .from(ingredients)
     .where(
       and(
-        visibleTo(userId),
+        scope === 'catalog' ? isNull(ingredients.userId) : visibleTo(userId),
         query
           ? or(like(ingredients.nameDe, pattern), like(ingredients.nameEn, pattern))
           : undefined,
@@ -98,4 +99,31 @@ export async function nameTaken(
     .from(ingredients)
     .where(and(visibleTo(userId), or(eq(ingredients.nameDe, name), eq(ingredients.nameEn, name))));
   return rows.some((row) => row.id !== exceptId);
+}
+
+export async function listCustomIngredients(
+  db: Database,
+  userId: string,
+): Promise<CustomIngredientDto[]> {
+  const rows = await db
+    .select()
+    .from(ingredients)
+    .where(eq(ingredients.userId, userId))
+    .orderBy(asc(ingredients.nameDe));
+  if (rows.length === 0) return [];
+  const [dtos, counts] = await Promise.all([
+    toIngredientDtos(db, rows),
+    db
+      .select({ ingredientId: entryIngredients.ingredientId, total: count() })
+      .from(entryIngredients)
+      .where(
+        inArray(
+          entryIngredients.ingredientId,
+          rows.map((row) => row.id),
+        ),
+      )
+      .groupBy(entryIngredients.ingredientId),
+  ]);
+  const totals = new Map(counts.map((row) => [row.ingredientId, row.total]));
+  return dtos.map((dto) => ({ ...dto, entryCount: totals.get(dto.id) ?? 0 }));
 }

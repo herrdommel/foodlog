@@ -49,9 +49,17 @@ export function Button({
 }
 
 export function Card({ title, children }: { title?: string; children: ReactNode }) {
+  const headingId = useId();
   return (
-    <section className="space-y-4 rounded-2xl bg-raised p-6 shadow-sm">
-      {title && <h2 className="text-lg font-semibold">{title}</h2>}
+    <section
+      aria-labelledby={title ? headingId : undefined}
+      className="space-y-4 rounded-2xl bg-raised p-6 shadow-sm"
+    >
+      {title && (
+        <h2 id={headingId} className="text-lg font-semibold">
+          {title}
+        </h2>
+      )}
       {children}
     </section>
   );

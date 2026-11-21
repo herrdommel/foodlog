@@ -47,6 +47,9 @@ export function AppLayout() {
           <NavLink to="/" end className={link}>
             {t('nav.dashboard')}
           </NavLink>
+          <NavLink to="/ingredients" className={link}>
+            {t('nav.ingredients')}
+          </NavLink>
           <NavLink to="/profile" className={link}>
             {t('nav.profile')}
           </NavLink>

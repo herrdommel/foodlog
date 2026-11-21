@@ -106,7 +106,8 @@ export const ingredientUpdateSchema = ingredientInputSchema.partial();
 
 export const ingredientSearchSchema = z.object({
   q: z.string().trim().max(80).default(''),
-  limit: z.coerce.number().int().min(1).max(50).default(20),
+  limit: z.coerce.number().int().min(1).max(200).default(20),
+  scope: z.enum(['all', 'catalog']).default('all'),
 });
 
 export const templateInputSchema = z.object({
@@ -122,6 +123,10 @@ export interface IngredientDto {
   nameEn: string;
   custom: boolean;
   allergens: Allergen[];
+}
+
+export interface CustomIngredientDto extends IngredientDto {
+  entryCount: number;
 }
 
 export interface EntryDto {

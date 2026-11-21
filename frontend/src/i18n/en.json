@@ -13,7 +13,8 @@
   },
   "nav": {
     "dashboard": "Overview",
-    "profile": "Profile"
+    "profile": "Profile",
+    "ingredients": "Ingredients"
   },
   "auth": {
     "loginTitle": "Sign in",
@@ -179,5 +180,28 @@
       "alcohol": "Alcohol",
       "spicy": "Spicy"
     }
+  },
+  "ingredientsPage": {
+    "title": "Ingredients",
+    "createTitle": "Create your own ingredient",
+    "name": "Name",
+    "create": "Create",
+    "containsLabel": "Contains",
+    "myTitle": "My ingredients",
+    "empty": "You have no custom ingredients yet.",
+    "usedIn_one": "used in {{count}} entry",
+    "usedIn_other": "used in {{count}} entries",
+    "noAllergens": "No allergens assigned: not analysed at allergen level.",
+    "confirmDeleteUnused": "Delete “{{name}}”?",
+    "editName": "Name of {{name}}",
+    "catalogTitle": "Catalog",
+    "catalogHint": "These ingredients and their allergens are predefined and cannot be changed. The assignment is a hint and not medical advice.",
+    "catalogSearch": "Search the catalog",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirmDelete_one": "Delete “{{name}}”? It is used in {{count}} entry. The entry is kept but loses this ingredient.",
+    "confirmDelete_other": "Delete “{{name}}”? It is used in {{count}} entries. The entries are kept but lose this ingredient."
   }
 }

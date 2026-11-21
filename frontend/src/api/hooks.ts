@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   Allergen,
   AuthConfig,
+  CustomIngredientDto,
   EntryDto,
   EntryInput,
   IngredientDto,
@@ -163,10 +164,17 @@ export function useDeleteEntry() {
   return useEntryMutation((id: string) => api(`/api/entries/${id}`, { method: 'DELETE' }));
 }
 
-export function useIngredientSearch(query: string) {
+export function useIngredientSearch(
+  query: string,
+  options: { limit?: number; scope?: 'all' | 'catalog' } = {},
+) {
+  const { limit = 8, scope = 'all' } = options;
   return useQuery({
-    queryKey: ['ingredients', query],
-    queryFn: () => api<IngredientDto[]>(`/api/ingredients?q=${encodeURIComponent(query)}&limit=8`),
+    queryKey: ['ingredients', 'search', query, limit, scope],
+    queryFn: () =>
+      api<IngredientDto[]>(
+        `/api/ingredients?q=${encodeURIComponent(query)}&limit=${limit}&scope=${scope}`,
+      ),
     staleTime: 30_000,
     placeholderData: (previous) => previous,
   });
@@ -178,6 +186,38 @@ export function useCreateIngredient() {
     mutationFn: (body: { name: string; allergens: Allergen[] }) =>
       api<IngredientDto>('/api/ingredients', { body }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ingredients'] }),
+  });
+}
+
+export function useMyIngredients() {
+  return useQuery({
+    queryKey: ['ingredients', 'mine'],
+    queryFn: () => api<CustomIngredientDto[]>('/api/ingredients/mine'),
+  });
+}
+
+export function useUpdateIngredient() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: { name?: string; allergens?: Allergen[] } }) =>
+      api<IngredientDto>(`/api/ingredients/${id}`, { method: 'PATCH', body }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['ingredients'] });
+      void queryClient.invalidateQueries({ queryKey: ['entries'] });
+      void queryClient.invalidateQueries({ queryKey: ['templates'] });
+    },
+  });
+}
+
+export function useDeleteIngredient() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api(`/api/ingredients/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['ingredients'] });
+      void queryClient.invalidateQueries({ queryKey: ['entries'] });
+      void queryClient.invalidateQueries({ queryKey: ['templates'] });
+    },
   });
 }
 

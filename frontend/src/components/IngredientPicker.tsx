@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ALLERGENS, type Allergen, type IngredientDto } from '@foodlog/shared';
+import type { Allergen, IngredientDto } from '@foodlog/shared';
 import { useCreateIngredient, useIngredientSearch } from '../api/hooks.ts';
 import { ingredientName } from '../lib/format.ts';
+import { AllergenCheckboxes } from './AllergenCheckboxes.tsx';
 import { AllergenChips } from './AllergenChips.tsx';
 import { Button, ErrorMessage } from './ui.tsx';
 
@@ -128,24 +129,7 @@ export function IngredientPicker({
         <fieldset className="space-y-3 rounded-lg border border-fg/10 p-3">
           <legend className="px-1 text-sm font-medium">{t('tracking.createTagAllergens')}</legend>
           <ErrorMessage error={create.error} />
-          <div className="flex flex-wrap gap-x-4 gap-y-2">
-            {ALLERGENS.map((allergen) => (
-              <label key={allergen} className="flex items-center gap-1.5 text-sm">
-                <input
-                  type="checkbox"
-                  checked={allergens.includes(allergen)}
-                  onChange={(event) =>
-                    setAllergens(
-                      event.target.checked
-                        ? [...allergens, allergen]
-                        : allergens.filter((item) => item !== allergen),
-                    )
-                  }
-                />
-                {t(`tracking.allergens.${allergen}`)}
-              </label>
-            ))}
-          </div>
+          <AllergenCheckboxes value={allergens} onChange={setAllergens} />
           <Button type="button" onClick={submitCreate} disabled={create.isPending}>
             {t('tracking.addTag')}
           </Button>

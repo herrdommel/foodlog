@@ -74,6 +74,15 @@ describe('ingredient catalog', () => {
     expect(await search('_')).toEqual([]);
   });
 
+  it('can be restricted to the catalog', async () => {
+    await post(t.app, '/api/ingredients', { name: 'Milchreis Oma' }, cookie);
+    const all = await search('milch');
+    const catalog = (await get(t.app, '/api/ingredients?q=milch&scope=catalog', cookie)).json();
+    expect(all.some((i) => i.custom)).toBe(true);
+    expect(catalog.length).toBeGreaterThan(0);
+    expect(catalog.every((i: IngredientDto) => !i.custom)).toBe(true);
+  });
+
   it('respects the limit', async () => {
     const response = await get(t.app, '/api/ingredients?limit=3', cookie);
     expect(response.json()).toHaveLength(3);
@@ -131,6 +140,33 @@ describe('custom tags', () => {
     expect((await patch(t.app, `/api/ingredients/${milk}`, { name: 'x' }, cookie)).statusCode).toBe(
       404,
     );
+  });
+
+  it('lists own tags with the number of entries using them', async () => {
+    const used = (
+      await post(t.app, '/api/ingredients', { name: 'Benutzt', allergens: ['soy'] }, cookie)
+    ).json();
+    await post(t.app, '/api/ingredients', { name: 'Unbenutzt' }, cookie);
+    for (const occurredAt of ['2026-01-10T08:00', '2026-01-11T08:00']) {
+      await post(
+        t.app,
+        '/api/entries',
+        { type: 'meal', occurredAt, title: 'x', ingredientIds: [used.id] },
+        cookie,
+      );
+    }
+    const other = await registerAndLogin(t, 'bob@example.com', 'Bob');
+    await post(t.app, '/api/ingredients', { name: 'Bobs' }, other);
+
+    const mine = (await get(t.app, '/api/ingredients/mine', cookie)).json();
+    expect(
+      mine.map((i: { nameDe: string; entryCount: number }) => [i.nameDe, i.entryCount]),
+    ).toEqual([
+      ['Benutzt', 2],
+      ['Unbenutzt', 0],
+    ]);
+    expect(mine[0]).toMatchObject({ custom: true, allergens: ['soy'] });
+    expect((await get(t.app, '/api/ingredients/mine')).statusCode).toBe(401);
   });
 
   it('rejects unknown allergens', async () => {

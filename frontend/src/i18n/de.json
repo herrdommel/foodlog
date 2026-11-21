@@ -13,7 +13,8 @@
   },
   "nav": {
     "dashboard": "Übersicht",
-    "profile": "Profil"
+    "profile": "Profil",
+    "ingredients": "Zutaten"
   },
   "auth": {
     "loginTitle": "Anmelden",
@@ -179,5 +180,28 @@
       "alcohol": "Alkohol",
       "spicy": "Scharf"
     }
+  },
+  "ingredientsPage": {
+    "title": "Zutaten",
+    "createTitle": "Eigene Zutat anlegen",
+    "name": "Name",
+    "create": "Anlegen",
+    "containsLabel": "Enthält",
+    "myTitle": "Meine Zutaten",
+    "empty": "Du hast noch keine eigenen Zutaten.",
+    "usedIn_one": "in {{count}} Eintrag verwendet",
+    "usedIn_other": "in {{count}} Einträgen verwendet",
+    "noAllergens": "Keine Allergene zugeordnet: wird nicht auf Allergen-Ebene ausgewertet.",
+    "confirmDeleteUnused": "„{{name}}“ löschen?",
+    "editName": "Name von {{name}}",
+    "catalogTitle": "Katalog",
+    "catalogHint": "Diese Zutaten und ihre Allergene sind vorgegeben und können nicht geändert werden. Die Zuordnung ist ein Anhaltspunkt und keine medizinische Aussage.",
+    "catalogSearch": "Katalog durchsuchen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "confirmDelete_one": "„{{name}}“ löschen? Sie wird in {{count}} Eintrag verwendet. Der Eintrag bleibt erhalten, verliert aber diese Zutat.",
+    "confirmDelete_other": "„{{name}}“ löschen? Sie wird in {{count}} Einträgen verwendet. Die Einträge bleiben erhalten, verlieren aber diese Zutat."
   }
 }

@@ -9,7 +9,12 @@ import type { AppDeps } from '../app.ts';
 import { ingredientAllergens, ingredients } from '../db/schema.ts';
 import { newId } from '../lib/crypto.ts';
 import { AppError, parseBody } from '../lib/errors.ts';
-import { loadIngredientsById, nameTaken, searchIngredients } from '../services/ingredients.ts';
+import {
+  listCustomIngredients,
+  loadIngredientsById,
+  nameTaken,
+  searchIngredients,
+} from '../services/ingredients.ts';
 
 export async function ingredientRoutes(app: FastifyInstance, { db }: AppDeps) {
   const auth = { preHandler: app.requireUser };
@@ -24,9 +29,13 @@ export async function ingredientRoutes(app: FastifyInstance, { db }: AppDeps) {
   }
 
   app.get('/api/ingredients', auth, async (request) => {
-    const { q, limit } = parseBody(ingredientSearchSchema, request.query);
-    return searchIngredients(db, request.user!.id, q, limit);
+    const { q, limit, scope } = parseBody(ingredientSearchSchema, request.query);
+    return searchIngredients(db, request.user!.id, q, limit, scope);
   });
+
+  app.get('/api/ingredients/mine', auth, async (request) =>
+    listCustomIngredients(db, request.user!.id),
+  );
 
   app.post('/api/ingredients', auth, async (request, reply) => {
     const body = parseBody(ingredientInputSchema, request.body);
