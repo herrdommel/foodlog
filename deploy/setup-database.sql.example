@@ -1,0 +1,12 @@
+-- Run once as a MariaDB administrator. Replace the placeholders first.
+--   <SUBNET_PATTERN>      pattern of FOODLOG_SUBNET for MariaDB host matching, e.g. '172.30.0.%' for 172.30.0.0/24
+--   <DATABASE_PASSWORD>   long random password, the same as in DATABASE_URL
+
+CREATE DATABASE IF NOT EXISTS foodlog CHARACTER SET utf8mb4 COLLATE utf8mb4_uca1400_ai_ci;
+
+CREATE USER IF NOT EXISTS 'foodlog'@'<SUBNET_PATTERN>' IDENTIFIED BY '<DATABASE_PASSWORD>';
+
+-- The migrations create and alter tables, so the application user needs schema rights on its own database only.
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON foodlog.* TO 'foodlog'@'<SUBNET_PATTERN>';
+
+FLUSH PRIVILEGES;

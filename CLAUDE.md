@@ -178,6 +178,18 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Legal pages: the operator provides `privacy.<lang>.md` and `imprint.<lang>.md` in `LEGAL_DIR`; nothing personal lives in this repo. Missing files show "not configured". The frontend renders them with a small safe Markdown renderer (`components/Markdown.tsx`, no HTML, only http, https and mailto links).
 - Legal text on the page and in `docs/legal-templates` is a developer draft, not legal advice. It needs a review before go-live.
 
+## Deployment notes
+
+- Guide for operators: `docs/deployment.md` (server, database, nginx, GitHub environment, backups). Keep it in sync with `deploy/*` and the workflows.
+- `deploy/compose.yml` runs the image from ghcr with `HOST=0.0.0.0` inside the container (the config default `127.0.0.1` would make it unreachable), publishes the port on `127.0.0.1` only, read-only root filesystem, no capabilities. The Docker subnet comes from `FOODLOG_SUBNET` in the server's `.env.production`; no real addresses live in this repo (documentation ranges like 198.51.100.0/24 appear in CI and tests only).
+- Deploy flow (`deploy/deploy.sh`, driven by `.github/workflows/deploy.yml`): pull, migrate, start, wait for health, then switch the frontend symlink; unhealthy means the previous backend is started again and the frontend is not switched. The workflow is reusable: `release.yml` calls it after publishing (unless the repo variable `AUTO_DEPLOY` is `false`) and it can be started manually with a version. The called job declares `environment: production` so environment secrets resolve.
+- `deploy/nginx.conf.example` must not use `add_header` in locations (it disables inheritance of the security headers); `deploy/test/nginx.sh` runs a real nginx container and checks this, also in CI. `proxy_read_timeout` (150 s) must stay above the AI provider timeout (100 s, `services/ai/providers.ts`). AI generation requests are never retried (`maxRetries: 0`), a retry could bill the user's key twice.
+- `.env.production` is a Docker env file, never source it in a shell; `deploy.sh` only extracts `FOODLOG_PORT`. `backup.sh` passes the DB password through a private option file.
+- Migrations must be backward compatible with the previous release (expand first, contract in a later release), because a rollback does not undo them.
+- `deploy/test/run.sh` tests `deploy.sh` and `backup.sh` with stand-ins for docker, curl, mysqldump and age, and runs in CI together with ShellCheck. Run it locally with `bash deploy/test/run.sh`; ShellCheck and actionlint are available through their Docker images. Scripts must stay portable to bash 3.2 (no `mapfile`); `mv -T` is GNU only on purpose (the server is Linux), the test emulates it on macOS.
+- Checklist when adding configuration: `config.ts`, `test/helpers.ts`, `e2e/playwright.config.ts`, `.env.example`, `deploy/env.production.example`, `docs/deployment.md`. Every new CLI entry point must be listed in `backend/build.mjs`, otherwise it is missing from the image.
+- Never verified against a real server: the container to MariaDB path, the SSH deployment, live AI calls.
+
 ## Conventions
 
 - TypeScript strict, ESM, no `any`.
@@ -200,4 +212,6 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - [x] M3 export (CSV, printable report) and feature gate
 - [x] M5 admin (users, invitations, settings, feature flags, activity log)
 - [x] M4 AI analysis (encrypted keys, consent, preview, mock provider)
-- [ ] Next: M1 auth, M2 tracking, M3 analysis, M4 AI, M5 admin (incl. public registration switch), M6 GDPR/ops, deploy
+- [x] M6 privacy and operations (consent, deletion, export, retention, legal pages, backup)
+- [x] Deploy (compose, scripts with tests, deploy workflow, docs)
+- [ ] Go-live (maintainer): create the GitHub repo and settings, fill the production environment, set up the server (database, nginx, `.env.production`), provide and review the legal texts, run one real AI call per provider, first release and deployment. See `docs/deployment.md`.

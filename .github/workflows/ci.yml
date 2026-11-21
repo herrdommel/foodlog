@@ -85,6 +85,23 @@ jobs:
             e2e/test-results
           retention-days: 7
 
+  deploy-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: shellcheck deploy/deploy.sh deploy/backup.sh deploy/test/run.sh deploy/test/nginx.sh
+      - run: bash deploy/test/run.sh
+      - run: bash deploy/test/nginx.sh
+      - name: Validate the production compose file
+        env:
+          FOODLOG_VERSION: 0.0.0
+          FOODLOG_SUBNET: 198.51.100.0/24
+        run: |
+          cp deploy/env.production.example deploy/.env.production
+          docker compose --env-file deploy/.env.production -f deploy/compose.yml config --quiet
+
   docker:
     runs-on: ubuntu-latest
     steps:

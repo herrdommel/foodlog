@@ -1,0 +1,34 @@
+name: foodlog
+
+services:
+  backend:
+    image: ghcr.io/herrdommel/foodlog-backend:${FOODLOG_VERSION:?set FOODLOG_VERSION}
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: '3000'
+      LEGAL_DIR: /legal
+    ports:
+      - '127.0.0.1:${FOODLOG_PORT:-3000}:3000'
+    volumes:
+      - ./legal:/legal:ro
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '5'
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${FOODLOG_SUBNET:?set FOODLOG_SUBNET}

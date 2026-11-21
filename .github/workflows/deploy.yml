@@ -1,0 +1,128 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Released version to deploy, with or without leading v
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Released version to deploy (for example 1.2.3)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 15
+    env:
+      VERSION_INPUT: ${{ inputs.version }}
+      DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+      DEPLOY_PORT: ${{ vars.DEPLOY_PORT || '22' }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '/opt/foodlog' }}
+      WEB_ROOT: ${{ vars.WEB_ROOT }}
+      APP_URL: ${{ vars.APP_URL }}
+    steps:
+      - name: Check configuration and version
+        id: version
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          missing=()
+          for name in DEPLOY_HOST DEPLOY_USER WEB_ROOT APP_URL DEPLOY_SSH_KEY DEPLOY_KNOWN_HOSTS; do
+            [[ -n "${!name}" ]] || missing+=("$name")
+          done
+          if ((${#missing[@]} > 0)); then
+            echo "::error::Missing configuration in the production environment: ${missing[*]}"
+            exit 1
+          fi
+          version="${VERSION_INPUT#v}"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid version: $VERSION_INPUT"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: v${{ steps.version.outputs.version }}
+          persist-credentials: false
+
+      - name: Download the frontend build of the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release download "v${VERSION}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern "foodlog-frontend-v${VERSION}.tar.gz" \
+            --dir build
+          ls -l build
+
+      - name: Check that the backend image exists
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: docker manifest inspect "ghcr.io/${GITHUB_REPOSITORY_OWNER}/foodlog-backend:${VERSION}" > /dev/null
+
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<CONFIG
+          Host deploy-target
+            HostName ${DEPLOY_HOST}
+            User ${DEPLOY_USER}
+            Port ${DEPLOY_PORT}
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+            UserKnownHostsFile ~/.ssh/known_hosts
+          CONFIG
+          chmod 600 ~/.ssh/config
+
+      - name: Upload release files
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # shellcheck disable=SC2029
+          ssh deploy-target "mkdir -p $(printf '%q' "$DEPLOY_PATH")/incoming"
+          scp "build/foodlog-frontend-v${VERSION}.tar.gz" "deploy-target:${DEPLOY_PATH}/incoming/"
+          scp deploy/deploy.sh deploy/backup.sh deploy/compose.yml "deploy-target:${DEPLOY_PATH}/"
+
+      - name: Deploy
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          args="$(printf '%q ' "$DEPLOY_PATH" "$WEB_ROOT" "$VERSION")"
+          # shellcheck disable=SC2029
+          ssh deploy-target "bash -s -- ${args}" <<'REMOTE'
+          set -euo pipefail
+          cd "$1"
+          chmod +x deploy.sh
+          WEB_ROOT="$2" ./deploy.sh "$3"
+          REMOTE
+
+      - name: Check the public health endpoint
+        run: curl -fsS --retry 6 --retry-delay 5 --retry-all-errors "${APP_URL%/}/api/health"
+
+      - name: Remove the SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key ~/.ssh/config ~/.ssh/known_hosts

@@ -22,6 +22,10 @@ The frontend runs on http://localhost:5173 and proxies `/api` to the backend on 
 
 Useful commands: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm --filter @foodlog/e2e e2e` (end-to-end tests, needs the dev database and a one-time `pnpm --filter @foodlog/e2e exec playwright install chromium`).
 
+## Operations
+
+See [docs/deployment.md](docs/deployment.md) for running the app on a server (Docker backend, nginx frontend, MariaDB, GitHub Actions deployment, backups) and [docs/legal-templates](docs/legal-templates) for the privacy policy and imprint templates.
+
 ## License
 
 The source code is licensed under the [GNU Affero General Public License v3.0 or later](LICENSE) (`AGPL-3.0-or-later`).

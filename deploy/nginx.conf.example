@@ -1,0 +1,55 @@
+# Nginx configuration for the subdomain. With Plesk, put the location blocks into
+# "Additional nginx directives" of the subdomain and set the document root to /var/www/foodlog/current.
+# Replace the port if you changed FOODLOG_PORT.
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name foodlog.herrdommel.de;
+
+    # ssl_certificate and ssl_certificate_key are managed by your certificate tooling (Plesk, certbot).
+
+    root /var/www/foodlog/current;
+    index index.html;
+
+    client_max_body_size 3m;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://accounts.google.com" always;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # Must stay above the backend timeout for AI requests (100 s), see docs/deployment.md.
+        proxy_read_timeout 150s;
+    }
+
+    # Do not use add_header inside these locations: nginx then stops inheriting the security headers
+    # from the server block. "expires" does not have that effect.
+    location /assets/ {
+        expires 1y;
+        try_files $uri =404;
+    }
+
+    location = /index.html {
+        expires -1;
+    }
+
+    location / {
+        try_files $uri /index.html;
+    }
+}
+
+server {
+    listen 80;
+    server_name foodlog.herrdommel.de;
+    return 301 https://$host$request_uri;
+}
