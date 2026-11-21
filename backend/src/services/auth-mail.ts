@@ -30,8 +30,13 @@ export function createAuthMail(deps: {
     }
   }
 
+  async function sendStrictly(message: ReturnType<typeof renderMail>) {
+    await mailer.send(message);
+  }
+
   return {
     sendSafely,
+    sendStrictly,
 
     async sendVerification(user: Recipient) {
       const token = await createAuthToken(db, {
@@ -50,13 +55,14 @@ export function createAuthMail(deps: {
     async sendReset(
       user: Recipient,
       template: 'resetPassword' | 'accountExists' = 'resetPassword',
+      options: { strict?: boolean } = {},
     ) {
       const token = await createAuthToken(db, {
         userId: user.id,
         type: 'reset_password',
         ttlMs: HOUR,
       });
-      await sendSafely(
+      await (options.strict ? sendStrictly : sendSafely)(
         renderMail(template, user.locale, user.email, {
           name: user.name,
           url: `${config.APP_URL}/reset-password?token=${token}`,

@@ -1,8 +1,8 @@
-import { sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { buildApp } from '../src/app.ts';
 import { loadConfig, type Config } from '../src/config.ts';
 import { createDb } from '../src/db/client.ts';
-import { invites } from '../src/db/schema.ts';
+import { invites, users } from '../src/db/schema.ts';
 import { hashToken, newId, newToken } from '../src/lib/crypto.ts';
 import { DAY, inFuture } from '../src/lib/time.ts';
 import { createMemoryMailer } from '../src/services/mail.ts';
@@ -14,6 +14,7 @@ export const ORIGIN = 'http://localhost:5173';
 export const PASSWORD = 'correct horse battery';
 
 const TABLES = [
+  'admin_audit',
   'template_ingredients',
   'templates',
   'entry_ingredients',
@@ -121,4 +122,8 @@ export async function registerAndLogin(t: TestApp, email = 'anna@example.com', n
   await post(t.app, '/api/auth/verify-email', { token: tokenFromMail(t) });
   const login = await post(t.app, '/api/auth/login', { email, password: PASSWORD });
   return sessionCookie(login);
+}
+
+export async function makeAdmin(t: TestApp, email: string) {
+  await t.db.update(users).set({ role: 'admin' }).where(eq(users.email, email));
 }

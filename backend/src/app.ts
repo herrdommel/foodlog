@@ -9,6 +9,9 @@ import { AppError } from './lib/errors.ts';
 import { registerAuth } from './plugins/auth.ts';
 import { registerFeatures } from './plugins/features.ts';
 import { authRoutes } from './routes/auth.ts';
+import { adminInviteRoutes } from './routes/admin-invites.ts';
+import { adminSettingsRoutes } from './routes/admin-settings.ts';
+import { adminUserRoutes } from './routes/admin-users.ts';
 import { analysisRoutes } from './routes/analysis.ts';
 import { entryRoutes } from './routes/entries.ts';
 import { exportRoutes } from './routes/export.ts';
@@ -96,6 +99,9 @@ export async function buildApp(deps: AppDeps) {
   await app.register(templateRoutes, deps);
   await app.register(analysisRoutes, deps);
   await app.register(exportRoutes, deps);
+  await app.register(adminUserRoutes, deps);
+  await app.register(adminInviteRoutes, deps);
+  await app.register(adminSettingsRoutes, deps);
 
   return app;
 }
