@@ -29,6 +29,13 @@
       "when": 1795302178081,
       "tag": "20261121230258_audit_drop_target",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1795302783166,
+      "tag": "20261121231303_ai_settings",
+      "breakpoints": true
     }
   ]
 }

@@ -226,3 +226,59 @@ export interface AnalysisDto {
   minExposures: number;
   minOutcomes: number;
 }
+
+export const AI_PROVIDERS = ['anthropic', 'openai'] as const;
+export const aiProviderSchema = z.enum(AI_PROVIDERS);
+export type AiProviderId = z.infer<typeof aiProviderSchema>;
+
+export const AI_CONSENT_VERSION = 1;
+
+export const aiKeySchema = z.object({
+  apiKey: z
+    .string()
+    .trim()
+    .min(8)
+    .max(400)
+    .refine((value) => !/\s/.test(value), 'must not contain whitespace'),
+});
+
+export const aiSettingsUpdateSchema = z
+  .object({
+    provider: aiProviderSchema.nullable(),
+    model: z.string().trim().min(1).max(100).nullable(),
+  })
+  .partial()
+  .refine((value) => Object.keys(value).length > 0, 'no changes');
+
+export const aiConsentSchema = z.object({ version: z.literal(AI_CONSENT_VERSION) });
+
+export const aiRunSchema = analysisQuerySchema;
+
+export interface AiSettingsDto {
+  provider: AiProviderId | null;
+  model: string | null;
+  keys: Record<AiProviderId, { configured: boolean; last4: string | null }>;
+  consent: { given: boolean; version: number; currentVersion: number; at: string | null };
+}
+
+export interface AiModelsDto {
+  models: string[];
+  suggested: string | null;
+}
+
+export interface AiPreviewDto {
+  system: string;
+  data: unknown;
+  entryCount: number;
+  truncated: boolean;
+  bytes: number;
+  payloadHash: string;
+}
+
+export interface AiResultDto {
+  text: string;
+  provider: AiProviderId;
+  model: string;
+  payloadHash: string;
+  generatedAt: string;
+}

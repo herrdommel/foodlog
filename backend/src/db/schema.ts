@@ -6,6 +6,7 @@ import {
   index,
   mysqlEnum,
   mysqlTable,
+  int,
   primaryKey,
   text,
   tinyint,
@@ -235,3 +236,27 @@ export const adminAudit = mysqlTable(
   },
   (table) => [index('admin_audit_created_idx').on(table.createdAt)],
 );
+
+export const aiKeys = mysqlTable(
+  'ai_keys',
+  {
+    userId: varchar('user_id', { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    provider: mysqlEnum('provider', ['anthropic', 'openai']).notNull(),
+    ciphertext: text('ciphertext').notNull(),
+    last4: varchar('last4', { length: 4 }).notNull(),
+    createdAt: datetime('created_at').notNull().default(utcNow),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.provider] })],
+);
+
+export const aiSettings = mysqlTable('ai_settings', {
+  userId: varchar('user_id', { length: 36 })
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  provider: mysqlEnum('provider', ['anthropic', 'openai']),
+  model: varchar('model', { length: 100 }),
+  consentVersion: int('consent_version'),
+  consentAt: datetime('consent_at'),
+});

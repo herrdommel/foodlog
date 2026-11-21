@@ -1,55 +1,19 @@
-import { and, asc, eq, gte, inArray, lt } from 'drizzle-orm';
+import { and, asc, eq, gte, lt } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import {
   dayRangeUtc,
   entriesQuerySchema,
   entryInputSchema,
   wallTimeToUtc,
-  type EntryDto,
   type EntryInput,
-  type SymptomType,
 } from '@foodlog/shared';
 import type { AppDeps } from '../app.ts';
-import type { Database } from '../db/client.ts';
 import { entries, entryIngredients } from '../db/schema.ts';
 import { newId } from '../lib/crypto.ts';
 import { AppError, parseBody } from '../lib/errors.ts';
 import { MINUTE } from '../lib/time.ts';
-import { allVisible, loadIngredientsById } from '../services/ingredients.ts';
-
-export async function toEntryDtos(
-  db: Database,
-  rows: (typeof entries.$inferSelect)[],
-): Promise<EntryDto[]> {
-  if (rows.length === 0) return [];
-  const links = await db
-    .select()
-    .from(entryIngredients)
-    .where(
-      inArray(
-        entryIngredients.entryId,
-        rows.map((row) => row.id),
-      ),
-    );
-  const ingredients = await loadIngredientsById(db, [
-    ...new Set(links.map((link) => link.ingredientId)),
-  ]);
-  return rows.map((row) => ({
-    id: row.id,
-    type: row.type,
-    occurredAt: row.occurredAt.toISOString(),
-    title: row.title,
-    note: row.note,
-    symptomType: row.symptomType as SymptomType | null,
-    severity: row.severity,
-    bristol: row.bristol,
-    ingredients: links
-      .filter((link) => link.entryId === row.id)
-      .map((link) => ingredients.get(link.ingredientId))
-      .filter((dto) => dto !== undefined)
-      .sort((a, b) => a.nameDe.localeCompare(b.nameDe)),
-  }));
-}
+import { toEntryDtos } from '../services/entries.ts';
+import { allVisible } from '../services/ingredients.ts';
 
 function toRow(input: EntryInput, timezone: string) {
   const occurredAt = wallTimeToUtc(input.occurredAt, timezone);

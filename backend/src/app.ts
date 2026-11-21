@@ -12,6 +12,7 @@ import { authRoutes } from './routes/auth.ts';
 import { adminInviteRoutes } from './routes/admin-invites.ts';
 import { adminSettingsRoutes } from './routes/admin-settings.ts';
 import { adminUserRoutes } from './routes/admin-users.ts';
+import { aiRoutes } from './routes/ai.ts';
 import { analysisRoutes } from './routes/analysis.ts';
 import { entryRoutes } from './routes/entries.ts';
 import { exportRoutes } from './routes/export.ts';
@@ -19,6 +20,7 @@ import { googleRoutes } from './routes/google.ts';
 import { ingredientRoutes } from './routes/ingredients.ts';
 import { meRoutes } from './routes/me.ts';
 import { templateRoutes } from './routes/templates.ts';
+import { createProviders, type AiProviders } from './services/ai/providers.ts';
 import type { Mailer } from './services/mail.ts';
 
 export interface AppDeps {
@@ -27,6 +29,7 @@ export interface AppDeps {
   mailer: Mailer;
   fetch?: typeof fetch;
   disableRateLimit?: boolean;
+  aiProviders?: AiProviders;
 }
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
@@ -99,6 +102,11 @@ export async function buildApp(deps: AppDeps) {
   await app.register(templateRoutes, deps);
   await app.register(analysisRoutes, deps);
   await app.register(exportRoutes, deps);
+  await app.register(aiRoutes, {
+    ...deps,
+    aiProviders:
+      deps.aiProviders ?? createProviders({ mock: config.AI_MOCK_PROVIDER, fetch: deps.fetch }),
+  });
   await app.register(adminUserRoutes, deps);
   await app.register(adminInviteRoutes, deps);
   await app.register(adminSettingsRoutes, deps);

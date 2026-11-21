@@ -39,6 +39,7 @@ export default defineConfig({
         APP_URL,
         DATABASE_URL,
         API_KEY_ENCRYPTION_KEY: Buffer.alloc(32, 7).toString('base64'),
+        AI_MOCK_PROVIDER: 'true',
         SMTP_HOST: '127.0.0.1',
         SMTP_PORT: '1025',
         SMTP_FROM: 'Foodlog <foodlog@example.com>',

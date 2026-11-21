@@ -1,5 +1,5 @@
 import { eq, sql } from 'drizzle-orm';
-import { buildApp } from '../src/app.ts';
+import { buildApp, type AppDeps } from '../src/app.ts';
 import { loadConfig, type Config } from '../src/config.ts';
 import { createDb } from '../src/db/client.ts';
 import { invites, users } from '../src/db/schema.ts';
@@ -14,6 +14,8 @@ export const ORIGIN = 'http://localhost:5173';
 export const PASSWORD = 'correct horse battery';
 
 const TABLES = [
+  'ai_keys',
+  'ai_settings',
   'admin_audit',
   'template_ingredients',
   'templates',
@@ -33,6 +35,7 @@ const TABLES = [
 export async function createTestApp(
   overrides: Partial<Record<keyof Config, string>> = {},
   fetchStub?: typeof fetch,
+  extra: Partial<Pick<AppDeps, 'aiProviders'>> = {},
 ) {
   const config = loadConfig({
     NODE_ENV: 'test',
@@ -50,7 +53,7 @@ export async function createTestApp(
   await db.execute(sql`DELETE FROM ingredients WHERE user_id IS NOT NULL`);
   await db.execute(sql`SET FOREIGN_KEY_CHECKS = 1`);
   const mailer = createMemoryMailer();
-  const app = await buildApp({ config, db, mailer, fetch: fetchStub });
+  const app = await buildApp({ config, db, mailer, fetch: fetchStub, ...extra });
   return {
     app,
     db,
