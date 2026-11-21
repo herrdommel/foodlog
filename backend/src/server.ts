@@ -1,10 +1,11 @@
 import { buildApp } from './app.ts';
 import { loadConfig } from './config.ts';
 import { createDb } from './db/client.ts';
+import { createSmtpMailer } from './services/mail.ts';
 
 const config = loadConfig();
 const { db, pool } = createDb(config.DATABASE_URL);
-const app = buildApp({ config, db });
+const app = await buildApp({ config, db, mailer: createSmtpMailer(config) });
 
 const shutdown = async () => {
   await app.close();

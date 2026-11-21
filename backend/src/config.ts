@@ -6,7 +6,6 @@ const envSchema = z.object({
   HOST: z.string().default('127.0.0.1'),
   APP_URL: z.url(),
   DATABASE_URL: z.string().min(1),
-  SESSION_SECRET: z.string().min(32),
   API_KEY_ENCRYPTION_KEY: z
     .string()
     .refine((value) => Buffer.from(value, 'base64').length === 32, 'must be 32 bytes, base64'),

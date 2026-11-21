@@ -3,7 +3,10 @@ import { createPool } from 'mysql2/promise';
 import * as schema from './schema.ts';
 
 export function createDb(databaseUrl: string) {
-  const pool = createPool({ uri: databaseUrl, connectionLimit: 10 });
+  const pool = createPool({ uri: databaseUrl, connectionLimit: 10, timezone: 'Z' });
+  pool.pool.on('connection', (connection) => {
+    connection.query("SET time_zone = '+00:00'");
+  });
   return { db: drizzle(pool, { schema, mode: 'default' }), pool };
 }
 

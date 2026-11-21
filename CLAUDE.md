@@ -105,8 +105,17 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Workflows: `ci.yml`, `codeql.yml`, `audit.yml` (weekly), `release.yml` (release-please, then image and frontend tarball publish in the same workflow). Deploy workflow is still to do.
 - Tags and PRs created with `GITHUB_TOKEN` do not trigger other workflows. That is why publishing lives inside `release.yml`. Consequence: CI does not run on the release-please PR itself; fix later with a GitHub App or PAT if it matters.
 - Docker base image is pinned by digest, Dependabot keeps it current.
-- `@foodlog/shared` is TypeScript source. Once the backend imports it at runtime, it needs a JS build step (Node does not strip types inside `node_modules`, and `pnpm deploy` copies it there). Solve this when the first runtime import is added.
-- Backend integration tests will need a MariaDB service in `ci.yml`, and Playwright E2E a compose stack. Add both with the first tests that need them.
+- `@foodlog/shared` is TypeScript source and a devDependency of the backend. `backend/build.mjs` (esbuild) bundles it into `dist/`, all other dependencies stay external. The frontend consumes it through Vite.
+- Backend integration tests run against a real MariaDB (`foodlog_test`, created by `docker/mariadb-init/`, a service container in CI). Playwright E2E needs a compose stack, add it with the first E2E tests.
+
+## Backend notes
+
+- Auth: opaque session tokens (stored as sha256), httpOnly SameSite=Lax cookie `foodlog_session`, 30 days sliding. Mutating requests must carry an `Origin` header equal to `APP_URL` (CSRF protection). Tokens for email verification, reset and email change live in `auth_tokens`, hashed, single use.
+- Never reveal whether an email exists (register, forgot password, resend). Login uses a dummy hash for unknown users.
+- Google sign-in links to an existing account only because Google verified the email. If the local account was unverified, its password is cleared on linking (prevents pre-registration takeover).
+- All timestamps are UTC (`SET time_zone` on every connection).
+- Initial schema migration was regenerated during M1 (nothing deployed yet). From the first release on, migrations are append-only.
+- CLI: `pnpm admin:create <email> <name>` (password via stdin), `pnpm invite:create [email]`.
 
 ## Conventions
 
@@ -122,4 +131,5 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - [x] Plan agreed
 - [x] M0 scaffold (monorepo, backend health + env config, Drizzle setup, frontend shell, dev compose, lint/test setup). Docker, migration and health check verified locally.
 - [x] CI workflows, Dockerfile, Dependabot, SECURITY.md (not yet run on GitHub)
-- [ ] Next: M1 auth, M2 tracking, M3 analysis, M4 AI, M5 admin (incl. public registration switch), M6 GDPR/ops, deploy
+- [x] M1 backend (auth, sessions, invites, Google, profile, avatar, email change, feature flag resolution)
+- [ ] Next: M1 frontend, then M1 auth, M2 tracking, M3 analysis, M4 AI, M5 admin (incl. public registration switch), M6 GDPR/ops, deploy
