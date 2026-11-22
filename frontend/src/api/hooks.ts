@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AI_CONSENT_VERSION, type LegalDoc } from '@foodlog/shared';
 import type {
   AdminSettingsDto,
@@ -190,6 +190,23 @@ export function useIngredientSearch(
       api<IngredientDto[]>(
         `/api/ingredients?q=${encodeURIComponent(query)}&limit=${limit}&scope=${scope}`,
       ),
+    staleTime: 30_000,
+    placeholderData: (previous) => previous,
+  });
+}
+
+const CATALOG_PAGE_SIZE = 50;
+
+export function useCatalogIngredients(query: string) {
+  return useInfiniteQuery({
+    queryKey: ['ingredients', 'catalog', query],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) =>
+      api<IngredientDto[]>(
+        `/api/ingredients?q=${encodeURIComponent(query)}&limit=${CATALOG_PAGE_SIZE}&offset=${pageParam}&scope=catalog`,
+      ),
+    getNextPageParam: (lastPage, pages) =>
+      lastPage.length < CATALOG_PAGE_SIZE ? undefined : pages.length * CATALOG_PAGE_SIZE,
     staleTime: 30_000,
     placeholderData: (previous) => previous,
   });

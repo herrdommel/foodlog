@@ -66,6 +66,7 @@ export async function searchIngredients(
   query: string,
   limit: number,
   scope: 'all' | 'catalog' = 'all',
+  offset = 0,
 ): Promise<IngredientDto[]> {
   const pattern = `%${escapeLike(query)}%`;
   const prefix = `${escapeLike(query)}%`;
@@ -83,8 +84,10 @@ export async function searchIngredients(
     .orderBy(
       sql`(${ingredients.nameDe} LIKE ${prefix} OR ${ingredients.nameEn} LIKE ${prefix}) DESC`,
       ingredients.nameDe,
+      ingredients.id,
     )
-    .limit(limit);
+    .limit(limit)
+    .offset(offset);
   return toIngredientDtos(db, rows);
 }
 

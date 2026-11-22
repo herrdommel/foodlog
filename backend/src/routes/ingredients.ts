@@ -29,8 +29,8 @@ export async function ingredientRoutes(app: FastifyInstance, { db }: AppDeps) {
   }
 
   app.get('/api/ingredients', auth, async (request) => {
-    const { q, limit, scope } = parseBody(ingredientSearchSchema, request.query);
-    return searchIngredients(db, request.user!.id, q, limit, scope);
+    const { q, limit, offset, scope } = parseBody(ingredientSearchSchema, request.query);
+    return searchIngredients(db, request.user!.id, q, limit, scope, offset);
   });
 
   app.get('/api/ingredients/mine', auth, async (request) =>

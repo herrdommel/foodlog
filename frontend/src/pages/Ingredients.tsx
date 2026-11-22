@@ -1,10 +1,10 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Allergen, CustomIngredientDto } from '@foodlog/shared';
 import {
+  useCatalogIngredients,
   useCreateIngredient,
   useDeleteIngredient,
-  useIngredientSearch,
   useMyIngredients,
   useUpdateIngredient,
 } from '../api/hooks.ts';
@@ -195,7 +195,23 @@ function CustomList() {
 function CatalogCard() {
   const { t, i18n } = useTranslation();
   const [query, setQuery] = useState('');
-  const results = useIngredientSearch(query.trim(), { limit: 50, scope: 'catalog' });
+  const results = useCatalogIngredients(query.trim());
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = results;
+  const sentinel = useRef<HTMLLIElement>(null);
+
+  useEffect(() => {
+    const node = sentinel.current;
+    if (!node || !hasNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && !isFetchingNextPage) void fetchNextPage();
+      },
+      { rootMargin: '200px' },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
   return (
     <Card title={t('ingredientsPage.catalogTitle')}>
       <p className="text-sm text-fg/75">{t('ingredientsPage.catalogHint')}</p>
@@ -206,12 +222,13 @@ function CatalogCard() {
         onChange={(event) => setQuery(event.target.value)}
       />
       <ul className="divide-y divide-fg/10">
-        {results.data?.map((ingredient) => (
+        {results.data?.pages.flat().map((ingredient) => (
           <li key={ingredient.id} className="flex flex-wrap items-center gap-2 py-2 text-sm">
             <span className="font-medium">{ingredientName(ingredient, i18n.language)}</span>
             <AllergenChips allergens={ingredient.allergens} />
           </li>
         ))}
+        {hasNextPage && <li ref={sentinel} aria-hidden className="h-1" />}
       </ul>
     </Card>
   );

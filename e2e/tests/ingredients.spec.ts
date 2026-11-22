@@ -32,6 +32,14 @@ test('creates, edits and deletes an own ingredient', async ({ page }) => {
   await expect(mine.getByText('You have no custom ingredients yet.')).toBeVisible();
 });
 
+test('loads more catalog entries while scrolling', async ({ page }) => {
+  const catalog = page.getByRole('region', { name: 'Catalog' });
+  const items = catalog.getByRole('listitem');
+  await expect(items).toHaveCount(50);
+  await items.last().scrollIntoViewIfNeeded();
+  await expect.poll(() => items.count()).toBeGreaterThan(50);
+});
+
 test('shows usage and warns before deleting an ingredient used in entries', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Meal', exact: true }).click();

@@ -87,6 +87,22 @@ describe('ingredient catalog', () => {
     const response = await get(t.app, '/api/ingredients?limit=3', cookie);
     expect(response.json()).toHaveLength(3);
   });
+
+  it('pages through the catalog without gaps or repeats', async () => {
+    const ids: string[] = [];
+    for (let offset = 0; ; offset += 40) {
+      const page: IngredientDto[] = (
+        await get(t.app, `/api/ingredients?scope=catalog&limit=40&offset=${offset}`, cookie)
+      ).json();
+      ids.push(...page.map((i) => i.id));
+      if (page.length < 40) break;
+    }
+    const full: IngredientDto[] = (
+      await get(t.app, '/api/ingredients?scope=catalog&limit=200', cookie)
+    ).json();
+    expect(ids).toEqual(full.map((i) => i.id));
+    expect(new Set(ids).size).toBe(ids.length);
+  });
 });
 
 describe('custom tags', () => {
