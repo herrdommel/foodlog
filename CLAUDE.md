@@ -72,7 +72,7 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Flags are defined in code (typed registry in `shared/`), rows are created on demand. Unknown keys are rejected.
 - Backend: `requireFeature(key)` route guard, returns 403 with code `feature_disabled`. Frontend: flags come with the session/me endpoint, `useFeature(key)` hook hides UI.
 - Admin UI: global toggles on the settings page, per-user toggles in user management.
-- Initial flags: `ai_analysis`, `google_login`, `data_export`.
+- Initial flags: `ai_analysis`, `google_login`, `data_export`. Later: `barcode_scan` (default on).
 - Every new optional feature should ship behind a flag.
 
 ## Dev mode
@@ -191,6 +191,11 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - `deploy/test/run.sh` tests `deploy.sh` and `backup.sh` with stand-ins for docker, curl, mysqldump and age, and runs in CI together with ShellCheck. Run it locally with `bash deploy/test/run.sh`; ShellCheck and actionlint are available through their Docker images. Scripts must stay portable to bash 3.2 (no `mapfile`); `mv -T` is GNU only on purpose (the server is Linux), the test emulates it on macOS.
 - Checklist when adding configuration: `config.ts`, `test/helpers.ts`, `e2e/playwright.config.ts`, `.env.example`, `deploy/env.production.example`, `docs/deployment.md`. Every new CLI entry point must be listed in `backend/build.mjs`, otherwise it is missing from the image.
 - Never verified against a real server: the container to MariaDB path, the SSH deployment, live AI calls.
+
+## Barcode and photo notes (phase 2)
+
+- Barcode: `GET /api/products/:barcode` (flag `barcode_scan`) asks Open Food Facts from the server (`OPEN_FOOD_FACTS_URL`, optional, default the public instance; the user's browser never talks to it, CSP stays `connect-src 'self'`). The barcode is validated (EAN-8, UPC-A, EAN-13, GTIN-14 with check digit) before any request. Results are cached in memory for an hour. The endpoint only suggests, it creates nothing.
+- Mapping (`catalog/open-food-facts.ts`): explicit tables, no fuzzy matching. `OFF_TO_CATALOG` maps taxonomy ids to catalog keys, `OFF_ALLERGENS` maps product allergens to ours, `NAME_ALLERGENS` derives allergens of a new tag from its own name. Read `product.ingredients[]`, never `ingredients_tags` (those contain taxonomy parents such as `en:oil-and-fat`). Water, salt and E-numbers are skipped. Allergens the product declares but no ingredient explains become a proposal named after the product (`source: 'product'`) so the analysis does not lose them.
 
 ## Conventions
 

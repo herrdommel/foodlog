@@ -20,6 +20,7 @@ import { googleRoutes } from './routes/google.ts';
 import { ingredientRoutes } from './routes/ingredients.ts';
 import { legalRoutes } from './routes/legal.ts';
 import { meRoutes } from './routes/me.ts';
+import { productRoutes } from './routes/products.ts';
 import { templateRoutes } from './routes/templates.ts';
 import { createProviders, type AiProviders } from './services/ai/providers.ts';
 import type { Mailer } from './services/mail.ts';
@@ -99,6 +100,7 @@ export async function buildApp(deps: AppDeps) {
   await app.register(meRoutes, deps);
   await app.register(googleRoutes, deps);
   await app.register(ingredientRoutes, deps);
+  await app.register(productRoutes, deps);
   await app.register(entryRoutes, deps);
   await app.register(templateRoutes, deps);
   await app.register(analysisRoutes, deps);

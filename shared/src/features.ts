@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const FEATURE_KEYS = ['ai_analysis', 'google_login', 'data_export'] as const;
+export const FEATURE_KEYS = ['ai_analysis', 'google_login', 'data_export', 'barcode_scan'] as const;
 
 export const featureKeySchema = z.enum(FEATURE_KEYS);
 
@@ -13,6 +13,7 @@ export const FEATURE_DEFAULTS: Record<FeatureKey, { enabled: boolean; defaultFor
     ai_analysis: { enabled: true, defaultForUsers: false },
     google_login: { enabled: true, defaultForUsers: true },
     data_export: { enabled: true, defaultForUsers: true },
+    barcode_scan: { enabled: true, defaultForUsers: true },
   };
 
 export function resolveFlag(

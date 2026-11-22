@@ -15,6 +15,7 @@ const envSchema = z.object({
     .default('false')
     .transform((value) => value === 'true'),
   LEGAL_DIR: z.string().default('./legal'),
+  OPEN_FOOD_FACTS_URL: z.url().default('https://world.openfoodfacts.org'),
   SMTP_HOST: z.string().min(1),
   SMTP_PORT: z.coerce.number().int().positive(),
   SMTP_USER: z.string().optional(),

@@ -44,6 +44,8 @@ Copy `deploy/env.production.example` to `/opt/foodlog/.env.production` (mode `60
 - SMTP settings for verification and reset mails. The sender must be allowed to send for your domain (SPF/DKIM).
 - Optional: Google sign-in. In the Google Cloud console create an OAuth client (web application) with the redirect URI `https://<your-domain>/api/auth/google/callback` and enter client id and secret.
 
+Optional: `OPEN_FOOD_FACTS_URL` (default `https://world.openfoodfacts.org`) for the barcode lookup. The backend needs outgoing HTTPS access to it, and to the AI providers if you enable them. Only the barcode number leaves the server.
+
 The AI mock provider (`AI_MOCK_PROVIDER`) is for development only and the backend refuses to start with it in production.
 
 ## 4. Legal pages

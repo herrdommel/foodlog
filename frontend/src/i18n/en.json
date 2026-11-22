@@ -393,7 +393,8 @@
     "features": {
       "ai_analysis": "AI analysis",
       "google_login": "Sign in with Google",
-      "data_export": "Data export"
+      "data_export": "Data export",
+      "barcode_scan": "Barcode scan"
     },
     "invites": {
       "title": "Invitations",

@@ -417,6 +417,7 @@ describe('settings and feature flags', () => {
     expect(initial.publicRegistration).toBe(false);
     expect(initial.features.map((f: { key: string }) => f.key).sort()).toEqual([
       'ai_analysis',
+      'barcode_scan',
       'data_export',
       'google_login',
     ]);

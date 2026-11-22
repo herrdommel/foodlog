@@ -40,7 +40,12 @@ export const meResponse: MeResponse = {
     hasPassword: true,
     googleLinked: false,
   },
-  features: { ai_analysis: false, google_login: true, data_export: true },
+  features: {
+    ai_analysis: false,
+    google_login: true,
+    data_export: true,
+    barcode_scan: true,
+  },
 };
 
 export function mockGuest(config = { publicRegistration: false, googleLogin: false }) {

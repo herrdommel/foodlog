@@ -29,6 +29,29 @@ await syncCatalog(db);
 const mailer = createMemoryMailer();
 const app = await buildApp({ config, db, mailer, disableRateLimit: true });
 
+const OFF_FIXTURES: Record<string, unknown> = {
+  '4000000000013': {
+    status: 1,
+    product: {
+      product_name: 'Hazel spread',
+      brands: 'Acme',
+      ingredients: [
+        { id: 'en:sugar', text: 'sugar' },
+        { id: 'en:palm-oil', text: 'palm oil' },
+        { id: 'en:skimmed-milk', text: 'skimmed milk' },
+        { id: 'en:soy-lecithin', text: 'soy lecithin' },
+      ],
+      allergens_tags: ['en:milk', 'en:soybeans'],
+    },
+  },
+};
+
+app.get('/__test/off/api/v2/product/:file', async (request, reply) => {
+  const { file } = request.params as { file: string };
+  const product = OFF_FIXTURES[file.replace('.json', '')];
+  return product ? product : reply.status(404).send({ status: 0 });
+});
+
 app.get('/__test/mail', async (request) => {
   const { to } = request.query as { to: string };
   return mailer.outbox.filter((mail) => mail.to === to);

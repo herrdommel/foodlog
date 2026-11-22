@@ -29,6 +29,8 @@ Foodlog I/O ist ein Tagebuch, in dem du Essen, Getränke, Symptome, Stuhlkonsist
 
 **Anmeldung mit Google.** Wenn du sie wählst, wirst du zu Google weitergeleitet. Google teilt uns deine E-Mail-Adresse, deinen Namen und die Bestätigung der Adresse mit. Für die Verarbeitung durch Google gilt dessen Datenschutzerklärung.
 
+**Barcode-Suche.** Wenn du einen Barcode nachschlägst, fragt unser Server die Produktdatenbank Open Food Facts (ein Projekt der gemeinnützigen Organisation Open Food Facts mit Sitz in Frankreich) nach dem Produkt. Übermittelt werden nur die Barcode-Nummer und die Adresse unseres Servers, nichts, was dich identifiziert. Die Produktdaten werden unter der Open Database License genutzt. Name, Zutaten und Allergene des Produkts werden dir angezeigt und nur gespeichert, wenn du sie einer Mahlzeit hinzufügst.
+
 **KI-Auswertung.** Die KI-Auswertung ist optional und läuft nur, wenn du sie startest. Du brauchst dafür einen eigenen API-Key von Anthropic oder OpenAI. Beim Start erhält der gewählte Anbieter eine Zusammenfassung des von dir gewählten Zeitraums: Tagebucheinträge (Art, Zeit, Bezeichnung, Zutaten, Symptom, Stärke, Stuhltyp) und die statistische Voranalyse. Name, E-Mail-Adresse und Notizen werden nicht gesendet. Vor dem Senden kannst du genau sehen, welche Daten übermittelt werden. Rechtsgrundlage: deine ausdrückliche Einwilligung, Art. 9 Abs. 2 lit. a DSGVO, die du gesondert in den KI-Einstellungen erteilst und dort widerrufen kannst. Dein API-Key wird verschlüsselt gespeichert und nur für deine Anfragen verwendet. Der Anbieter verarbeitet die Daten nach seinen eigenen Bedingungen (Anthropic PBC und OpenAI, beide mit Sitz in den USA). Die Übermittlung in die USA stützt sich auf [RECHTSGRUNDLAGE, Z. B. EU-US DATA PRIVACY FRAMEWORK ODER STANDARDVERTRAGSKLAUSELN, ZU PRÜFEN]. Bei OpenAI fordern wir an, dass die Daten nicht gespeichert werden. Bitte lies auch die Datenschutzerklärungen der Anbieter.
 
 ## 5. Wie lange wir Daten speichern
@@ -44,7 +46,7 @@ Foodlog I/O ist ein Tagebuch, in dem du Essen, Getränke, Symptome, Stuhlkonsist
 
 - Hosting: [HOSTING-ANBIETER UND STANDORT].
 - E-Mail-Versand: [MAIL-ANBIETER, FALLS VORHANDEN].
-- Google, Anthropic oder OpenAI nur, wenn du die oben beschriebenen optionalen Dienste nutzt.
+- Google, Anthropic, OpenAI oder Open Food Facts nur, wenn du die oben beschriebenen optionalen Dienste nutzt.
 
 Wir verkaufen keine Daten und geben sie nicht zu Werbezwecken weiter.
 

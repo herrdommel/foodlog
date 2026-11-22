@@ -393,7 +393,8 @@
     "features": {
       "ai_analysis": "KI-Auswertung",
       "google_login": "Anmeldung mit Google",
-      "data_export": "Datenexport"
+      "data_export": "Datenexport",
+      "barcode_scan": "Barcode-Scan"
     },
     "invites": {
       "title": "Einladungen",

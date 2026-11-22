@@ -29,6 +29,8 @@ Foodlog I/O is a diary in which you record food, drinks, symptoms, stool consist
 
 **Sign in with Google.** If you choose it, you are redirected to Google. Google tells us your email address, your name and that the address is verified. Google's privacy policy applies to its processing.
 
+**Barcode lookup.** When you look up a barcode, our server asks the product database Open Food Facts (a project of Open Food Facts, a non-profit based in France) for the product. Only the barcode number and the address of our server are sent, nothing that identifies you. The product data is used under the Open Database License. The product's name, ingredients and allergens are shown to you and only saved if you add them to a meal.
+
 **AI analysis.** The AI analysis is optional and only runs when you start it. It requires your own API key from Anthropic or OpenAI. When you start it, the selected provider receives a summary of the period you chose: diary entries (type, time, title, ingredients, symptom, severity, stool type) and the statistical pre-analysis. Names, email address and notes are not sent. Before sending you can see exactly which data will be transmitted. Legal basis: your explicit consent, Art. 9(2)(a) GDPR, which you give separately in the AI settings and can withdraw there. Your API key is stored encrypted and is only used for your requests. The provider processes the data under its own terms (Anthropic PBC and OpenAI, both based in the USA); transfers to the USA rely on [LEGAL BASIS, FOR EXAMPLE THE EU-US DATA PRIVACY FRAMEWORK OR STANDARD CONTRACTUAL CLAUSES, TO BE CONFIRMED]. For OpenAI, we ask that the data is not stored. Please also read the providers' privacy policies.
 
 ## 5. How long we keep data
@@ -44,7 +46,7 @@ Foodlog I/O is a diary in which you record food, drinks, symptoms, stool consist
 
 - Hosting: [HOSTING PROVIDER AND LOCATION].
 - Email delivery: [MAIL PROVIDER, IF ANY].
-- Google, Anthropic or OpenAI only if you use the optional services described above.
+- Google, Anthropic, OpenAI or Open Food Facts only if you use the optional services described above.
 
 We do not sell data and do not pass it on for advertising.
 

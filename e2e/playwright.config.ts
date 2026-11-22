@@ -41,6 +41,7 @@ export default defineConfig({
         DATABASE_URL,
         API_KEY_ENCRYPTION_KEY: Buffer.alloc(32, 7).toString('base64'),
         AI_MOCK_PROVIDER: 'true',
+        OPEN_FOOD_FACTS_URL: `http://127.0.0.1:${BACKEND_PORT}/__test/off`,
         LEGAL_DIR: fileURLToPath(new URL('./fixtures/legal', import.meta.url)),
         SMTP_HOST: '127.0.0.1',
         SMTP_PORT: '1025',
