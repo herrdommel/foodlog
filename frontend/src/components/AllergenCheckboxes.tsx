@@ -10,7 +10,7 @@ export function AllergenCheckboxes({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-wrap gap-x-4 gap-y-2">
+    <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:flex sm:flex-wrap">
       {ALLERGENS.map((allergen) => (
         <label key={allergen} className="flex items-center gap-1.5 text-sm">
           <input

@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { AnalysisDto } from '@foodlog/shared';
 import { ingredientName } from '../lib/format.ts';
-import { Card } from './ui.tsx';
+import { Card, ScrollX } from './ui.tsx';
 
 const axisStyle = { fontSize: 12, fill: 'var(--text)' };
 
@@ -133,7 +133,7 @@ export function Heatmap({ data }: { data: number[][] }) {
       {total === 0 ? (
         <p className="text-fg/75">{t('analysis.charts.noData')}</p>
       ) : (
-        <div className="overflow-x-auto">
+        <ScrollX>
           <table className="border-separate border-spacing-0.5 text-xs">
             <thead>
               <tr>
@@ -170,7 +170,7 @@ export function Heatmap({ data }: { data: number[][] }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollX>
       )}
     </Card>
   );

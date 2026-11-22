@@ -4,7 +4,7 @@ import type { IngredientDto, IngredientSuggestionsDto } from '@foodlog/shared';
 import { useCreateIngredient } from '../api/hooks.ts';
 import { ingredientName } from '../lib/format.ts';
 import { AllergenChips } from './AllergenChips.tsx';
-import { Button, ErrorMessage } from './ui.tsx';
+import { ActionRow, Button, ErrorMessage } from './ui.tsx';
 
 export function IngredientSuggestions({
   suggestions,
@@ -87,14 +87,14 @@ export function IngredientSuggestions({
           ))}
         </fieldset>
       )}
-      <div className="flex gap-3">
+      <ActionRow columns={2}>
         <Button type="button" disabled={busy || count === 0} onClick={confirm}>
           {t('suggestions.add', { count })}
         </Button>
         <Button type="button" variant="secondary" onClick={onCancel}>
           {t('tracking.cancel')}
         </Button>
-      </div>
+      </ActionRow>
     </div>
   );
 }

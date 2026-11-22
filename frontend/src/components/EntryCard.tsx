@@ -32,7 +32,7 @@ export function EntryCard({
   const allergens = [...new Set(entry.ingredients.flatMap((ingredient) => ingredient.allergens))];
 
   return (
-    <li className="space-y-2 rounded-2xl bg-raised p-4 shadow-sm">
+    <li id={`entry-${entry.id}`} className="space-y-2 rounded-2xl bg-raised p-4 shadow-sm">
       <div className="flex flex-wrap items-center gap-2">
         <time dateTime={entry.occurredAt} className="font-mono text-sm tabular-nums">
           {formatTime(entry.occurredAt, timeZone, i18n.language)}

@@ -9,7 +9,10 @@ export function AdminLayout() {
     <>
       <div>
         <h1 className="text-2xl font-bold">{t('admin.title')}</h1>
-        <nav aria-label={t('admin.title')} className="mt-3 flex gap-1">
+        <nav
+          aria-label={t('admin.title')}
+          className="mt-3 flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
           <NavLink to="/admin/users" className={link}>
             {t('admin.tabs.users')}
           </NavLink>

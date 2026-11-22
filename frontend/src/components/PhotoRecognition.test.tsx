@@ -73,7 +73,15 @@ describe('PhotoRecognition', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Recognise from a photo' }));
     expect(await screen.findByText(/needs your AI provider/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Set it up' })).toHaveAttribute('href', '/ai');
-    expect(screen.queryByLabelText('Choose or take a photo')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Choose a photo')).not.toBeInTheDocument();
+  });
+
+  it('offers the camera and the gallery separately', async () => {
+    setup();
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Recognise from a photo' }));
+    expect(await screen.findByLabelText('Take a photo')).toHaveAttribute('capture', 'environment');
+    expect(screen.getByLabelText('Choose a photo')).not.toHaveAttribute('capture');
   });
 
   it('shows the photo and where it goes, then adds the checked suggestions', async () => {
@@ -81,7 +89,7 @@ describe('PhotoRecognition', () => {
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Recognise from a photo' }));
     await user.upload(
-      await screen.findByLabelText('Choose or take a photo'),
+      await screen.findByLabelText('Choose a photo'),
       new File(['raw'], 'big.heic', { type: 'image/heic' }),
     );
     expect(await screen.findByRole('img', { name: 'Your photo' })).toHaveAttribute(
@@ -108,7 +116,7 @@ describe('PhotoRecognition', () => {
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Recognise from a photo' }));
     await user.upload(
-      await screen.findByLabelText('Choose or take a photo'),
+      await screen.findByLabelText('Choose a photo'),
       new File(['raw'], 'x.png', { type: 'image/png' }),
     );
     expect(await screen.findByRole('alert')).toHaveTextContent('not a supported image');
@@ -124,7 +132,7 @@ describe('PhotoRecognition', () => {
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Recognise from a photo' }));
     await user.upload(
-      await screen.findByLabelText('Choose or take a photo'),
+      await screen.findByLabelText('Choose a photo'),
       new File(['raw'], 'x.png', { type: 'image/png' }),
     );
     await user.click(await screen.findByRole('button', { name: 'Recognise ingredients' }));

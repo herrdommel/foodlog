@@ -83,6 +83,44 @@ describe('navigation and access', () => {
 });
 
 describe('provider and key', () => {
+  it('collapses the settings cards once everything is configured', async () => {
+    mockAi(readySettings);
+    renderApp('/ai');
+    const provider = await screen.findByRole('region', { name: 'Provider and key' });
+    const consent = screen.getByRole('region', { name: 'Consent for the analysis' });
+    expect(provider).not.toHaveAttribute('open');
+    expect(consent).not.toHaveAttribute('open');
+    expect(within(provider).getByText('Anthropic (Claude) · mock-large')).toBeInTheDocument();
+    expect(consent.querySelector('summary')).toHaveTextContent(/Consent given on/);
+
+    await userEvent.setup().click(within(provider).getByText('Provider and key'));
+    expect(provider).toHaveAttribute('open');
+  });
+
+  it('puts the analysis first when it is ready and the setup first when it is not', async () => {
+    mockAi(readySettings);
+    const ready = renderApp('/ai');
+    const run = await screen.findByRole('region', { name: 'Start analysis' });
+    const provider = screen.getByRole('region', { name: 'Provider and key' });
+    expect(run.compareDocumentPosition(provider) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    ready.unmount();
+
+    mockAi(settings());
+    renderApp('/ai');
+    const first = await screen.findByRole('region', { name: 'Provider and key' });
+    const second = screen.getByRole('region', { name: 'Start analysis' });
+    expect(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('keeps the settings cards open while something is missing', async () => {
+    mockAi(settings());
+    renderApp('/ai');
+    expect(await screen.findByRole('region', { name: 'Provider and key' })).toHaveAttribute('open');
+    expect(screen.getByRole('region', { name: 'Consent for the analysis' })).toHaveAttribute(
+      'open',
+    );
+  });
+
   it('saves a key without ever showing it again', async () => {
     const state = mockAi(settings());
     let body: unknown;
@@ -253,7 +291,7 @@ describe('consent', () => {
     );
     renderApp('/ai');
     const user = userEvent.setup();
-    const consent = within(await screen.findByRole('region', { name: 'Consent' }));
+    const consent = within(await screen.findByRole('region', { name: 'Consent for the analysis' }));
     expect(consent.getByRole('button', { name: 'Give consent' })).toBeDisabled();
     await user.click(consent.getByRole('checkbox'));
     await user.click(consent.getByRole('button', { name: 'Give consent' }));
@@ -301,6 +339,33 @@ describe('running the analysis', () => {
       outcome: 'bloating',
       minSeverity: 5,
     });
+  });
+
+  it('hides the preview again', async () => {
+    mockAi(readySettings);
+    server.use(
+      http.post('/api/ai/preview', () =>
+        HttpResponse.json({
+          system: 'S',
+          data: {},
+          payloadHash: 'a'.repeat(64),
+          entryCount: 1,
+          bytes: 100,
+          truncated: false,
+        }),
+      ),
+    );
+    renderApp('/ai');
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Show data to be sent' }));
+    expect(
+      await screen.findByRole('region', { name: 'This data will be sent' }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Hide data to be sent' }));
+    expect(
+      screen.queryByRole('region', { name: 'This data will be sent' }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Show data to be sent' })).toBeInTheDocument();
   });
 
   it('warns when the diary was truncated', async () => {

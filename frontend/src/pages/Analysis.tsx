@@ -16,7 +16,7 @@ import {
 } from '../components/AnalysisCharts.tsx';
 import { ContextFactors } from '../components/ContextFactors.tsx';
 import { SuspectsTable } from '../components/SuspectsTable.tsx';
-import { Button, Card, ErrorMessage, Field, SelectField } from '../components/ui.tsx';
+import { ActionRow, Button, Card, ErrorMessage, Field, SelectField } from '../components/ui.tsx';
 import { readAnalysisParams, toSearchParams, type AnalysisParams } from '../lib/analysisParams.ts';
 
 function Tile({ label, value }: { label: string; value: number }) {
@@ -63,7 +63,7 @@ export function AnalysisPage() {
       </p>
 
       <Card title={t('analysis.period')}>
-        <div className="flex flex-wrap gap-2">
+        <ActionRow columns={3}>
           {[7, 30, 90].map((days) => (
             <Button
               key={days}
@@ -75,7 +75,7 @@ export function AnalysisPage() {
               {t(`analysis.last${days}`)}
             </Button>
           ))}
-        </div>
+        </ActionRow>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
             label={t('analysis.from')}
@@ -137,7 +137,7 @@ export function AnalysisPage() {
       </Card>
 
       {(me?.features.data_export || me?.features.ai_analysis) && (
-        <div className="flex flex-wrap gap-3">
+        <ActionRow>
           {me.features.data_export && (
             <>
               <a
@@ -166,7 +166,7 @@ export function AnalysisPage() {
               {t('ai.link')}
             </Link>
           )}
-        </div>
+        </ActionRow>
       )}
 
       <ErrorMessage error={analysis.error} />

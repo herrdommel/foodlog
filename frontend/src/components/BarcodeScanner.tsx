@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { BrowserMultiFormatReader } from '@zxing/browser';
 import { isValidBarcode } from '@foodlog/shared';
-import { Button } from './ui.tsx';
+import { Button, FilePicker } from './ui.tsx';
 
 type Controls = { stop: () => void };
 
@@ -92,30 +92,28 @@ export function BarcodeScanner({ onDetected }: { onDetected: (code: string) => v
 
   return (
     <div className="space-y-2">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         {canUseCamera() && !scanning && (
-          <Button type="button" variant="secondary" onClick={startCamera}>
+          <Button
+            type="button"
+            variant="secondary"
+            className="w-full sm:w-auto"
+            onClick={startCamera}
+          >
             {t('barcode.scanCamera')}
           </Button>
         )}
         {scanning && (
-          <Button type="button" variant="secondary" onClick={stop}>
+          <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={stop}>
             {t('barcode.stopCamera')}
           </Button>
         )}
-        <label className="cursor-pointer rounded-lg border border-fg/20 px-4 py-2 text-sm font-medium hover:bg-fg/5 focus-within:ring-2 focus-within:ring-accent/40">
-          {t('barcode.scanPhoto')}
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="sr-only"
-            onChange={(event) => {
-              void readPhoto(event.target.files?.[0]);
-              event.target.value = '';
-            }}
-          />
-        </label>
+        <FilePicker
+          label={t('barcode.takePhoto')}
+          capture
+          onFile={(file) => void readPhoto(file)}
+        />
+        <FilePicker label={t('barcode.scanPhoto')} onFile={(file) => void readPhoto(file)} />
       </div>
       {scanning && (
         <video

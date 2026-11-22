@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { Confidence, ContextFactorDto } from '@foodlog/shared';
-import { Card } from './ui.tsx';
+import { Card, ScrollX } from './ui.tsx';
 
 const badge: Record<Confidence, string> = {
   high: 'bg-coral text-ink',
@@ -35,7 +35,7 @@ export function ContextFactors({
           {t('analysis.context.notEnough', { days: minDays })}
         </p>
       ) : (
-        <div className="overflow-x-auto">
+        <ScrollX>
           <table className="w-full min-w-[34rem] text-left text-sm">
             <caption className="sr-only">{t('analysis.context.title')}</caption>
             <thead>
@@ -94,7 +94,7 @@ export function ContextFactors({
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollX>
       )}
     </>
   );

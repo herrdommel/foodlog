@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import type { AdminUserDto } from '@foodlog/shared';
 import { useAdminUsers } from '../../api/hooks.ts';
-import { Button, Card, ErrorMessage, Field } from '../../components/ui.tsx';
+import { Button, Card, ErrorMessage, Field, ScrollX } from '../../components/ui.tsx';
 import { useDebounced } from '../../lib/useDebounced.ts';
 
 export function UserStatus({ user }: { user: Pick<AdminUserDto, 'active' | 'emailVerified'> }) {
@@ -48,7 +48,7 @@ export function AdminUsersPage() {
       )}
       {data?.users.length === 0 && <p className="text-fg/75">{t('admin.users.empty')}</p>}
       {data && data.users.length > 0 && (
-        <div className="overflow-x-auto">
+        <ScrollX>
           <table className="w-full min-w-[34rem] text-left text-sm">
             <caption className="sr-only">{t('admin.users.title')}</caption>
             <thead>
@@ -88,7 +88,7 @@ export function AdminUsersPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollX>
       )}
       {data && pages > 1 && (
         <div className="flex items-center justify-between gap-3">

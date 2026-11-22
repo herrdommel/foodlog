@@ -39,7 +39,12 @@ export function BarcodeLookup({
 
   if (!open) {
     return (
-      <Button type="button" variant="secondary" onClick={() => setOpen(true)}>
+      <Button
+        type="button"
+        variant="secondary"
+        onClick={() => setOpen(true)}
+        className="w-full sm:w-auto"
+      >
         {t('barcode.open')}
       </Button>
     );
@@ -50,7 +55,7 @@ export function BarcodeLookup({
   return (
     <section
       aria-label={t('barcode.title')}
-      className="space-y-3 rounded-lg border border-fg/15 p-3"
+      className="w-full space-y-3 rounded-lg border border-fg/15 p-3"
     >
       <h3 className="text-sm font-semibold">{t('barcode.title')}</h3>
       <div className="flex items-end gap-2">
@@ -107,7 +112,7 @@ export function BarcodeLookup({
         </>
       )}
       {!product && (
-        <Button type="button" variant="secondary" onClick={reset}>
+        <Button type="button" variant="secondary" onClick={reset} className="w-full sm:w-auto">
           {t('tracking.cancel')}
         </Button>
       )}

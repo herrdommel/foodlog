@@ -25,7 +25,16 @@ import {
   useWithdrawAiConsent,
   useWithdrawAiPhotoConsent,
 } from '../api/hooks.ts';
-import { Button, Card, ErrorMessage, Field, Notice, SelectField } from '../components/ui.tsx';
+import {
+  ActionRow,
+  Button,
+  Card,
+  CollapsibleCard,
+  ErrorMessage,
+  Field,
+  Notice,
+  SelectField,
+} from '../components/ui.tsx';
 import { readAnalysisParams, toSearchParams, type AnalysisParams } from '../lib/analysisParams.ts';
 
 function ProviderCard({ settings }: { settings: AiSettingsDto }) {
@@ -41,6 +50,10 @@ function ProviderCard({ settings }: { settings: AiSettingsDto }) {
   const active = settings.provider === provider;
   const keyInfo = settings.keys[provider];
   const models = useAiModels(provider, keyInfo.configured);
+  const summary =
+    settings.provider && settings.model
+      ? `${t(`ai.provider.${settings.provider}`)} · ${settings.model}`
+      : '';
 
   const model =
     chosenModel ??
@@ -73,7 +86,13 @@ function ProviderCard({ settings }: { settings: AiSettingsDto }) {
   };
 
   return (
-    <Card title={t('ai.provider.title')}>
+    <CollapsibleCard
+      title={t('ai.provider.title')}
+      summary={summary}
+      defaultOpen={
+        !(settings.provider && settings.model && settings.keys[settings.provider].configured)
+      }
+    >
       <ErrorMessage error={save.error ?? remove.error ?? update.error} />
       <SelectField
         label={t('ai.provider.choose')}
@@ -88,14 +107,16 @@ function ProviderCard({ settings }: { settings: AiSettingsDto }) {
       </SelectField>
 
       {keyInfo.configured && !replacing ? (
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="space-y-3">
           <p className="text-sm">{t('ai.provider.stored', { last4: keyInfo.last4 })}</p>
-          <Button type="button" variant="secondary" onClick={() => setReplacing(true)}>
-            {t('ai.provider.replace')}
-          </Button>
-          <Button type="button" variant="secondary" onClick={() => remove.mutate(provider)}>
-            {t('ai.provider.remove')}
-          </Button>
+          <ActionRow columns={2}>
+            <Button type="button" variant="secondary" onClick={() => setReplacing(true)}>
+              {t('ai.provider.replace')}
+            </Button>
+            <Button type="button" variant="secondary" onClick={() => remove.mutate(provider)}>
+              {t('ai.provider.remove')}
+            </Button>
+          </ActionRow>
         </div>
       ) : (
         <form onSubmit={submitKey} className="space-y-3">
@@ -110,7 +131,11 @@ function ProviderCard({ settings }: { settings: AiSettingsDto }) {
             value={apiKey}
             onChange={(event) => setApiKey(event.target.value)}
           />
-          <Button type="submit" disabled={save.isPending || apiKey.trim().length < 8}>
+          <Button
+            type="submit"
+            disabled={save.isPending || apiKey.trim().length < 8}
+            className="w-full sm:w-auto"
+          >
             {keyInfo.configured ? t('ai.provider.replace') : t('ai.provider.save')}
           </Button>
         </form>
@@ -152,7 +177,7 @@ function ProviderCard({ settings }: { settings: AiSettingsDto }) {
           )}
         </div>
       )}
-    </Card>
+    </CollapsibleCard>
   );
 }
 
@@ -168,15 +193,21 @@ function ConsentCard({ settings }: { settings: AiSettingsDto }) {
     : '';
 
   return (
-    <Card title={t('ai.consent.title')}>
+    <CollapsibleCard
+      title={t('ai.consent.title')}
+      summary={t('ai.consent.given', { date })}
+      defaultOpen={!settings.consent.given}
+    >
       <p className="text-sm">{t('ai.consent.text')}</p>
       <ErrorMessage error={give.error ?? withdraw.error} />
       {settings.consent.given ? (
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="space-y-3">
           <p className="text-sm">{t('ai.consent.given', { date })}</p>
-          <Button type="button" variant="secondary" onClick={() => withdraw.mutate()}>
-            {t('ai.consent.withdraw')}
-          </Button>
+          <ActionRow>
+            <Button type="button" variant="secondary" onClick={() => withdraw.mutate()}>
+              {t('ai.consent.withdraw')}
+            </Button>
+          </ActionRow>
         </div>
       ) : (
         <>
@@ -189,12 +220,17 @@ function ConsentCard({ settings }: { settings: AiSettingsDto }) {
             />
             {t('ai.consent.checkbox')}
           </label>
-          <Button type="button" disabled={!checked || give.isPending} onClick={() => give.mutate()}>
+          <Button
+            type="button"
+            disabled={!checked || give.isPending}
+            onClick={() => give.mutate()}
+            className="w-full sm:w-auto"
+          >
             {t('ai.consent.give')}
           </Button>
         </>
       )}
-    </Card>
+    </CollapsibleCard>
   );
 }
 
@@ -210,15 +246,21 @@ function PhotoConsentCard({ settings }: { settings: AiSettingsDto }) {
     : '';
 
   return (
-    <Card title={t('ai.photoConsent.title')}>
+    <CollapsibleCard
+      title={t('ai.photoConsent.title')}
+      summary={t('ai.consent.given', { date })}
+      defaultOpen={!settings.photoConsent.given}
+    >
       <p className="text-sm">{t('ai.photoConsent.text')}</p>
       <ErrorMessage error={give.error ?? withdraw.error} />
       {settings.photoConsent.given ? (
-        <div className="flex flex-wrap items-center gap-3">
-          <p className="text-sm">{t('ai.photoConsent.given', { date })}</p>
-          <Button type="button" variant="secondary" onClick={() => withdraw.mutate()}>
-            {t('ai.consent.withdraw')}
-          </Button>
+        <div className="space-y-3">
+          <p className="text-sm">{t('ai.consent.given', { date })}</p>
+          <ActionRow>
+            <Button type="button" variant="secondary" onClick={() => withdraw.mutate()}>
+              {t('ai.consent.withdraw')}
+            </Button>
+          </ActionRow>
         </div>
       ) : (
         <>
@@ -231,12 +273,17 @@ function PhotoConsentCard({ settings }: { settings: AiSettingsDto }) {
             />
             {t('ai.photoConsent.checkbox')}
           </label>
-          <Button type="button" disabled={!checked || give.isPending} onClick={() => give.mutate()}>
+          <Button
+            type="button"
+            disabled={!checked || give.isPending}
+            onClick={() => give.mutate()}
+            className="w-full sm:w-auto"
+          >
             {t('ai.consent.give')}
           </Button>
         </>
       )}
-    </Card>
+    </CollapsibleCard>
   );
 }
 
@@ -287,7 +334,7 @@ function RunCard({ settings }: { settings: AiSettingsDto }) {
           onChange={(event) => event.target.value && update({ to: event.target.value })}
         />
       </div>
-      <div className="flex flex-wrap gap-2">
+      <ActionRow columns={3}>
         {[7, 30, 90].map((days) => (
           <Button
             key={days}
@@ -298,7 +345,7 @@ function RunCard({ settings }: { settings: AiSettingsDto }) {
             {t(`analysis.last${days}`)}
           </Button>
         ))}
-      </div>
+      </ActionRow>
       <div className="grid gap-4 sm:grid-cols-3">
         <SelectField
           label={t('analysis.window')}
@@ -344,14 +391,14 @@ function RunCard({ settings }: { settings: AiSettingsDto }) {
         </p>
       )}
 
-      <div className="flex flex-wrap gap-3">
+      <ActionRow>
         <Button
           type="button"
           variant="secondary"
-          onClick={() => preview.mutate(body)}
+          onClick={() => (shown ? preview.reset() : preview.mutate(body))}
           disabled={preview.isPending}
         >
-          {t('ai.run.preview')}
+          {shown ? t('ai.run.hidePreview') : t('ai.run.preview')}
         </Button>
         <Button
           type="button"
@@ -360,46 +407,54 @@ function RunCard({ settings }: { settings: AiSettingsDto }) {
         >
           {t('ai.run.start')}
         </Button>
-      </div>
+      </ActionRow>
 
       <ErrorMessage error={preview.error ?? analyze.error} />
       {analyze.isPending && <Notice>{t('ai.run.running')}</Notice>}
 
       {shown && (
-        <section
+        <details
+          open
+          role="region"
           aria-label={t('ai.run.previewTitle')}
-          className="space-y-3 rounded-xl border border-fg/15 p-4"
+          className="rounded-xl border border-fg/15"
         >
-          <h3 className="font-semibold">{t('ai.run.previewTitle')}</h3>
-          <p className="text-sm text-fg/75">{t('ai.run.previewIntro')}</p>
-          <p className="text-sm">
-            {t('ai.run.entries', { count: shown.entryCount })} ·{' '}
-            {t('ai.run.size', { size: (shown.bytes / 1024).toFixed(1) })}
-          </p>
-          {shown.truncated && <Notice>{t('ai.run.truncated', { count: shown.entryCount })}</Notice>}
-          <details>
-            <summary className="cursor-pointer text-sm font-medium">
-              {t('ai.run.systemPrompt')}
-            </summary>
-            <pre className="mt-2 max-h-72 overflow-auto whitespace-pre-wrap rounded-lg bg-fg/5 p-3 text-xs">
-              {shown.system}
-            </pre>
-          </details>
-          <details>
-            <summary className="cursor-pointer text-sm font-medium">{t('ai.run.data')}</summary>
-            <pre
-              tabIndex={0}
-              className="mt-2 max-h-72 overflow-auto rounded-lg bg-fg/5 p-3 text-xs"
-            >
-              {JSON.stringify(shown.data, null, 2)}
-            </pre>
-          </details>
-          <p className="text-xs text-fg/75">
-            {t('ai.run.hash')}: <span className="font-mono">{shown.payloadHash.slice(0, 16)}</span>
-          </p>
-        </section>
+          <summary className="cursor-pointer space-y-1 p-4">
+            <h3 className="inline font-semibold">{t('ai.run.previewTitle')}</h3>
+            <span className="block text-sm text-fg/75">
+              {t('ai.run.entries', { count: shown.entryCount })} ·{' '}
+              {t('ai.run.size', { size: (shown.bytes / 1024).toFixed(1) })}
+            </span>
+          </summary>
+          <div className="space-y-3 px-4 pb-4">
+            <p className="text-sm text-fg/75">{t('ai.run.previewIntro')}</p>
+            {shown.truncated && (
+              <Notice>{t('ai.run.truncated', { count: shown.entryCount })}</Notice>
+            )}
+            <details>
+              <summary className="cursor-pointer text-sm font-medium">
+                {t('ai.run.systemPrompt')}
+              </summary>
+              <pre className="mt-2 max-h-72 overflow-auto whitespace-pre-wrap rounded-lg bg-fg/5 p-3 text-xs">
+                {shown.system}
+              </pre>
+            </details>
+            <details>
+              <summary className="cursor-pointer text-sm font-medium">{t('ai.run.data')}</summary>
+              <pre
+                tabIndex={0}
+                className="mt-2 max-h-72 overflow-auto rounded-lg bg-fg/5 p-3 text-xs"
+              >
+                {JSON.stringify(shown.data, null, 2)}
+              </pre>
+            </details>
+            <p className="text-xs text-fg/75">
+              {t('ai.run.hash')}:{' '}
+              <span className="font-mono">{shown.payloadHash.slice(0, 16)}</span>
+            </p>
+          </div>
+        </details>
       )}
-
       {result && (
         <section
           aria-label={t('ai.run.result')}
@@ -433,6 +488,21 @@ function RunCard({ settings }: { settings: AiSettingsDto }) {
   );
 }
 
+function AiCards({ settings, photo }: { settings: AiSettingsDto; photo: boolean }) {
+  const [runFirst] = useState(() =>
+    Boolean(settings.provider && settings.model && settings.consent.given),
+  );
+  return (
+    <>
+      {runFirst && <RunCard settings={settings} />}
+      <ProviderCard settings={settings} />
+      <ConsentCard settings={settings} />
+      {photo && <PhotoConsentCard settings={settings} />}
+      {!runFirst && <RunCard settings={settings} />}
+    </>
+  );
+}
+
 export function AiPage() {
   const { t } = useTranslation();
   const settings = useAiSettings();
@@ -445,14 +515,7 @@ export function AiPage() {
         {t('ai.disclaimer')}
       </p>
       <ErrorMessage error={settings.error} />
-      {settings.data && (
-        <>
-          <ProviderCard settings={settings.data} />
-          <ConsentCard settings={settings.data} />
-          {me?.features.ai_photo && <PhotoConsentCard settings={settings.data} />}
-          <RunCard settings={settings.data} />
-        </>
-      )}
+      {settings.data && <AiCards settings={settings.data} photo={Boolean(me?.features.ai_photo)} />}
       <p className="text-sm">
         <Link to="/analysis" className="text-accent hover:underline">
           {t('nav.analysis')}

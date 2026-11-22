@@ -5,7 +5,7 @@ import type { IngredientDto } from '@foodlog/shared';
 import { useAiSettings, useRecognizePhoto } from '../api/hooks.ts';
 import { blobToDataUrl, downscaleImage } from '../lib/image.ts';
 import { IngredientSuggestions } from './IngredientSuggestions.tsx';
-import { Button, ErrorMessage, Notice } from './ui.tsx';
+import { Button, ErrorMessage, FilePicker, Notice } from './ui.tsx';
 
 export function PhotoRecognition({ onAdd }: { onAdd: (ingredients: IngredientDto[]) => void }) {
   const { t } = useTranslation();
@@ -37,7 +37,12 @@ export function PhotoRecognition({ onAdd }: { onAdd: (ingredients: IngredientDto
 
   if (!open) {
     return (
-      <Button type="button" variant="secondary" onClick={() => setOpen(true)}>
+      <Button
+        type="button"
+        variant="secondary"
+        onClick={() => setOpen(true)}
+        className="w-full sm:w-auto"
+      >
         {t('photo.open')}
       </Button>
     );
@@ -47,7 +52,10 @@ export function PhotoRecognition({ onAdd }: { onAdd: (ingredients: IngredientDto
   const ready = Boolean(data?.provider && data.model && data.photoConsent.given);
 
   return (
-    <section aria-label={t('photo.title')} className="space-y-3 rounded-lg border border-fg/15 p-3">
+    <section
+      aria-label={t('photo.title')}
+      className="w-full space-y-3 rounded-lg border border-fg/15 p-3"
+    >
       <h3 className="text-sm font-semibold">{t('photo.title')}</h3>
       <ErrorMessage error={settings.error} />
       {data && !ready && (
@@ -60,19 +68,10 @@ export function PhotoRecognition({ onAdd }: { onAdd: (ingredients: IngredientDto
       )}
       {data && ready && !recognize.data && (
         <>
-          <label className="inline-block cursor-pointer rounded-lg border border-fg/20 px-4 py-2 text-sm font-medium hover:bg-fg/5 focus-within:ring-2 focus-within:ring-accent/40">
-            {t('photo.choose')}
-            <input
-              type="file"
-              accept="image/*"
-              capture="environment"
-              className="sr-only"
-              onChange={(event) => {
-                void choose(event.target.files?.[0]);
-                event.target.value = '';
-              }}
-            />
-          </label>
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <FilePicker label={t('photo.take')} capture onFile={(file) => void choose(file)} />
+            <FilePicker label={t('photo.choose')} onFile={(file) => void choose(file)} />
+          </div>
           <ErrorMessage error={prepareError} />
           {photo && (
             <div className="space-y-2">
@@ -113,7 +112,7 @@ export function PhotoRecognition({ onAdd }: { onAdd: (ingredients: IngredientDto
         </>
       )}
       {!recognize.data && (
-        <Button type="button" variant="secondary" onClick={reset}>
+        <Button type="button" variant="secondary" onClick={reset} className="w-full sm:w-auto">
           {t('tracking.cancel')}
         </Button>
       )}

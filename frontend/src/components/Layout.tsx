@@ -1,4 +1,5 @@
-import { Link, NavLink, Outlet } from 'react-router';
+import { useEffect, useRef } from 'react';
+import { Link, NavLink, Outlet, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import type { Locale } from '@foodlog/shared';
 import { useLogout, useMe } from '../api/hooks.ts';
@@ -24,8 +25,8 @@ export function LanguageSwitch() {
 export function LegalLinks() {
   const { t } = useTranslation();
   return (
-    <footer className="py-6 text-sm text-fg/75 print:hidden">
-      <nav aria-label={t('legal.footer')} className="flex gap-4">
+    <footer className="mt-auto py-6 text-center text-sm text-fg/75 print:hidden">
+      <nav aria-label={t('legal.footer')} className="flex justify-center gap-4">
         <Link to="/privacy" className="hover:underline">
           {t('legal.privacy')}
         </Link>
@@ -62,13 +63,23 @@ export function AppLayout() {
   const { t } = useTranslation();
   const { data: me } = useMe();
   const logout = useLogout();
+  const nav = useRef<HTMLElement>(null);
+  const { pathname } = useLocation();
+  useEffect(() => {
+    nav.current
+      ?.querySelector('[aria-current="page"]')
+      ?.scrollIntoView?.({ inline: 'nearest', block: 'nearest' });
+  }, [pathname]);
   const link = ({ isActive }: { isActive: boolean }) =>
-    `rounded-lg px-3 py-1.5 text-sm font-medium ${isActive ? 'bg-accent/20 text-fg' : 'hover:bg-fg/5'}`;
+    `shrink-0 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium ${isActive ? 'bg-accent/20 text-fg' : 'hover:bg-fg/5'}`;
   return (
-    <div className="mx-auto min-h-screen w-full max-w-3xl px-4 pb-12">
+    <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 pb-8">
       <header className="flex flex-wrap items-center justify-between gap-3 py-4 print:hidden">
         <Logo />
-        <nav className="order-last flex w-full items-center gap-1 sm:order-none sm:w-auto">
+        <nav
+          ref={nav}
+          className="order-last flex w-full items-center gap-1 overflow-x-auto [scrollbar-width:none] sm:order-none sm:w-auto [&::-webkit-scrollbar]:hidden"
+        >
           <NavLink to="/" end className={link}>
             {t('nav.dashboard')}
           </NavLink>
@@ -103,7 +114,7 @@ export function AppLayout() {
           </button>
         </div>
       </header>
-      <main className="space-y-6 py-4">
+      <main className="flex-1 space-y-6 py-4">
         <Outlet />
       </main>
       <LegalLinks />

@@ -47,6 +47,12 @@ body {
   color: var(--text);
 }
 
+/* Recharts layers become focusable on tap and get a browser focus ring around the plot area. */
+.recharts-wrapper svg *:focus,
+.recharts-wrapper svg:focus:not(:focus-visible) {
+  outline: none;
+}
+
 @media print {
   :root {
     --surface: #ffffff;

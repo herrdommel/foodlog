@@ -165,6 +165,24 @@ describe('dashboard', () => {
     await waitFor(() => expect(body).toMatchObject({ type: 'stress', rating: 4 }));
   });
 
+  it('keeps one type selector and the typed text when the type changes', async () => {
+    mockCommon();
+    renderApp('/');
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Meal' }));
+    await user.type(screen.getByLabelText('Title (optional)'), 'Müsli');
+    expect(screen.getByRole('button', { name: 'Meal' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Drink' })).toHaveAttribute('aria-pressed', 'false');
+
+    await user.click(screen.getByRole('button', { name: 'Drink' }));
+    expect(screen.getAllByRole('button', { name: 'Drink' })).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Drink' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByLabelText('Title (optional)')).toHaveValue('Müsli');
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.getByRole('button', { name: 'Meal' })).not.toHaveAttribute('aria-pressed');
+  });
+
   it('hides sleep and stress when the feature is off', async () => {
     mockCommon();
     mockLoggedIn({ ...meResponse, features: { ...meResponse.features, context_factors: false } });
@@ -189,7 +207,7 @@ describe('dashboard', () => {
     await user.click(screen.getByRole('button', { name: 'Previous day' }));
     await waitFor(() => expect(dates).toContain(shiftDate(today, -1)));
     expect(screen.getByRole('button', { name: 'Next day' })).toBeEnabled();
-    await user.click(screen.getByRole('button', { name: 'Go to today' }));
+    await user.click(screen.getByRole('button', { name: 'Today' }));
     await waitFor(() => expect(screen.getByRole('button', { name: 'Next day' })).toBeDisabled());
   });
 

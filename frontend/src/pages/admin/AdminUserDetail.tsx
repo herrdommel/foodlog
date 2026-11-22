@@ -10,7 +10,15 @@ import {
   useUpdateAdminUser,
 } from '../../api/hooks.ts';
 import { CopyField } from '../../components/admin/CopyField.tsx';
-import { Button, Card, ErrorMessage, Field, Notice, SelectField } from '../../components/ui.tsx';
+import {
+  ActionRow,
+  Button,
+  Card,
+  ErrorMessage,
+  Field,
+  Notice,
+  SelectField,
+} from '../../components/ui.tsx';
 import { UserStatus } from './AdminUsers.tsx';
 
 function ProfileCard({ user, isSelf }: { user: AdminUserDetailDto; isSelf: boolean }) {
@@ -62,8 +70,8 @@ function ProfileCard({ user, isSelf }: { user: AdminUserDetailDto; isSelf: boole
           <option value="admin">{t('admin.roles.admin')}</option>
         </SelectField>
         {isSelf && <p className="text-sm text-fg/75">{t('admin.detail.selfHint')}</p>}
-        <div className="flex items-center gap-3">
-          <Button type="submit" disabled={!dirty || update.isPending}>
+        <div className="grid items-center gap-2 sm:flex sm:gap-3 [&>button]:w-full sm:[&>button]:w-auto">
+          <Button type="submit" disabled={!dirty || update.isPending} className="w-full sm:w-auto">
             {t('admin.detail.save')}
           </Button>
           {update.isSuccess && !dirty && (
@@ -76,7 +84,7 @@ function ProfileCard({ user, isSelf }: { user: AdminUserDetailDto; isSelf: boole
         {confirming ? (
           <>
             <p className="text-sm">{t('admin.detail.confirmDeactivate', { name: user.name })}</p>
-            <div className="flex gap-3">
+            <ActionRow columns={2}>
               <Button
                 type="button"
                 onClick={() =>
@@ -89,7 +97,7 @@ function ProfileCard({ user, isSelf }: { user: AdminUserDetailDto; isSelf: boole
               <Button type="button" variant="secondary" onClick={() => setConfirming(false)}>
                 {t('admin.detail.cancel')}
               </Button>
-            </div>
+            </ActionRow>
           </>
         ) : user.active ? (
           <Button
@@ -97,6 +105,7 @@ function ProfileCard({ user, isSelf }: { user: AdminUserDetailDto; isSelf: boole
             variant="secondary"
             disabled={isSelf}
             onClick={() => setConfirming(true)}
+            className="w-full sm:w-auto"
           >
             {t('admin.detail.deactivate')}
           </Button>
@@ -105,6 +114,7 @@ function ProfileCard({ user, isSelf }: { user: AdminUserDetailDto; isSelf: boole
             type="button"
             onClick={() => update.mutate({ active: true })}
             disabled={update.isPending}
+            className="w-full sm:w-auto"
           >
             {t('admin.detail.activate')}
           </Button>
@@ -121,7 +131,7 @@ function ResetCard({ user }: { user: AdminUserDetailDto }) {
     <Card title={t('admin.detail.resetTitle')}>
       <p className="text-sm text-fg/75">{t('admin.detail.resetText')}</p>
       <ErrorMessage error={reset.error} />
-      <div className="flex flex-wrap gap-3">
+      <ActionRow>
         <Button
           type="button"
           onClick={() => reset.mutate('email')}
@@ -137,7 +147,7 @@ function ResetCard({ user }: { user: AdminUserDetailDto }) {
         >
           {t('admin.detail.createLink')}
         </Button>
-      </div>
+      </ActionRow>
       {reset.data?.delivery === 'email' && <Notice>{t('admin.detail.emailSent')}</Notice>}
       {reset.data?.link && (
         <CopyField label={t('admin.detail.linkCreated')} value={reset.data.link} />

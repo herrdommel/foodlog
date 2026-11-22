@@ -79,6 +79,25 @@ test('edits and deletes an entry', async ({ page }) => {
   await expect(page.getByText('There are no entries for this day yet.')).toBeVisible();
 });
 
+test('brings the form into view when editing a far down entry on a phone', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 640 });
+  for (let index = 0; index < 8; index += 1) {
+    await page.getByRole('button', { name: 'Stool', exact: true }).click();
+    await page.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(page.getByRole('listitem')).toHaveCount(index + 1);
+  }
+  const lastEdit = page.getByRole('button', { name: 'Edit' }).last();
+  await lastEdit.scrollIntoViewIfNeeded();
+  await lastEdit.click();
+  const form = page.getByRole('form', { name: 'Add entry' });
+  await expect
+    .poll(() => form.evaluate((element) => element.getBoundingClientRect().top))
+    .toBeGreaterThanOrEqual(0);
+  await expect
+    .poll(() => form.evaluate((element) => element.getBoundingClientRect().top))
+    .toBeLessThan(200);
+});
+
 test('creates a custom ingredient and reuses a template', async ({ page }) => {
   await page.getByRole('button', { name: 'Meal', exact: true }).click();
   await page.getByLabel('Title (optional)').fill('Grandma soup');
@@ -106,7 +125,7 @@ test('navigates to previous days', async ({ page }) => {
   await page.getByRole('button', { name: 'Previous day' }).click();
   await expect(page).toHaveURL(/date=\d{4}-\d{2}-\d{2}/);
   await expect(page.getByText('There are no entries for this day yet.')).toBeVisible();
-  await page.getByRole('button', { name: 'Go to today' }).click();
+  await page.getByRole('button', { name: 'Today' }).click();
   await expect(page.getByRole('listitem')).toHaveCount(1);
 });
 

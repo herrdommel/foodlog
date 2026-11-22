@@ -141,7 +141,7 @@
     "today": "Heute",
     "previousDay": "Vorheriger Tag",
     "nextDay": "Nächster Tag",
-    "goToToday": "Zu heute",
+    "goToToday": "Heute",
     "addEntry": "Eintrag hinzufügen",
     "empty": "Für diesen Tag gibt es noch keine Einträge.",
     "types": {
@@ -297,7 +297,8 @@
       "days": "Tage mit Einträgen",
       "food": "Mahlzeiten und Getränke",
       "events": "Beschwerden",
-      "censored": "{{count}} Einträge sind zu neu für eine Bewertung."
+      "censored_one": "{{count}} Eintrag ist zu neu für eine Bewertung.",
+      "censored_other": "{{count}} Einträge sind zu neu für eine Bewertung."
     },
     "notEnough": "Für belastbare Aussagen fehlen noch Daten: mindestens {{exposures}}-mal gegessen und {{outcomes}}-mal eine Beschwerde im Fenster.",
     "suspects": {
@@ -523,7 +524,7 @@
       "suggested": "Empfohlen"
     },
     "consent": {
-      "title": "Einwilligung",
+      "title": "Einwilligung für die Auswertung",
       "text": "Wenn du die Auswertung startest, werden deine Gesundheitsdaten (Einträge des gewählten Zeitraums, auch Schlaf und Stress, falls du sie einträgst, und die statistische Voranalyse, ohne Name, E-Mail und Notizen) an den gewählten Anbieter gesendet und dort verarbeitet. Das sind Daten besonderer Kategorie nach Art. 9 DSGVO. Die Datenschutzerklärung des Anbieters gilt zusätzlich. Du kannst die Einwilligung jederzeit widerrufen.",
       "checkbox": "Ich willige ein, dass diese Daten bei Start der KI-Auswertung an den gewählten Anbieter gesendet werden.",
       "given": "Einwilligung erteilt am {{date}}",
@@ -533,6 +534,7 @@
     "run": {
       "title": "Auswertung starten",
       "preview": "Gesendete Daten anzeigen",
+      "hidePreview": "Gesendete Daten ausblenden",
       "previewTitle": "Diese Daten werden gesendet",
       "previewIntro": "Genau diese Anweisung und diese Daten gehen an den Anbieter.",
       "entries": "{{count}} Einträge",
@@ -553,8 +555,7 @@
     "photoConsent": {
       "title": "Einwilligung für Fotos",
       "text": "Wenn du die Foto-Erkennung nutzt, wird das gewählte Foto an den ausgewählten Anbieter gesendet und dort ausgewertet. Es wird vorher verkleinert und von Metadaten wie dem Standort befreit und von Foodlog I/O nicht gespeichert. Ein Foto kann mehr zeigen, als du beabsichtigst, zum Beispiel Personen oder Dokumente. Zusätzlich gilt die Datenschutzerklärung des Anbieters. Du kannst deine Einwilligung jederzeit widerrufen.",
-      "checkbox": "Ich willige ein, dass Fotos, die ich auswähle, bei der Foto-Erkennung an den ausgewählten Anbieter gesendet werden.",
-      "given": "Du hast am {{date}} eingewilligt."
+      "checkbox": "Ich willige ein, dass Fotos, die ich auswähle, bei der Foto-Erkennung an den ausgewählten Anbieter gesendet werden."
     }
   },
   "legal": {
@@ -574,6 +575,7 @@
     "attribution": "Produktdaten von",
     "scanCamera": "Mit Kamera scannen",
     "stopCamera": "Kamera stoppen",
+    "takePhoto": "Foto zum Scannen aufnehmen",
     "scanPhoto": "Aus einem Foto scannen",
     "cameraView": "Kameraansicht",
     "cameraFailed": "Die Kamera konnte nicht gestartet werden. Prüfe die Berechtigung oder gib die Nummer ein bzw. nutze ein Foto.",
@@ -593,7 +595,8 @@
     "title": "Aus einem Foto erkennen",
     "notReady": "Die Foto-Erkennung braucht deinen KI-Anbieter, ein Modell, einen Key und deine Einwilligung für Fotos.",
     "setup": "Einrichten",
-    "choose": "Foto auswählen oder aufnehmen",
+    "choose": "Foto auswählen",
+    "take": "Foto aufnehmen",
     "previewAlt": "Dein Foto",
     "sendNote": "Dieses Foto wird mit deinem API-Key an {{provider}} ({{model}}) gesendet, ausgewertet und nicht gespeichert. Achte darauf, dass nichts darauf zu sehen ist, das du nicht teilen möchtest, zum Beispiel andere Personen.",
     "analyse": "Zutaten erkennen",

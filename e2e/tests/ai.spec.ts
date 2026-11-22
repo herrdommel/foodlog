@@ -41,7 +41,7 @@ test.describe('with the feature enabled', () => {
     await page.getByRole('button', { name: 'Save model' }).click();
     await expect(page.getByText('Model saved')).toBeVisible();
 
-    const consent = page.getByRole('region', { name: 'Consent' });
+    const consent = page.getByRole('region', { name: 'Consent for the analysis' });
     await consent.getByRole('checkbox').check();
     await consent.getByRole('button', { name: 'Give consent' }).click();
     await expect(consent.getByText(/Consent given on/)).toBeVisible();
@@ -75,7 +75,7 @@ test.describe('with the feature enabled', () => {
     await page.getByRole('button', { name: 'Save key' }).click();
     await expect(page.getByText('Key stored (ends in 5678)')).toBeVisible();
 
-    const consent = page.getByRole('region', { name: 'Consent' });
+    const consent = page.getByRole('region', { name: 'Consent for the analysis' });
     await consent.getByRole('checkbox').check();
     await consent.getByRole('button', { name: 'Give consent' }).click();
     await consent.getByRole('button', { name: 'Withdraw consent' }).click();
@@ -105,7 +105,7 @@ test.describe('with the feature enabled', () => {
         await page.getByLabel('API key').fill('mock-valid-key-9999');
         await page.getByRole('button', { name: 'Save key' }).click();
         await page.getByText('Key stored (ends in 9999)').waitFor();
-        const consent = page.getByRole('region', { name: 'Consent' });
+        const consent = page.getByRole('region', { name: 'Consent for the analysis' });
         await consent.getByRole('checkbox').check();
         await consent.getByRole('button', { name: 'Give consent' }).click();
         await page.getByRole('button', { name: 'Save model' }).click();

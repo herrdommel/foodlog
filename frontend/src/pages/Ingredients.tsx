@@ -47,7 +47,7 @@ function CreateCard() {
           <legend className="text-sm font-medium">{t('ingredientsPage.containsLabel')}</legend>
           <AllergenCheckboxes value={allergens} onChange={setAllergens} />
         </fieldset>
-        <Button type="submit" disabled={create.isPending}>
+        <Button type="submit" disabled={create.isPending} className="w-full sm:w-auto">
           {t('ingredientsPage.create')}
         </Button>
       </form>

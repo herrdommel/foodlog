@@ -7,7 +7,7 @@ import {
   useUpdateFeature,
   useUpdateSettings,
 } from '../../api/hooks.ts';
-import { Card, ErrorMessage } from '../../components/ui.tsx';
+import { Card, ErrorMessage, ScrollX } from '../../components/ui.tsx';
 
 function RegistrationCard() {
   const { t } = useTranslation();
@@ -44,7 +44,7 @@ function FeaturesCard() {
       <p className="text-sm text-fg/75">{t('admin.settings.featuresText')}</p>
       <ErrorMessage error={update.error} />
       {settings.data && (
-        <div className="overflow-x-auto">
+        <ScrollX>
           <table className="w-full text-left text-sm">
             <caption className="sr-only">{t('admin.settings.featuresTitle')}</caption>
             <thead>
@@ -103,7 +103,7 @@ function FeaturesCard() {
               })}
             </tbody>
           </table>
-        </div>
+        </ScrollX>
       )}
     </Card>
   );

@@ -12,7 +12,15 @@ import {
 } from '../api/hooks.ts';
 import { Avatar } from '../components/Avatar.tsx';
 import { PresetAvatar } from '../components/presetAvatars.tsx';
-import { Button, Card, ErrorMessage, Field, Notice, SelectField } from '../components/ui.tsx';
+import {
+  ActionRow,
+  Button,
+  Card,
+  ErrorMessage,
+  Field,
+  Notice,
+  SelectField,
+} from '../components/ui.tsx';
 import { setLocale } from '../i18n/index.ts';
 
 const timezones = Intl.supportedValuesOf('timeZone');
@@ -84,7 +92,7 @@ function PreferencesCard({ user }: { user: PublicUser }) {
             </option>
           ))}
         </SelectField>
-        <div className="flex items-center gap-3">
+        <div className="grid items-center gap-2 sm:flex sm:gap-3 [&>button]:w-full sm:[&>button]:w-auto">
           <Button type="submit" disabled={update.isPending}>
             {t('common.save')}
           </Button>
@@ -180,7 +188,7 @@ function EmailCard({ user }: { user: PublicUser }) {
               onChange={(event) => setPassword(event.target.value)}
             />
           )}
-          <Button type="submit" disabled={request.isPending}>
+          <Button type="submit" disabled={request.isPending} className="w-full sm:w-auto">
             {t('profile.requestChange')}
           </Button>
         </form>
@@ -199,7 +207,12 @@ function PasswordCard() {
       {reset.isSuccess ? (
         <Notice>{t('profile.passwordSent')}</Notice>
       ) : (
-        <Button type="button" onClick={() => reset.mutate()} disabled={reset.isPending}>
+        <Button
+          type="button"
+          onClick={() => reset.mutate()}
+          disabled={reset.isPending}
+          className="w-full sm:w-auto"
+        >
           {t('profile.sendResetLink')}
         </Button>
       )}
@@ -215,7 +228,7 @@ function DataCard() {
       <a
         href="/api/me/export"
         download
-        className="inline-block rounded-lg border border-fg/20 bg-raised px-4 py-2 font-medium hover:border-accent"
+        className="block rounded-lg border border-fg/20 bg-raised px-4 py-2 text-center font-medium hover:border-accent sm:inline-block"
       >
         {t('profile.data.export')}
       </a>
@@ -243,7 +256,12 @@ function DeleteCard({ user }: { user: PublicUser }) {
     <Card title={t('profile.delete.title')}>
       <p className="text-sm text-fg/75">{t('profile.delete.text')}</p>
       {!open ? (
-        <Button type="button" variant="secondary" onClick={() => setOpen(true)}>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => setOpen(true)}
+          className="w-full sm:w-auto"
+        >
           {t('profile.delete.start')}
         </Button>
       ) : (
@@ -267,14 +285,14 @@ function DeleteCard({ user }: { user: PublicUser }) {
               onChange={(event) => setPassword(event.target.value)}
             />
           )}
-          <div className="flex gap-3">
+          <ActionRow columns={2}>
             <Button type="submit" disabled={remove.isPending}>
               {t('profile.delete.submit')}
             </Button>
             <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
               {t('profile.delete.cancel')}
             </Button>
-          </div>
+          </ActionRow>
         </form>
       )}
     </Card>

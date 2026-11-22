@@ -141,7 +141,7 @@
     "today": "Today",
     "previousDay": "Previous day",
     "nextDay": "Next day",
-    "goToToday": "Go to today",
+    "goToToday": "Today",
     "addEntry": "Add entry",
     "empty": "There are no entries for this day yet.",
     "types": {
@@ -297,7 +297,8 @@
       "days": "Days with entries",
       "food": "Meals and drinks",
       "events": "Complaints",
-      "censored": "{{count}} entries are too recent to be evaluated."
+      "censored_one": "{{count}} entry is too recent to be evaluated.",
+      "censored_other": "{{count}} entries are too recent to be evaluated."
     },
     "notEnough": "More data is needed for reliable results: at least {{exposures}} times eaten and {{outcomes}} times a complaint within the window.",
     "suspects": {
@@ -523,7 +524,7 @@
       "suggested": "Recommended"
     },
     "consent": {
-      "title": "Consent",
+      "title": "Consent for the analysis",
       "text": "When you start the analysis, your health data (entries of the selected period including sleep and stress if you track them, and the statistical pre-analysis, without name, email and notes) is sent to the selected provider and processed there. This is special category data under Art. 9 GDPR. The provider's privacy policy applies in addition. You can withdraw your consent at any time.",
       "checkbox": "I consent to this data being sent to the selected provider when I start the AI analysis.",
       "given": "Consent given on {{date}}",
@@ -533,6 +534,7 @@
     "run": {
       "title": "Start analysis",
       "preview": "Show data to be sent",
+      "hidePreview": "Hide data to be sent",
       "previewTitle": "This data will be sent",
       "previewIntro": "Exactly this instruction and this data go to the provider.",
       "entries": "{{count}} entries",
@@ -553,8 +555,7 @@
     "photoConsent": {
       "title": "Consent for photos",
       "text": "When you use photo recognition, the photo you choose is sent to the selected provider and analysed there. It is reduced in size and stripped of metadata such as the location before it is sent, and it is not stored by Foodlog I/O. A photo can show more than you intend, for example people or documents. The provider's privacy policy applies in addition. You can withdraw your consent at any time.",
-      "checkbox": "I consent to photos I choose being sent to the selected provider when I use photo recognition.",
-      "given": "You consented on {{date}}."
+      "checkbox": "I consent to photos I choose being sent to the selected provider when I use photo recognition."
     }
   },
   "legal": {
@@ -574,6 +575,7 @@
     "attribution": "Product data from",
     "scanCamera": "Scan with camera",
     "stopCamera": "Stop camera",
+    "takePhoto": "Take a photo to scan",
     "scanPhoto": "Scan from a photo",
     "cameraView": "Camera view",
     "cameraFailed": "The camera could not be started. Check the permission, or enter the number or use a photo.",
@@ -593,7 +595,8 @@
     "title": "Recognise from a photo",
     "notReady": "Photo recognition needs your AI provider, a model, a key and your consent for photos.",
     "setup": "Set it up",
-    "choose": "Choose or take a photo",
+    "choose": "Choose a photo",
+    "take": "Take a photo",
     "previewAlt": "Your photo",
     "sendNote": "This photo is sent to {{provider}} ({{model}}) with your API key, analysed and not stored. Make sure it shows nothing you do not want to share, for example other people.",
     "analyse": "Recognise ingredients",

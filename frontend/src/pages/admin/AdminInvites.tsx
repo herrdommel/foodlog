@@ -59,7 +59,7 @@ function CreateCard() {
           value={days}
           onChange={(event) => setDays(Number(event.target.value))}
         />
-        <Button type="submit" disabled={create.isPending}>
+        <Button type="submit" disabled={create.isPending} className="w-full sm:w-auto">
           {t('admin.invites.create')}
         </Button>
       </form>

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { Confidence, SuspectDto } from '@foodlog/shared';
 import { ingredientName } from '../lib/format.ts';
+import { ScrollX } from './ui.tsx';
 
 const badge: Record<Confidence, string> = {
   high: 'bg-coral text-ink',
@@ -60,7 +61,7 @@ export function SuspectsTable({ suspects, caption }: { suspects: SuspectDto[]; c
   }
 
   return (
-    <div className="overflow-x-auto">
+    <ScrollX>
       <table className="w-full min-w-[40rem] text-left text-sm">
         <caption className="sr-only">{caption}</caption>
         <thead>
@@ -132,6 +133,6 @@ export function SuspectsTable({ suspects, caption }: { suspects: SuspectDto[]; c
           ))}
         </tbody>
       </table>
-    </div>
+    </ScrollX>
   );
 }

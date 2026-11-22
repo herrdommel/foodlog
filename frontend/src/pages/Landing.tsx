@@ -64,7 +64,7 @@ export function LandingPage() {
         <LanguageSwitch />
       </header>
 
-      <main className="space-y-12 md:space-y-20">
+      <main className="flex-1 space-y-12 md:space-y-20">
         <section className="grid gap-10 md:grid-cols-[3fr_2fr] md:items-start">
           <div className="space-y-5">
             <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl">

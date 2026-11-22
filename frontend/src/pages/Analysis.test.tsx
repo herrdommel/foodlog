@@ -119,6 +119,13 @@ describe('analysis page', () => {
     expect(allergens.getByText('medium')).toBeInTheDocument();
   });
 
+  it('uses the singular for a single entry that is too recent', async () => {
+    const data = analysis();
+    mockAnalysis({ ...data, summary: { ...data.summary, censoredFoodEntries: 1 } });
+    renderApp('/analysis');
+    expect(await screen.findByText('1 entry is too recent to be evaluated.')).toBeInTheDocument();
+  });
+
   it('requests the default period, window and outcome', async () => {
     const requests = mockAnalysis();
     renderApp('/analysis');

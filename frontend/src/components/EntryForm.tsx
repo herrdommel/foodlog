@@ -1,10 +1,8 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ENTRY_TYPES,
   MAX_SLEEP_MINUTES,
   SYMPTOM_TYPES,
-  isContextType,
   type EntryDto,
   type EntryInput,
   type EntryType,
@@ -24,13 +22,13 @@ import {
 import { BarcodeLookup } from './BarcodeLookup.tsx';
 import { IngredientPicker } from './IngredientPicker.tsx';
 import { PhotoRecognition } from './PhotoRecognition.tsx';
-import { Button, Card, ErrorMessage, Field, SelectField } from './ui.tsx';
+import { ActionRow, Button, Card, ErrorMessage, Field, SelectField } from './ui.tsx';
 
 const TEMPLATE_TYPES: EntryType[] = ['meal', 'drink', 'medication'];
 
 export function EntryForm({
   initial,
-  type: initialType,
+  type,
   defaultTime,
   timeZone,
   onDone,
@@ -48,8 +46,13 @@ export function EntryForm({
   const deleteTemplate = useDeleteTemplate();
   const templates = useTemplates();
   const me = useMe();
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const [type, setType] = useState<EntryType>(initial?.type ?? initialType);
+  useEffect(() => {
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    formRef.current?.scrollIntoView?.({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
+  }, []);
+
   const [time, setTime] = useState(
     initial ? utcToWallTime(new Date(initial.occurredAt), timeZone) : defaultTime,
   );
@@ -69,9 +72,8 @@ export function EntryForm({
   const mutation = initial ? update : create;
   const canTemplate = TEMPLATE_TYPES.includes(type);
   const isFood = type === 'meal' || type === 'drink';
-  const types = ENTRY_TYPES.filter(
-    (value) => !isContextType(value) || me.data?.features.context_factors || value === type,
-  );
+  const canScan = isFood && Boolean(me.data?.features.barcode_scan);
+  const canPhoto = isFood && Boolean(me.data?.features.ai_analysis && me.data.features.ai_photo);
 
   const buildInput = (): EntryInput => {
     const base = { occurredAt: time, note: note.trim() || null };
@@ -132,22 +134,13 @@ export function EntryForm({
 
   return (
     <Card>
-      <form onSubmit={submit} className="space-y-4" aria-label={t('tracking.addEntry')}>
+      <form
+        ref={formRef}
+        onSubmit={submit}
+        className="scroll-mt-4 space-y-4"
+        aria-label={t('tracking.addEntry')}
+      >
         <ErrorMessage error={error} />
-        <div role="group" aria-label={t('tracking.addEntry')} className="flex flex-wrap gap-2">
-          {types.map((value) => (
-            <button
-              key={value}
-              type="button"
-              aria-pressed={type === value}
-              onClick={() => setType(value)}
-              className="rounded-full border border-fg/20 px-3 py-1 text-sm font-medium aria-pressed:border-brand aria-pressed:bg-brand aria-pressed:text-cream"
-            >
-              {t(`tracking.types.${value}`)}
-            </button>
-          ))}
-        </div>
-
         <Field
           label={type === 'sleep' ? t('tracking.wakeTime') : t('tracking.time')}
           type="datetime-local"
@@ -199,23 +192,26 @@ export function EntryForm({
           />
         )}
 
-        {isFood && me.data?.features.barcode_scan && (
-          <BarcodeLookup
-            onAdd={(added, productName) => {
-              const known = new Set(ingredients.map((ingredient) => ingredient.id));
-              setIngredients([...ingredients, ...added.filter((item) => !known.has(item.id))]);
-              if (!title.trim() && productName) setTitle(productName.slice(0, 120));
-            }}
-          />
-        )}
-
-        {isFood && me.data?.features.ai_analysis && me.data.features.ai_photo && (
-          <PhotoRecognition
-            onAdd={(added) => {
-              const known = new Set(ingredients.map((ingredient) => ingredient.id));
-              setIngredients([...ingredients, ...added.filter((item) => !known.has(item.id))]);
-            }}
-          />
+        {(canScan || canPhoto) && (
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start">
+            {canScan && (
+              <BarcodeLookup
+                onAdd={(added, productName) => {
+                  const known = new Set(ingredients.map((ingredient) => ingredient.id));
+                  setIngredients([...ingredients, ...added.filter((item) => !known.has(item.id))]);
+                  if (!title.trim() && productName) setTitle(productName.slice(0, 120));
+                }}
+              />
+            )}
+            {canPhoto && (
+              <PhotoRecognition
+                onAdd={(added) => {
+                  const known = new Set(ingredients.map((ingredient) => ingredient.id));
+                  setIngredients([...ingredients, ...added.filter((item) => !known.has(item.id))]);
+                }}
+              />
+            )}
+          </div>
         )}
 
         {isFood && <IngredientPicker selected={ingredients} onChange={setIngredients} />}
@@ -366,14 +362,14 @@ export function EntryForm({
           </div>
         )}
 
-        <div className="flex gap-3">
+        <ActionRow columns={2}>
           <Button type="submit" disabled={mutation.isPending}>
             {t('tracking.save')}
           </Button>
           <Button type="button" variant="secondary" onClick={onDone}>
             {t('tracking.cancel')}
           </Button>
-        </div>
+        </ActionRow>
       </form>
     </Card>
   );
