@@ -115,7 +115,7 @@ test('deactivating a user signs them out and blocks the login', async ({ browser
   await expect(admin.getByRole('button', { name: 'Activate account' })).toBeVisible();
 
   await regular.reload();
-  await expect(regular).toHaveURL(/\/login$/);
+  await expect(regular.getByRole('heading', { name: 'Sign in' })).toBeVisible();
   await regular.getByLabel('Email').fill(email);
   await regular.getByLabel('Password').fill(PASSWORD);
   await regular.getByRole('button', { name: 'Sign in' }).click();

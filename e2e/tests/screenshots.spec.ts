@@ -65,6 +65,9 @@ for (const variant of variants) {
     });
 
     test('public pages', async ({ page, request }) => {
+      await page.goto('/');
+      await page.getByRole('heading', { name: 'How it works' }).waitFor();
+      await shot(page, `${variant.name}-start`);
       await page.goto('/login');
       await shot(page, `${variant.name}-login`);
       await page.goto(`/register?invite=${await createInvite(request)}`);
@@ -129,6 +132,36 @@ for (const variant of variants) {
     });
   });
 }
+
+test.describe('landing page images', () => {
+  test.use({ viewport: { width: 900, height: 1100 }, colorScheme: 'light' });
+
+  for (const lang of ['en', 'de'] as const) {
+    test(`images ${lang}`, async ({ page }) => {
+      await page.addInitScript((value) => localStorage.setItem('foodlog.lang', value), lang);
+      const { email } = await registerVerified(page, { locale: lang });
+      await loginViaApi(page, email);
+      await seedDemoData(page, email);
+      const out = '../frontend/public/landing';
+      mkdirSync(out, { recursive: true });
+      const capture = async (name: string) => {
+        await page.waitForLoadState('networkidle');
+        await page.screenshot({ path: `${out}/${name}-${lang}.jpg`, type: 'jpeg', quality: 82 });
+      };
+      await page.goto(`/?date=${yesterday()}`);
+      await page.getByRole('listitem').first().waitFor();
+      await capture('dashboard');
+      await page.goto('/analysis');
+      await page.getByRole('img').first().waitFor();
+      await page.getByRole('table').first().waitFor();
+      await capture('analysis');
+      await page.goto('/report');
+      await page.getByRole('table').first().waitFor();
+      await page.getByRole('img').first().waitFor();
+      await capture('report');
+    });
+  }
+});
 
 test.describe('german', () => {
   test.use({ viewport: { width: 1280, height: 800 }, colorScheme: 'light' });

@@ -36,7 +36,7 @@ export function GoogleButton({
   );
 }
 
-export function LoginPage() {
+export function LoginForm({ heading }: { heading: 'h1' | 'h2' }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -55,9 +55,11 @@ export function LoginPage() {
   const needsVerification =
     login.error instanceof ApiError && login.error.code === 'email_not_verified';
 
+  const Heading = heading;
+
   return (
-    <PublicLayout>
-      <h1 className="mb-6 text-2xl font-bold">{t('auth.loginTitle')}</h1>
+    <>
+      <Heading className="mb-6 text-2xl font-bold">{t('auth.loginTitle')}</Heading>
       <form onSubmit={submit} className="space-y-4">
         {queryError && <ErrorMessage error={queryError} />}
         <ErrorMessage error={login.error} />
@@ -113,6 +115,14 @@ export function LoginPage() {
           </span>
         )}
       </div>
+    </>
+  );
+}
+
+export function LoginPage() {
+  return (
+    <PublicLayout>
+      <LoginForm heading="h1" />
     </PublicLayout>
   );
 }

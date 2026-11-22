@@ -599,5 +599,80 @@
     "analyse": "Recognise ingredients",
     "working": "Analysing…",
     "guess": "This is a guess by the AI. Check it before you add it."
+  },
+  "landing": {
+    "enlarge": "Enlarge: {{name}}",
+    "close": "Close",
+    "title": "Find out what your body does not like",
+    "lead": "Foodlog I/O is a diary for food, complaints and digestion. It shows which ingredients often come before your symptoms, so you have something concrete to talk about with your doctor.",
+    "points": {
+      "one": "Log meals, drinks, symptoms, stool, medication, sleep and stress on one timeline.",
+      "two": "See possible triggers with an honest note on how reliable they are.",
+      "three": "Print a report or export your data whenever you want."
+    },
+    "inviteOnly": "Registration is currently by invitation only.",
+    "howTitle": "How it works",
+    "steps": {
+      "log": {
+        "title": "Write it down",
+        "text": "Add entries in a few taps. Pick ingredients from a catalog, scan a barcode or reuse a favorite."
+      },
+      "find": {
+        "title": "Look for patterns",
+        "text": "After a few weeks the analysis compares meals that were followed by complaints with those that were not."
+      },
+      "share": {
+        "title": "Talk to your doctor",
+        "text": "A printable report and a CSV export summarise your diary and the findings."
+      }
+    },
+    "featuresTitle": "What is in it",
+    "features": {
+      "timeline": {
+        "title": "One timeline",
+        "text": "Meals, drinks, symptoms, stool (Bristol scale), medication, sleep and stress, with freely editable times."
+      },
+      "ingredients": {
+        "title": "Ingredients and allergens",
+        "text": "A catalog with allergen categories plus your own tags. Barcode lookup fills in ingredients for packaged food."
+      },
+      "analysis": {
+        "title": "Possible triggers",
+        "text": "Risk ratios with a confidence interval, only shown when there is enough data, and never as a diagnosis."
+      },
+      "context": {
+        "title": "Sleep and stress",
+        "text": "Checks whether bad nights or stressful days go along with more complaints, independent of food."
+      },
+      "report": {
+        "title": "Report and export",
+        "text": "A printable report for your appointment, a CSV export and a full data export at any time."
+      },
+      "ai": {
+        "title": "Optional AI analysis",
+        "text": "If you want a second opinion, connect your own Anthropic or OpenAI key. It is off unless you turn it on and you see exactly what is sent."
+      }
+    },
+    "shotsTitle": "A look inside",
+    "shots": {
+      "dashboard": {
+        "alt": "The daily timeline with a meal, a drink, a symptom, a stool entry and a medication",
+        "caption": "The day at a glance"
+      },
+      "analysis": {
+        "alt": "The analysis page with a chart of complaints per day and a table of possible triggers",
+        "caption": "Possible triggers with their reliability"
+      },
+      "report": {
+        "alt": "The printable report for a doctor",
+        "caption": "A report you can take to your appointment"
+      }
+    },
+    "trustTitle": "Your data, your call",
+    "trust": {
+      "data": "You can export or delete all of your data in your profile.",
+      "open": "The code is open source (AGPL), so you can check what it does or run it yourself.",
+      "hint": "Foodlog I/O gives hints, not diagnoses. It does not replace medical advice."
+    }
   }
 }

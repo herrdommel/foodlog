@@ -138,3 +138,39 @@ for (const scheme of ['light', 'dark'] as const) {
     });
   });
 }
+
+for (const scheme of ['light', 'dark'] as const) {
+  test(`start page explains the app and signs in (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme });
+    const { email } = await registerVerified(page);
+    await page.context().clearCookies();
+
+    await page.goto('/');
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Find out what your body does not like' }),
+    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'How it works' })).toBeVisible();
+    for (const image of await page.getByRole('img', { name: /./ }).all()) {
+      await image.scrollIntoViewIfNeeded();
+      await expect
+        .poll(() => image.evaluate((element: HTMLImageElement) => element.naturalWidth))
+        .toBeGreaterThan(0);
+    }
+    await expectNoSeriousA11yViolations(page);
+
+    await page
+      .getByRole('button', { name: /^Enlarge/ })
+      .first()
+      .click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expectNoSeriousA11yViolations(page);
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+
+    await page.getByLabel('Email').fill(email);
+    await page.getByLabel('Password').fill(PASSWORD);
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    await expect(page.getByRole('button', { name: 'Meal', exact: true })).toBeVisible();
+  });
+}

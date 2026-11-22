@@ -209,6 +209,11 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Cycle tracking is not built yet. It is the most sensitive of the three and would get its own flag.
 - The demo seed adds sleep, stress and extra symptoms on bad days with its own random generator, so the lactose pattern of the existing seed is unchanged.
 
+## Start page
+
+- `/` shows the landing page (`pages/Landing.tsx`) to guests and the dashboard to signed-in users (`HomeGate` in `App.tsx`). It embeds the same `LoginForm` as `/login` and links registration only when it is open.
+- The screenshots in `frontend/public/landing/` (dashboard, analysis, report; `en` and `de`) are generated, not hand-made: `pnpm --filter @foodlog/e2e exec playwright test --project=screenshots -g "landing page images"`. Regenerate and commit them when those pages change visibly. They come from the demo seed, so they contain no real data.
+
 ## Conventions
 
 - TypeScript strict, ESM, no `any`.

@@ -13,6 +13,7 @@ import { AnalysisPage } from './pages/Analysis.tsx';
 import { DashboardPage } from './pages/Dashboard.tsx';
 import { IngredientsPage } from './pages/Ingredients.tsx';
 import { LegalPage } from './pages/Legal.tsx';
+import { LandingPage } from './pages/Landing.tsx';
 import { LoginPage } from './pages/Login.tsx';
 import { ProfilePage } from './pages/Profile.tsx';
 import { ReportPage } from './pages/Report.tsx';
@@ -43,6 +44,13 @@ function RequireFeature({ feature }: { feature: 'ai_analysis' | 'data_export' | 
   return <Outlet />;
 }
 
+function HomeGate() {
+  const { data: me, isPending } = useMe();
+  if (isPending) return null;
+  if (!me) return <LandingPage />;
+  return <Outlet />;
+}
+
 function GuestOnly() {
   const { data: me, isPending } = useMe();
   if (isPending) return null;
@@ -69,9 +77,13 @@ export function AppRoutes() {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/confirm-email" element={<ConfirmEmailChangePage />} />
-      <Route element={<RequireAuth />}>
+      <Route element={<HomeGate />}>
         <Route element={<AppLayout />}>
           <Route path="/" element={<DashboardPage />} />
+        </Route>
+      </Route>
+      <Route element={<RequireAuth />}>
+        <Route element={<AppLayout />}>
           <Route path="/analysis" element={<AnalysisPage />} />
           <Route path="/report" element={<ReportPage />} />
           <Route element={<RequireFeature feature="ai_analysis" />}>

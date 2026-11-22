@@ -599,5 +599,80 @@
     "analyse": "Zutaten erkennen",
     "working": "Wird ausgewertet…",
     "guess": "Das ist eine Vermutung der KI. Prüfe sie, bevor du sie hinzufügst."
+  },
+  "landing": {
+    "enlarge": "Vergrößern: {{name}}",
+    "close": "Schließen",
+    "title": "Finde heraus, was dein Körper nicht mag",
+    "lead": "Foodlog I/O ist ein Tagebuch für Essen, Beschwerden und Verdauung. Es zeigt, welche Zutaten häufig vor deinen Symptomen auftauchen, damit du beim Arztgespräch etwas Konkretes in der Hand hast.",
+    "points": {
+      "one": "Mahlzeiten, Getränke, Symptome, Stuhlgang, Medikamente, Schlaf und Stress auf einer Zeitleiste erfassen.",
+      "two": "Mögliche Auslöser sehen, mit einem ehrlichen Hinweis, wie verlässlich sie sind.",
+      "three": "Jederzeit einen Bericht drucken oder die eigenen Daten exportieren."
+    },
+    "inviteOnly": "Die Registrierung ist aktuell nur mit Einladung möglich.",
+    "howTitle": "So funktioniert es",
+    "steps": {
+      "log": {
+        "title": "Aufschreiben",
+        "text": "Einträge in wenigen Tippern anlegen. Zutaten aus dem Katalog wählen, einen Barcode scannen oder einen Favoriten nutzen."
+      },
+      "find": {
+        "title": "Muster erkennen",
+        "text": "Nach ein paar Wochen vergleicht die Auswertung Mahlzeiten, auf die Beschwerden folgten, mit solchen ohne Beschwerden."
+      },
+      "share": {
+        "title": "Mit dem Arzt sprechen",
+        "text": "Ein druckbarer Bericht und ein CSV-Export fassen Tagebuch und Ergebnisse zusammen."
+      }
+    },
+    "featuresTitle": "Das steckt drin",
+    "features": {
+      "timeline": {
+        "title": "Eine Zeitleiste",
+        "text": "Mahlzeiten, Getränke, Symptome, Stuhl (Bristol-Skala), Medikamente, Schlaf und Stress, mit frei änderbarer Uhrzeit."
+      },
+      "ingredients": {
+        "title": "Zutaten und Allergene",
+        "text": "Ein Katalog mit Allergenkategorien und eigene Tags. Die Barcode-Suche ergänzt Zutaten bei verpackten Lebensmitteln."
+      },
+      "analysis": {
+        "title": "Mögliche Auslöser",
+        "text": "Risikoverhältnisse mit Konfidenzintervall, nur bei ausreichend Daten und nie als Diagnose."
+      },
+      "context": {
+        "title": "Schlaf und Stress",
+        "text": "Prüft, ob schlechte Nächte oder stressige Tage mit mehr Beschwerden einhergehen, unabhängig vom Essen."
+      },
+      "report": {
+        "title": "Bericht und Export",
+        "text": "Ein druckbarer Bericht für den Termin, ein CSV-Export und jederzeit ein vollständiger Datenexport."
+      },
+      "ai": {
+        "title": "Optionale KI-Auswertung",
+        "text": "Für eine zweite Meinung kannst du deinen eigenen Anthropic- oder OpenAI-Schlüssel verbinden. Sie ist aus, bis du sie einschaltest, und du siehst genau, was gesendet wird."
+      }
+    },
+    "shotsTitle": "Ein Blick hinein",
+    "shots": {
+      "dashboard": {
+        "alt": "Die Tageszeitleiste mit Mahlzeit, Getränk, Symptom, Stuhleintrag und Medikament",
+        "caption": "Der Tag auf einen Blick"
+      },
+      "analysis": {
+        "alt": "Die Auswertung mit einem Diagramm der Beschwerden pro Tag und einer Tabelle möglicher Auslöser",
+        "caption": "Mögliche Auslöser mit ihrer Verlässlichkeit"
+      },
+      "report": {
+        "alt": "Der druckbare Bericht für den Arzt",
+        "caption": "Ein Bericht für den Arzttermin"
+      }
+    },
+    "trustTitle": "Deine Daten, deine Entscheidung",
+    "trust": {
+      "data": "Du kannst alle deine Daten im Profil exportieren oder löschen.",
+      "open": "Der Code ist Open Source (AGPL). Du kannst prüfen, was er tut, oder ihn selbst betreiben.",
+      "hint": "Foodlog I/O gibt Hinweise, keine Diagnosen. Es ersetzt keine ärztliche Beratung."
+    }
   }
 }
