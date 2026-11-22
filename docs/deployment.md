@@ -56,7 +56,7 @@ Use `deploy/nginx.conf.example` as a base. The document root is `/var/www/foodlo
 
 Two things in the example are deliberate. The security headers (HSTS, CSP, frame and referrer policies) are set once on the server block; do not add `add_header` inside a `location`, because nginx then stops inheriting the server-level headers for that location (use `expires` for caching). And `proxy_read_timeout` (150 s) must stay above the 100 s timeout the backend uses for AI requests, otherwise the browser sees a 504 while the request still runs. `bash deploy/test/nginx.sh` starts nginx with the example and checks the headers on a page, an SPA route, an asset and the API.
 
-The backend trusts `X-Forwarded-For` in production, so it must only be reachable through nginx. The compose file publishes the port on `127.0.0.1` only. Keep it that way.
+The backend trusts `X-Forwarded-For` in production and rate limits by the first entry, so it must only be reachable through nginx, and nginx must **replace** the header with `$remote_addr`. With `$proxy_add_x_forwarded_for` a client could send its own first entry and bypass every rate limit; `deploy/test/nginx.sh` checks this. With Plesk, make sure no other directive appends to the header. The compose file publishes the port on `127.0.0.1` only. Keep it that way.
 
 ## 6. GitHub setup
 

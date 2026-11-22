@@ -19,8 +19,16 @@ sed -e 's/listen 443 ssl;/listen 80;/' -e '/http2 on;/d' -e 's#/var/www/foodlog/
   -e '/^server {$/,$!b' "${NGINX_CONF:-$root/deploy/nginx.conf.example}" \
   | awk 'BEGIN{n=0} /^server \{/{n++} n<2{print}' > "$work/default.conf"
 
+cat > "$work/upstream.conf" <<'CONF'
+server {
+    listen 127.0.0.1:3000;
+    location / { return 200 "$http_x_forwarded_for"; }
+}
+CONF
+
 docker run -d --name "$name" -p "127.0.0.1:$port:80" \
-  -v "$work/default.conf:/etc/nginx/conf.d/default.conf:ro" -v "$work/site:/site:ro" \
+  -v "$work/default.conf:/etc/nginx/conf.d/default.conf:ro" \
+  -v "$work/upstream.conf:/etc/nginx/conf.d/upstream.conf:ro" -v "$work/site:/site:ro" \
   nginx:stable-alpine > /dev/null || { echo "could not start nginx"; exit 1; }
 
 for _ in $(seq 1 30); do
@@ -47,6 +55,14 @@ status="$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$port/profile
 if [[ "$status" = 200 ]]; then echo "ok - SPA routes fall back to index.html"; else echo "not ok - /profile returned $status"; failures=$((failures + 1)); fi
 status="$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$port/assets/missing.js")"
 if [[ "$status" = 404 ]]; then echo "ok - missing assets are a 404, not the app"; else echo "not ok - missing asset returned $status"; failures=$((failures + 1)); fi
+
+forwarded="$(curl -s -H 'X-Forwarded-For: 6.6.6.6' "http://127.0.0.1:$port/api/echo")"
+if [[ -n "$forwarded" && "$forwarded" != *6.6.6.6* && "$forwarded" != *,* ]]; then
+  echo "ok - X-Forwarded-For is replaced with the client address"
+else
+  echo "not ok - client-supplied X-Forwarded-For reaches the backend: '$forwarded'"
+  failures=$((failures + 1))
+fi
 
 echo "$failures failed"
 [[ "$failures" = 0 ]]
