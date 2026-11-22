@@ -36,6 +36,8 @@ const meal: EntryDto = {
   symptomType: null,
   severity: null,
   bristol: null,
+  sleepMinutes: null,
+  rating: null,
   ingredients: [oats, milk],
 };
 const symptom: EntryDto = {
@@ -47,6 +49,8 @@ const symptom: EntryDto = {
   symptomType: 'bloating',
   severity: 6,
   bristol: null,
+  sleepMinutes: null,
+  rating: null,
   ingredients: [],
 };
 const stool: EntryDto = {
@@ -58,6 +62,8 @@ const stool: EntryDto = {
   symptomType: null,
   severity: null,
   bristol: 4,
+  sleepMinutes: null,
+  rating: null,
   ingredients: [],
 };
 
@@ -98,6 +104,74 @@ describe('dashboard', () => {
     expect(screen.getByText('Bloating')).toBeInTheDocument();
     expect(screen.getByText('6 out of 10')).toBeInTheDocument();
     expect(screen.getByText('Type 4')).toBeInTheDocument();
+  });
+
+  it('lists sleep and stress entries', async () => {
+    const sleep: EntryDto = {
+      ...meal,
+      id: 's1',
+      type: 'sleep',
+      title: null,
+      note: null,
+      ingredients: [],
+      sleepMinutes: 450,
+      rating: 4,
+    };
+    const stress: EntryDto = { ...sleep, id: 's2', type: 'stress', sleepMinutes: null, rating: 5 };
+    mockCommon({ entries: [sleep, stress] });
+    renderApp('/');
+    expect(await screen.findByText('7 h 30 min')).toBeInTheDocument();
+    expect(screen.getByText('good')).toBeInTheDocument();
+    expect(screen.getByText('very stressed')).toBeInTheDocument();
+    expect(screen.getByText('Level 5 of 5')).toBeInTheDocument();
+  });
+
+  it('creates a sleep entry from hours and a quality rating', async () => {
+    mockCommon();
+    let body: Record<string, unknown> = {};
+    server.use(
+      http.post('/api/entries', async ({ request }) => {
+        body = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(meal, { status: 201 });
+      }),
+    );
+    renderApp('/');
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Sleep' }));
+    const hours = screen.getByLabelText('Sleep duration (hours)');
+    await user.clear(hours);
+    await user.type(hours, '6.5');
+    await user.click(screen.getByRole('radio', { name: /^2: bad/ }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() =>
+      expect(body).toMatchObject({ type: 'sleep', sleepMinutes: 390, rating: 2 }),
+    );
+  });
+
+  it('creates a stress entry with the default level', async () => {
+    mockCommon();
+    let body: Record<string, unknown> = {};
+    server.use(
+      http.post('/api/entries', async ({ request }) => {
+        body = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(meal, { status: 201 });
+      }),
+    );
+    renderApp('/');
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Stress' }));
+    await user.click(screen.getByRole('radio', { name: /^4: stressed/ }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(body).toMatchObject({ type: 'stress', rating: 4 }));
+  });
+
+  it('hides sleep and stress when the feature is off', async () => {
+    mockCommon();
+    mockLoggedIn({ ...meResponse, features: { ...meResponse.features, context_factors: false } });
+    renderApp('/');
+    await screen.findByRole('button', { name: 'Meal' });
+    expect(screen.queryByRole('button', { name: 'Sleep' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Stress' })).not.toBeInTheDocument();
   });
 
   it('shows an empty state', async () => {

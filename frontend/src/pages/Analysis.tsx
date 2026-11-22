@@ -14,6 +14,7 @@ import {
   SymptomsPerDayChart,
   TopIngredients,
 } from '../components/AnalysisCharts.tsx';
+import { ContextFactors } from '../components/ContextFactors.tsx';
 import { SuspectsTable } from '../components/SuspectsTable.tsx';
 import { Button, Card, ErrorMessage, Field, SelectField } from '../components/ui.tsx';
 import { readAnalysisParams, toSearchParams, type AnalysisParams } from '../lib/analysisParams.ts';
@@ -212,6 +213,10 @@ export function AnalysisPage() {
               caption={`${t('analysis.suspects.title')}: ${t('analysis.suspects.ingredients')}`}
             />
           </Card>
+
+          {me?.features.context_factors && (
+            <ContextFactors factors={data.context} minDays={data.minExposures} />
+          )}
 
           <SymptomsPerDayChart data={data.symptomsByDay} />
           <div className="grid gap-6 md:grid-cols-2">

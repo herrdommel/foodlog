@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
 import { useAnalysis, useMe } from '../api/hooks.ts';
 import { BristolChart, SymptomsPerDayChart } from '../components/AnalysisCharts.tsx';
+import { ContextFactors } from '../components/ContextFactors.tsx';
 import { SuspectsTable } from '../components/SuspectsTable.tsx';
 import { Button, ErrorMessage } from '../components/ui.tsx';
 import { readAnalysisParams, toSearchParams } from '../lib/analysisParams.ts';
@@ -91,6 +92,10 @@ export function ReportPage() {
               caption={`${t('analysis.suspects.title')}: ${t('analysis.suspects.ingredients')}`}
             />
           </section>
+
+          {me?.features.context_factors && (
+            <ContextFactors factors={data.context} minDays={data.minExposures} as="section" />
+          )}
 
           <div className="break-inside-avoid">
             <SymptomsPerDayChart data={data.symptomsByDay} />

@@ -12,7 +12,7 @@ const data: AnalysisDto = {
   outcome: 'bloating',
   minSeverity: 3,
   summary: {
-    entryCounts: { meal: 10, drink: 5, symptom: 4, stool: 6, medication: 0 },
+    entryCounts: { meal: 10, drink: 5, symptom: 4, stool: 6, medication: 0, sleep: 0, stress: 0 },
     daysWithEntries: 20,
     foodEntries: 15,
     outcomeEvents: 4,
@@ -43,6 +43,7 @@ const data: AnalysisDto = {
       },
     ],
   },
+  context: [],
   minExposures: 5,
   minOutcomes: 3,
 };

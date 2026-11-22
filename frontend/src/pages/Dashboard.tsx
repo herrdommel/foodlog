@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import {
   ENTRY_TYPES,
+  isContextType,
   isDateString,
   shiftDate,
   todayInTimeZone,
@@ -72,11 +73,13 @@ export function DashboardPage() {
 
       {form === null ? (
         <section aria-label={t('tracking.addEntry')} className="flex flex-wrap gap-2">
-          {ENTRY_TYPES.map((type) => (
-            <Button key={type} type="button" onClick={() => setForm({ mode: 'create', type })}>
-              {t(`tracking.types.${type}`)}
-            </Button>
-          ))}
+          {ENTRY_TYPES.filter((type) => !isContextType(type) || me?.features.context_factors).map(
+            (type) => (
+              <Button key={type} type="button" onClick={() => setForm({ mode: 'create', type })}>
+                {t(`tracking.types.${type}`)}
+              </Button>
+            ),
+          )}
         </section>
       ) : (
         <EntryForm

@@ -149,7 +149,9 @@
       "drink": "Drink",
       "symptom": "Symptom",
       "stool": "Stool",
-      "medication": "Medication"
+      "medication": "Medication",
+      "sleep": "Sleep",
+      "stress": "Stress"
     },
     "time": "Time",
     "title": "Title",
@@ -224,6 +226,29 @@
       "caffeine": "Caffeine",
       "alcohol": "Alcohol",
       "spicy": "Spicy"
+    },
+    "wakeTime": "Woke up at",
+    "sleepHours": "Sleep duration (hours)",
+    "sleepQuality": "How did you sleep? (optional)",
+    "stressLevel": "How stressed were you?",
+    "notRated": "Not rated",
+    "ratingValue": "Level {{value}} of 5",
+    "sleepDuration": "{{hours}} h {{minutes}} min",
+    "ratings": {
+      "sleep": {
+        "1": "very bad",
+        "2": "bad",
+        "3": "okay",
+        "4": "good",
+        "5": "very good"
+      },
+      "stress": {
+        "1": "very relaxed",
+        "2": "relaxed",
+        "3": "some stress",
+        "4": "stressed",
+        "5": "very stressed"
+      }
     }
   },
   "ingredientsPage": {
@@ -311,6 +336,20 @@
     "export": {
       "csv": "Export as CSV",
       "report": "Report for your doctor"
+    },
+    "context": {
+      "title": "Sleep and stress",
+      "hint": "This compares days with a complaint on days with short sleep (under 6 hours), poor sleep (rated 1 or 2) or high stress (level 4 or 5) against other days that you logged. It only uses finished days. A factor of 2 means complaints were twice as common. This shows an association, not a cause.",
+      "notEnough": "Not enough data yet: at least {{days}} days with and {{days}} days without the factor, plus a few days with a complaint.",
+      "factor": "Factor",
+      "withFactor": "Days with the factor",
+      "without": "Other days",
+      "days": "{{with}} of {{total}} ({{share}})",
+      "factors": {
+        "short_sleep": "Short sleep",
+        "poor_sleep": "Poor sleep quality",
+        "high_stress": "High stress"
+      }
     }
   },
   "report": {
@@ -400,7 +439,8 @@
       "google_login": "Sign in with Google",
       "data_export": "Data export",
       "barcode_scan": "Barcode scan",
-      "ai_photo": "Photo recognition"
+      "ai_photo": "Photo recognition",
+      "context_factors": "Sleep and stress"
     },
     "invites": {
       "title": "Invitations",
@@ -484,7 +524,7 @@
     },
     "consent": {
       "title": "Consent",
-      "text": "When you start the analysis, your health data (entries of the selected period and the statistical pre-analysis, without name, email and notes) is sent to the selected provider and processed there. This is special category data under Art. 9 GDPR. The provider's privacy policy applies in addition. You can withdraw your consent at any time.",
+      "text": "When you start the analysis, your health data (entries of the selected period including sleep and stress if you track them, and the statistical pre-analysis, without name, email and notes) is sent to the selected provider and processed there. This is special category data under Art. 9 GDPR. The provider's privacy policy applies in addition. You can withdraw your consent at any time.",
       "checkbox": "I consent to this data being sent to the selected provider when I start the AI analysis.",
       "given": "Consent given on {{date}}",
       "withdraw": "Withdraw consent",

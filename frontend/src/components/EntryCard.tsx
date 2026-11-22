@@ -12,6 +12,8 @@ const typeColors: Record<EntryDto['type'], string> = {
   symptom: 'bg-coral text-ink',
   stool: 'bg-ink text-cream dark:bg-cream dark:text-ink',
   medication: 'bg-fg/15 text-fg',
+  sleep: 'bg-accent/30 text-fg',
+  stress: 'bg-coral/40 text-fg',
 };
 
 export function EntryCard({
@@ -54,6 +56,27 @@ export function EntryCard({
             {t('tracking.bristolType', { value: entry.bristol })}
             <span className="ml-2 font-normal text-fg/75">
               {t(`tracking.bristolDescriptions.${entry.bristol}`)}
+            </span>
+          </span>
+        )}
+        {entry.type === 'sleep' && entry.sleepMinutes && (
+          <span className="font-medium">
+            {t('tracking.sleepDuration', {
+              hours: Math.floor(entry.sleepMinutes / 60),
+              minutes: entry.sleepMinutes % 60,
+            })}
+            {entry.rating && (
+              <span className="ml-2 font-normal text-fg/75">
+                {t(`tracking.ratings.sleep.${entry.rating}`)}
+              </span>
+            )}
+          </span>
+        )}
+        {entry.type === 'stress' && entry.rating && (
+          <span className="font-medium">
+            {t(`tracking.ratings.stress.${entry.rating}`)}
+            <span className="ml-2 font-normal text-fg/75">
+              {t('tracking.ratingValue', { value: entry.rating })}
             </span>
           </span>
         )}

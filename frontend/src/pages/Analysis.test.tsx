@@ -50,7 +50,15 @@ function analysis(overrides: Partial<AnalysisDto> = {}): AnalysisDto {
     outcome: 'symptoms',
     minSeverity: 3,
     summary: {
-      entryCounts: { meal: 40, drink: 20, symptom: 12, stool: 25, medication: 1 },
+      entryCounts: {
+        meal: 40,
+        drink: 20,
+        symptom: 12,
+        stool: 25,
+        medication: 1,
+        sleep: 0,
+        stress: 0,
+      },
       daysWithEntries: 28,
       foodEntries: 60,
       outcomeEvents: 12,
@@ -61,6 +69,7 @@ function analysis(overrides: Partial<AnalysisDto> = {}): AnalysisDto {
     bristolDistribution: [0, 1, 3, 10, 5, 4, 2],
     symptomHeatmap: Array.from({ length: 7 }, () => new Array<number>(24).fill(0)),
     suspects: { ingredients: [milkSuspect], allergens: [lactoseSuspect] },
+    context: [],
     minExposures: 5,
     minOutcomes: 3,
     ...overrides,
@@ -186,11 +195,61 @@ describe('analysis page', () => {
     expect(screen.getByRole('button', { name: '90 days' })).toHaveAttribute('aria-pressed', 'true');
   });
 
+  it('shows the sleep and stress comparison', async () => {
+    mockAnalysis(
+      analysis({
+        context: [
+          {
+            factor: 'high_stress',
+            days: 10,
+            daysWithOutcome: 8,
+            rate: 0.8,
+            otherDays: 12,
+            otherDaysWithOutcome: 2,
+            otherRate: 2 / 12,
+            relativeRisk: 4.8,
+            ciLow: 1.3,
+            ciHigh: 17.9,
+            confidence: 'medium',
+          },
+        ],
+      }),
+    );
+    renderApp('/analysis');
+    const table = await screen.findByRole('table', { name: 'Sleep and stress' });
+    const row = within(table).getByRole('row', { name: /High stress/ });
+    expect(within(row).getByText('8 of 10 (80 %)')).toBeInTheDocument();
+    expect(within(row).getByText('2 of 12 (17 %)')).toBeInTheDocument();
+    expect(within(row).getByText('4.8')).toBeInTheDocument();
+  });
+
+  it('explains when sleep and stress have too little data', async () => {
+    mockAnalysis();
+    renderApp('/analysis');
+    expect(await screen.findByText(/at least 5 days with and 5 days without/)).toBeInTheDocument();
+  });
+
+  it('hides the sleep and stress card when the feature is off', async () => {
+    mockAnalysis();
+    mockLoggedIn({ ...meResponse, features: { ...meResponse.features, context_factors: false } });
+    renderApp('/analysis');
+    await screen.findByRole('note');
+    expect(screen.queryByText('Sleep and stress')).not.toBeInTheDocument();
+  });
+
   it('explains when there is not enough data', async () => {
     mockAnalysis(
       analysis({
         summary: {
-          entryCounts: { meal: 2, drink: 0, symptom: 0, stool: 0, medication: 0 },
+          entryCounts: {
+            meal: 2,
+            drink: 0,
+            symptom: 0,
+            stool: 0,
+            medication: 0,
+            sleep: 0,
+            stress: 0,
+          },
           daysWithEntries: 2,
           foodEntries: 2,
           outcomeEvents: 0,

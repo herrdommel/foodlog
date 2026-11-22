@@ -46,6 +46,7 @@ export const meResponse: MeResponse = {
     data_export: true,
     barcode_scan: true,
     ai_photo: false,
+    context_factors: true,
   },
 };
 

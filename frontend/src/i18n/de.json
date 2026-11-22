@@ -149,7 +149,9 @@
       "drink": "Getränk",
       "symptom": "Symptom",
       "stool": "Stuhlgang",
-      "medication": "Medikament"
+      "medication": "Medikament",
+      "sleep": "Schlaf",
+      "stress": "Stress"
     },
     "time": "Zeitpunkt",
     "title": "Bezeichnung",
@@ -224,6 +226,29 @@
       "caffeine": "Koffein",
       "alcohol": "Alkohol",
       "spicy": "Scharf"
+    },
+    "wakeTime": "Aufgewacht um",
+    "sleepHours": "Schlafdauer (Stunden)",
+    "sleepQuality": "Wie hast du geschlafen? (optional)",
+    "stressLevel": "Wie gestresst warst du?",
+    "notRated": "Nicht bewertet",
+    "ratingValue": "Stufe {{value}} von 5",
+    "sleepDuration": "{{hours}} Std. {{minutes}} Min.",
+    "ratings": {
+      "sleep": {
+        "1": "sehr schlecht",
+        "2": "schlecht",
+        "3": "okay",
+        "4": "gut",
+        "5": "sehr gut"
+      },
+      "stress": {
+        "1": "sehr entspannt",
+        "2": "entspannt",
+        "3": "etwas Stress",
+        "4": "gestresst",
+        "5": "sehr gestresst"
+      }
     }
   },
   "ingredientsPage": {
@@ -311,6 +336,20 @@
     "export": {
       "csv": "Als CSV exportieren",
       "report": "Bericht für die Ärztin oder den Arzt"
+    },
+    "context": {
+      "title": "Schlaf und Stress",
+      "hint": "Verglichen werden Tage mit Beschwerden an Tagen mit kurzem Schlaf (unter 6 Stunden), schlechtem Schlaf (Bewertung 1 oder 2) oder hohem Stress (Stufe 4 oder 5) mit den übrigen Tagen, die du eingetragen hast. Es zählen nur abgeschlossene Tage. Ein Faktor von 2 heißt, Beschwerden waren doppelt so häufig. Das zeigt einen Zusammenhang, keine Ursache.",
+      "notEnough": "Noch zu wenig Daten: mindestens {{days}} Tage mit und {{days}} Tage ohne den Faktor sowie einige Tage mit Beschwerden.",
+      "factor": "Faktor",
+      "withFactor": "Tage mit dem Faktor",
+      "without": "Übrige Tage",
+      "days": "{{with}} von {{total}} ({{share}})",
+      "factors": {
+        "short_sleep": "Kurzer Schlaf",
+        "poor_sleep": "Schlechte Schlafqualität",
+        "high_stress": "Hoher Stress"
+      }
     }
   },
   "report": {
@@ -400,7 +439,8 @@
       "google_login": "Anmeldung mit Google",
       "data_export": "Datenexport",
       "barcode_scan": "Barcode-Scan",
-      "ai_photo": "Foto-Erkennung"
+      "ai_photo": "Foto-Erkennung",
+      "context_factors": "Schlaf und Stress"
     },
     "invites": {
       "title": "Einladungen",
@@ -484,7 +524,7 @@
     },
     "consent": {
       "title": "Einwilligung",
-      "text": "Wenn du die Auswertung startest, werden deine Gesundheitsdaten (Einträge des gewählten Zeitraums und die statistische Voranalyse, ohne Name, E-Mail und Notizen) an den gewählten Anbieter gesendet und dort verarbeitet. Das sind Daten besonderer Kategorie nach Art. 9 DSGVO. Die Datenschutzerklärung des Anbieters gilt zusätzlich. Du kannst die Einwilligung jederzeit widerrufen.",
+      "text": "Wenn du die Auswertung startest, werden deine Gesundheitsdaten (Einträge des gewählten Zeitraums, auch Schlaf und Stress, falls du sie einträgst, und die statistische Voranalyse, ohne Name, E-Mail und Notizen) an den gewählten Anbieter gesendet und dort verarbeitet. Das sind Daten besonderer Kategorie nach Art. 9 DSGVO. Die Datenschutzerklärung des Anbieters gilt zusätzlich. Du kannst die Einwilligung jederzeit widerrufen.",
       "checkbox": "Ich willige ein, dass diese Daten bei Start der KI-Auswertung an den gewählten Anbieter gesendet werden.",
       "given": "Einwilligung erteilt am {{date}}",
       "withdraw": "Einwilligung widerrufen",

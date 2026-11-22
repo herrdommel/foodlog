@@ -2,7 +2,9 @@ import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ENTRY_TYPES,
+  MAX_SLEEP_MINUTES,
   SYMPTOM_TYPES,
+  isContextType,
   type EntryDto,
   type EntryInput,
   type EntryType,
@@ -56,6 +58,10 @@ export function EntryForm({
   const [symptomType, setSymptomType] = useState<SymptomType>(initial?.symptomType ?? 'bloating');
   const [severity, setSeverity] = useState(initial?.severity ?? 3);
   const [bristol, setBristol] = useState(initial?.bristol ?? 4);
+  const [sleepHours, setSleepHours] = useState(
+    initial?.sleepMinutes ? String(initial.sleepMinutes / 60) : '7.5',
+  );
+  const [rating, setRating] = useState<number | null>(initial ? initial.rating : null);
   const [note, setNote] = useState(initial?.note ?? '');
   const [saveTemplate, setSaveTemplate] = useState(false);
   const [templateName, setTemplateName] = useState('');
@@ -63,6 +69,9 @@ export function EntryForm({
   const mutation = initial ? update : create;
   const canTemplate = TEMPLATE_TYPES.includes(type);
   const isFood = type === 'meal' || type === 'drink';
+  const types = ENTRY_TYPES.filter(
+    (value) => !isContextType(value) || me.data?.features.context_factors || value === type,
+  );
 
   const buildInput = (): EntryInput => {
     const base = { occurredAt: time, note: note.trim() || null };
@@ -81,6 +90,15 @@ export function EntryForm({
         return { ...base, type, bristol };
       case 'medication':
         return { ...base, type, title: title.trim() };
+      case 'sleep':
+        return {
+          ...base,
+          type,
+          sleepMinutes: Math.min(MAX_SLEEP_MINUTES, Math.round(Number(sleepHours) * 60)),
+          rating,
+        };
+      case 'stress':
+        return { ...base, type, rating: rating ?? 3 };
     }
   };
 
@@ -117,7 +135,7 @@ export function EntryForm({
       <form onSubmit={submit} className="space-y-4" aria-label={t('tracking.addEntry')}>
         <ErrorMessage error={error} />
         <div role="group" aria-label={t('tracking.addEntry')} className="flex flex-wrap gap-2">
-          {ENTRY_TYPES.map((value) => (
+          {types.map((value) => (
             <button
               key={value}
               type="button"
@@ -131,7 +149,7 @@ export function EntryForm({
         </div>
 
         <Field
-          label={t('tracking.time')}
+          label={type === 'sleep' ? t('tracking.wakeTime') : t('tracking.time')}
           type="datetime-local"
           required
           value={time}
@@ -258,6 +276,57 @@ export function EntryForm({
                   <span className="font-medium">{t('tracking.bristolType', { value })}</span>
                   {': '}
                   {t(`tracking.bristolDescriptions.${value}`)}
+                </span>
+              </label>
+            ))}
+          </fieldset>
+        )}
+
+        {type === 'sleep' && (
+          <Field
+            label={t('tracking.sleepHours')}
+            type="number"
+            required
+            min={0.25}
+            max={MAX_SLEEP_MINUTES / 60}
+            step={0.25}
+            value={sleepHours}
+            onChange={(event) => setSleepHours(event.target.value)}
+          />
+        )}
+
+        {(type === 'sleep' || type === 'stress') && (
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium">
+              {type === 'sleep' ? t('tracking.sleepQuality') : t('tracking.stressLevel')}
+            </legend>
+            {type === 'sleep' && (
+              <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-fg/10 px-3 py-2 has-[:checked]:border-brand has-[:checked]:bg-accent/10">
+                <input
+                  type="radio"
+                  name="rating"
+                  checked={rating === null}
+                  onChange={() => setRating(null)}
+                />
+                <span className="text-sm">{t('tracking.notRated')}</span>
+              </label>
+            )}
+            {[1, 2, 3, 4, 5].map((value) => (
+              <label
+                key={value}
+                className="flex cursor-pointer items-center gap-3 rounded-lg border border-fg/10 px-3 py-2 has-[:checked]:border-brand has-[:checked]:bg-accent/10"
+              >
+                <input
+                  type="radio"
+                  name="rating"
+                  value={value}
+                  checked={(rating ?? (type === 'stress' ? 3 : null)) === value}
+                  onChange={() => setRating(value)}
+                />
+                <span className="text-sm">
+                  <span className="font-medium">{value}</span>
+                  {': '}
+                  {t(`tracking.ratings.${type}.${value}`)}
                 </span>
               </label>
             ))}
