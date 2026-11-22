@@ -522,7 +522,14 @@
     "title": "Produkt nachschlagen",
     "number": "Barcode-Nummer",
     "lookup": "Nachschlagen",
-    "attribution": "Produktdaten von"
+    "attribution": "Produktdaten von",
+    "scanCamera": "Mit Kamera scannen",
+    "stopCamera": "Kamera stoppen",
+    "scanPhoto": "Aus einem Foto scannen",
+    "cameraView": "Kameraansicht",
+    "cameraFailed": "Die Kamera konnte nicht gestartet werden. Prüfe die Berechtigung oder gib die Nummer ein bzw. nutze ein Foto.",
+    "notFoundInPhoto": "Aus diesem Foto konnte kein Barcode gelesen werden. Versuche es näher und bei gutem Licht oder gib die Nummer ein.",
+    "noCamera": "Die Live-Kamera braucht eine sichere Verbindung (HTTPS). Du kannst trotzdem aus einem Foto scannen oder die Nummer eingeben."
   },
   "suggestions": {
     "none": "Dazu wurden keine Zutaten gefunden.",

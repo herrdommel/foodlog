@@ -43,7 +43,7 @@ expect_header() { # expect_header <url path> <header regex>
 }
 
 for path in / /profile /index.html /assets/app.js /api/health; do
-  for header in '^strict-transport-security:' '^content-security-policy: default-src' '^x-frame-options: DENY' '^x-content-type-options: nosniff' '^referrer-policy:' '^permissions-policy:'; do
+  for header in '^strict-transport-security:' '^content-security-policy: default-src' '^x-frame-options: DENY' '^x-content-type-options: nosniff' '^referrer-policy:' '^permissions-policy: camera=\(self\)'; do
     expect_header "$path" "$header"
   done
 done

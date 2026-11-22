@@ -522,7 +522,14 @@
     "title": "Look up a product",
     "number": "Barcode number",
     "lookup": "Look up",
-    "attribution": "Product data from"
+    "attribution": "Product data from",
+    "scanCamera": "Scan with camera",
+    "stopCamera": "Stop camera",
+    "scanPhoto": "Scan from a photo",
+    "cameraView": "Camera view",
+    "cameraFailed": "The camera could not be started. Check the permission, or enter the number or use a photo.",
+    "notFoundInPhoto": "No barcode could be read from this photo. Try again closer and in good light, or enter the number.",
+    "noCamera": "The live camera needs a secure connection (HTTPS). You can still scan from a photo or enter the number."
   },
   "suggestions": {
     "none": "No ingredients were found for this.",

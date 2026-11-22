@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isValidBarcode, type IngredientDto, type ProductLookupDto } from '@foodlog/shared';
 import { useLookupProduct } from '../api/hooks.ts';
+import { BarcodeScanner } from './BarcodeScanner.tsx';
 import { IngredientSuggestions } from './IngredientSuggestions.tsx';
 import { Button, ErrorMessage, Field } from './ui.tsx';
 
@@ -72,6 +73,12 @@ export function BarcodeLookup({
           {t('barcode.lookup')}
         </Button>
       </div>
+      <BarcodeScanner
+        onDetected={(detected) => {
+          setCode(detected);
+          search(detected);
+        }}
+      />
       <ErrorMessage error={invalid ? 'invalid_barcode' : lookup.error} />
       {product && (
         <>

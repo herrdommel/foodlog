@@ -36,6 +36,108 @@ test('adds a scanned product with known and new ingredients to a meal', async ({
   await expect(card.getByText('Soy', { exact: true })).toBeVisible();
 });
 
+// EAN-13 drawn in the browser, so the real decoder reads a real image.
+async function barcodeImage(page: Page, code: string): Promise<Buffer> {
+  const dataUrl = await page.evaluate((digits) => {
+    const L = [
+      '0001101',
+      '0011001',
+      '0010011',
+      '0111101',
+      '0100011',
+      '0110001',
+      '0101111',
+      '0111011',
+      '0110111',
+      '0001011',
+    ];
+    const G = [
+      '0100111',
+      '0110011',
+      '0011011',
+      '0100001',
+      '0011101',
+      '0111001',
+      '0000101',
+      '0010001',
+      '0001001',
+      '0010111',
+    ];
+    const R = [
+      '1110010',
+      '1100110',
+      '1101100',
+      '1000010',
+      '1011100',
+      '1001110',
+      '1010000',
+      '1000100',
+      '1001000',
+      '1110100',
+    ];
+    const parity = [
+      'LLLLLL',
+      'LLGLGG',
+      'LLGGLG',
+      'LLGGGL',
+      'LGLLGG',
+      'LGGLLG',
+      'LGGGLL',
+      'LGLGLG',
+      'LGLGGL',
+      'LGGLGL',
+    ];
+    const d = [...digits].map(Number);
+    let bits = '101';
+    for (let i = 0; i < 6; i++) bits += (parity[d[0]!]![i] === 'L' ? L : G)[d[i + 1]!];
+    bits += '01010';
+    for (let i = 7; i < 13; i++) bits += R[d[i]!];
+    bits += '101';
+    const module = 3;
+    const quiet = 30;
+    const canvas = document.createElement('canvas');
+    canvas.width = bits.length * module + quiet * 2;
+    canvas.height = 140;
+    const context = canvas.getContext('2d')!;
+    context.fillStyle = '#fff';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = '#000';
+    [...bits].forEach((bit, index) => {
+      if (bit === '1') context.fillRect(quiet + index * module, 20, module, 100);
+    });
+    return canvas.toDataURL('image/png');
+  }, code);
+  return Buffer.from(dataUrl.split(',')[1]!, 'base64');
+}
+
+test('reads a barcode from a photo and looks the product up', async ({ page }) => {
+  await page.getByRole('button', { name: 'Look up a barcode' }).click();
+  await page.getByLabel('Scan from a photo').setInputFiles({
+    name: 'code.png',
+    mimeType: 'image/png',
+    buffer: await barcodeImage(page, CODE),
+  });
+  await expect(page.getByLabel('Barcode number')).toHaveValue(CODE);
+  await expect(page.getByText('Known ingredients')).toBeVisible();
+});
+
+test('says so when a photo has no barcode', async ({ page }) => {
+  await page.getByRole('button', { name: 'Look up a barcode' }).click();
+  const blank = await page.evaluate(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 200;
+    canvas.height = 100;
+    canvas.getContext('2d')!.fillRect(0, 0, 200, 100);
+    return canvas.toDataURL('image/png');
+  });
+  await page.getByLabel('Scan from a photo').setInputFiles({
+    name: 'blank.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from(blank.split(',')[1]!, 'base64'),
+  });
+  await expect(page.getByText('No barcode could be read from this photo')).toBeVisible();
+});
+
 test('reuses the tags it created when the same product is looked up again', async ({ page }) => {
   await lookUp(page);
   await page.getByRole('button', { name: /^Add \d+ to the meal$/ }).click();
