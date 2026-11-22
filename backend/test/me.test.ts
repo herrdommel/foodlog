@@ -1,8 +1,11 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import sharp from 'sharp';
+import { eq } from 'drizzle-orm';
+import { users } from '../src/db/schema.ts';
 import {
   get,
   ORIGIN,
+  sessionCookie,
   PASSWORD,
   patch,
   post,
@@ -148,20 +151,102 @@ describe('email change', () => {
     const me = (await get(t.app, '/api/me', cookie)).json();
     expect(me.user.email).toBe('anna@example.com');
 
-    const confirm = await post(t.app, '/api/me/email/confirm', { token: tokenFromMail(t) });
+    const confirm = await post(t.app, '/api/me/email/confirm', { token: tokenFromMail(t) }, cookie);
     expect(confirm.statusCode).toBe(200);
     expect((await get(t.app, '/api/me', cookie)).json().user.email).toBe('new@example.com');
   });
 
-  it('refuses an email that is already taken', async () => {
+  it('answers the same for a taken address and only warns its owner', async () => {
     await registerAndLogin(t, 'bob@example.com', 'Bob');
-    const response = await post(
+    t.mailer.outbox.length = 0;
+    const taken = await post(
       t.app,
       '/api/me/email',
       { newEmail: 'bob@example.com', password: PASSWORD },
       cookie,
     );
-    expect(response.statusCode).toBe(409);
+    const free = await post(
+      t.app,
+      '/api/me/email',
+      { newEmail: 'free@example.com', password: PASSWORD },
+      cookie,
+    );
+    expect(taken.statusCode).toBe(202);
+    expect(taken.json()).toEqual(free.json());
+    expect(t.mailer.outbox.map((mail) => mail.to)).toEqual(['bob@example.com', 'free@example.com']);
+    expect(t.mailer.outbox[0]?.text).not.toContain('/confirm-email?token=');
+    expect(t.mailer.outbox[1]?.text).toContain('/confirm-email?token=');
+  });
+});
+
+describe('email change and sessions', () => {
+  const login = async () =>
+    sessionCookie(
+      await post(t.app, '/api/auth/login', { email: 'anna@example.com', password: PASSWORD }),
+    );
+  const request = (newEmail: string, as: string) =>
+    post(t.app, '/api/me/email', { newEmail, password: PASSWORD }, as);
+
+  it('ends the other sessions but keeps the one that confirms', async () => {
+    const other = await login();
+    await request('new@example.com', cookie);
+    const confirm = await post(t.app, '/api/me/email/confirm', { token: tokenFromMail(t) }, cookie);
+    expect(confirm.statusCode).toBe(200);
+    expect((await get(t.app, '/api/me', cookie)).statusCode).toBe(200);
+    expect((await get(t.app, '/api/me', other)).statusCode).toBe(401);
+  });
+
+  it('ends every session when the link is opened without being signed in', async () => {
+    await request('new@example.com', cookie);
+    await post(t.app, '/api/me/email/confirm', { token: tokenFromMail(t) });
+    expect((await get(t.app, '/api/me', cookie)).statusCode).toBe(401);
+  });
+
+  describe('for an account without a password', () => {
+    beforeEach(async () => {
+      await t.db
+        .update(users)
+        .set({ passwordHash: null })
+        .where(eq(users.email, 'anna@example.com'));
+      t.mailer.outbox.length = 0;
+    });
+
+    it('asks the current address for approval instead of the new one', async () => {
+      const response = await post(t.app, '/api/me/email', { newEmail: 'new@example.com' }, cookie);
+      expect(response.statusCode).toBe(202);
+      expect(t.mailer.outbox).toHaveLength(1);
+      expect(t.mailer.outbox[0]?.to).toBe('anna@example.com');
+      expect(t.mailer.outbox[0]?.text).toContain('new@example.com');
+    });
+
+    it('changes the address only after approval and then verifies the new one', async () => {
+      await post(t.app, '/api/me/email', { newEmail: 'new@example.com' }, cookie);
+      const approve = await post(
+        t.app,
+        '/api/me/email/confirm',
+        { token: tokenFromMail(t) },
+        cookie,
+      );
+      expect(approve.json().status).toBe('verification_sent');
+      const [row] = await t.db.select().from(users).where(eq(users.email, 'new@example.com'));
+      expect(row?.emailVerifiedAt).toBeNull();
+      const mail = t.mailer.outbox.at(-1);
+      expect(mail?.to).toBe('new@example.com');
+      expect(mail?.text).toContain('/verify-email?token=');
+
+      await post(t.app, '/api/auth/verify-email', { token: tokenFromMail(t) });
+      const [verified] = await t.db.select().from(users).where(eq(users.email, 'new@example.com'));
+      expect(verified?.emailVerifiedAt).not.toBeNull();
+    });
+
+    it('does not reveal a taken address and sends no approval for it', async () => {
+      await registerAndLogin(t, 'bob@example.com', 'Bob');
+      t.mailer.outbox.length = 0;
+      const response = await post(t.app, '/api/me/email', { newEmail: 'bob@example.com' }, cookie);
+      expect(response.statusCode).toBe(202);
+      expect(t.mailer.outbox.map((mail) => mail.to)).toEqual(['bob@example.com']);
+      expect(t.mailer.outbox[0]?.text).not.toContain('/confirm-email');
+    });
   });
 });
 

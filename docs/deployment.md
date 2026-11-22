@@ -138,7 +138,7 @@ age -d -i key.txt foodlog-<date>.sql.gz.age | gunzip | mariadb -h <host> -u <use
 
 ## 10. Retention
 
-The backend removes data it no longer needs once a day (first run one minute after start): expired sessions and links, invited email addresses 7 days after an invitation was used or expired, invitations after 90 days, the administration log after 12 months. You can run it by hand with `docker compose ... run --rm backend node dist/cli/retention.js`. The privacy policy template states these periods; keep both in sync.
+The backend removes data it no longer needs once a day (first run one minute after start): expired sessions and links, invited email addresses 7 days after an invitation was used or expired, invitations after 90 days, the administration log after 12 months, failed sign-in counters after a day. You can run it by hand with `docker compose ... run --rm backend node dist/cli/retention.js`. The privacy policy template states these periods; keep both in sync.
 
 ## 11. Operations
 

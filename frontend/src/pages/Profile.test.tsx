@@ -50,7 +50,7 @@ describe('profile page', () => {
     await user.type(screen.getByLabelText('Current password'), 'correct horse battery');
     await user.click(screen.getByRole('button', { name: 'Request change' }));
     expect(
-      await screen.findByText('We sent a confirmation link to the new address.'),
+      await screen.findByText('If the address can be used, we sent a confirmation link to it.'),
     ).toBeInTheDocument();
     expect(body).toEqual({ newEmail: 'new@example.com', password: 'correct horse battery' });
   });

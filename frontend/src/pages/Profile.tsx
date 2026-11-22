@@ -158,7 +158,7 @@ function EmailCard({ user }: { user: PublicUser }) {
   return (
     <Card title={t('profile.emailTitle')}>
       {request.isSuccess ? (
-        <Notice>{t('profile.emailSent')}</Notice>
+        <Notice>{t(user.hasPassword ? 'profile.emailSent' : 'profile.emailApprovalSent')}</Notice>
       ) : (
         <form onSubmit={submit} className="space-y-4">
           <ErrorMessage error={request.error} />

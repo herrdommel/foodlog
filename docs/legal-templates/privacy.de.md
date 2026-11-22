@@ -35,6 +35,7 @@ Foodlog I/O ist ein Tagebuch, in dem du Essen, Getränke, Symptome, Stuhlkonsist
 
 - Konto, Tagebuchdaten und Einstellungen: bis du dein Konto löschst. Das Löschen entfernt sie sofort und endgültig.
 - Bestätigungs- und Passwort-Links: werden 7 Tage nach Ablauf oder Verwendung entfernt.
+- Zähler für fehlgeschlagene Anmeldungen (ein Hashwert der E-Mail-Adresse und eine Zahl): werden spätestens nach 24 Stunden entfernt.
 - Einladungen: die eingeladene E-Mail-Adresse wird 7 Tage nach Verwendung oder Ablauf der Einladung entfernt, die Einladung selbst nach 90 Tagen gelöscht.
 - Administrationsprotokoll (wer hat was geändert): 12 Monate. Es verweist auf Konten über eine interne ID, nicht über Name oder E-Mail.
 - Sicherungskopien: [SICHERUNGEN BESCHREIBEN, Z. B.: verschlüsselte Sicherungen werden 30 Tage aufbewahrt, gelöschte Daten können bis dahin dort noch enthalten sein].

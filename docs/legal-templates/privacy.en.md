@@ -36,6 +36,7 @@ Foodlog I/O is a diary in which you record food, drinks, symptoms, stool consist
 - Account, diary data and settings: until you delete your account. Deletion removes them immediately and permanently.
 - Confirmation and password reset links: removed 7 days after they expire or are used.
 - Invitations: the invited email address is removed 7 days after the invitation was used or expired; the invitation itself is deleted after 90 days.
+- Failed sign-in counters (a one-way hash of the email address and a number): removed after at most 24 hours.
 - Administration log (who changed what): 12 months. It refers to accounts by internal ID, not by name or email.
 - Backups: [DESCRIBE BACKUPS, FOR EXAMPLE: encrypted backups are kept for 30 days, so deleted data can remain there until then].
 

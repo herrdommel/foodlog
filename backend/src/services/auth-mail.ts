@@ -70,6 +70,22 @@ export function createAuthMail(deps: {
       );
     },
 
+    async sendEmailChangeApproval(user: Recipient, newEmail: string) {
+      const token = await createAuthToken(db, {
+        userId: user.id,
+        type: 'approve_email_change',
+        ttlMs: DAY,
+        newEmail,
+      });
+      await sendSafely(
+        renderMail('approveEmailChange', user.locale, user.email, {
+          name: user.name,
+          newEmail,
+          url: `${config.APP_URL}/confirm-email?token=${token}`,
+        }),
+      );
+    },
+
     async sendEmailChange(user: Recipient, newEmail: string) {
       const token = await createAuthToken(db, {
         userId: user.id,

@@ -1,4 +1,4 @@
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, inArray, isNull } from 'drizzle-orm';
 import type { Database } from '../db/client.ts';
 import { authTokens } from '../db/schema.ts';
 import { hashToken, newId, newToken } from '../lib/crypto.ts';
@@ -32,11 +32,16 @@ export async function createAuthToken(
   return token;
 }
 
-export async function consumeAuthToken(db: Database, token: string, type: AuthTokenType) {
+export async function consumeAuthToken(
+  db: Database,
+  token: string,
+  type: AuthTokenType | AuthTokenType[],
+) {
+  const types = Array.isArray(type) ? type : [type];
   const [row] = await db
     .select()
     .from(authTokens)
-    .where(and(eq(authTokens.tokenHash, hashToken(token)), eq(authTokens.type, type)));
+    .where(and(eq(authTokens.tokenHash, hashToken(token)), inArray(authTokens.type, types)));
   if (!row || row.usedAt || row.expiresAt.getTime() < Date.now()) {
     throw new AppError(400, 'invalid_token', 'The link is invalid or has expired');
   }

@@ -19,6 +19,11 @@ import { hashPassword, verifyPassword } from '../lib/password.ts';
 import { isFeatureEnabledGlobally } from '../services/features.ts';
 import { createAuthMail } from '../services/auth-mail.ts';
 import { PUBLIC_REGISTRATION, getBooleanSetting } from '../services/settings.ts';
+import {
+  clearLoginFailures,
+  isLoginLocked,
+  recordLoginFailure,
+} from '../services/login-throttle.ts';
 import { createSession, deleteSession, deleteUserSessions } from '../services/sessions.ts';
 import { consumeAuthToken } from '../services/tokens.ts';
 import { findUserByEmail, randomPresetAvatar, toPublicUser } from '../services/users.ts';
@@ -59,6 +64,8 @@ export async function authRoutes(app: FastifyInstance, { config, db, mailer }: A
       throw new AppError(403, 'registration_closed', 'Registration requires an invitation');
     }
 
+    // Hashed before the lookup so a taken address costs the same time as a free one.
+    const passwordHash = await hashPassword(body.password);
     const existing = await findUserByEmail(db, body.email);
     if (existing) {
       await authMail.sendReset(existing, 'accountExists');
@@ -70,7 +77,7 @@ export async function authRoutes(app: FastifyInstance, { config, db, mailer }: A
       email: body.email,
       name: body.name,
       locale: body.locale,
-      passwordHash: await hashPassword(body.password),
+      passwordHash,
       avatar: randomPresetAvatar(),
       privacyConsentAt: new Date(),
     };
@@ -106,11 +113,16 @@ export async function authRoutes(app: FastifyInstance, { config, db, mailer }: A
 
   app.post('/api/auth/login', { config: strict }, async (request, reply) => {
     const body = parseBody(loginSchema, request.body);
+    if (await isLoginLocked(db, body.email)) {
+      throw new AppError(429, 'too_many_attempts', 'Too many failed attempts, try again later');
+    }
     const user = await findUserByEmail(db, body.email);
     const valid = await verifyPassword(user?.passwordHash ?? null, body.password);
     if (!user || !valid) {
+      await recordLoginFailure(db, body.email);
       throw new AppError(401, 'invalid_credentials', 'Invalid email or password');
     }
+    await clearLoginFailures(db, body.email);
     if (!user.active) throw new AppError(403, 'account_disabled', 'This account is disabled');
     if (!user.emailVerifiedAt) {
       throw new AppError(403, 'email_not_verified', 'Please verify your email address first');

@@ -1,6 +1,6 @@
 import { and, isNotNull, isNull, lt, or } from 'drizzle-orm';
 import type { Database } from '../db/client.ts';
-import { adminAudit, authTokens, invites, sessions } from '../db/schema.ts';
+import { adminAudit, authTokens, invites, loginAttempts, sessions } from '../db/schema.ts';
 import { DAY } from '../lib/time.ts';
 
 export const RETENTION = {
@@ -8,6 +8,7 @@ export const RETENTION = {
   inviteEmailDays: 7,
   inviteDays: 90,
   auditDays: 365,
+  loginAttemptDays: 1,
 } as const;
 
 export interface RetentionResult {
@@ -16,6 +17,7 @@ export interface RetentionResult {
   inviteEmails: number;
   invites: number;
   audit: number;
+  loginAttempts: number;
 }
 
 function affected(result: unknown): number {
@@ -54,12 +56,17 @@ export async function runRetention(db: Database, now = new Date()): Promise<Rete
     .delete(adminAudit)
     .where(lt(adminAudit.createdAt, before(RETENTION.auditDays)));
 
+  const attempts = await db
+    .delete(loginAttempts)
+    .where(lt(loginAttempts.windowStartedAt, before(RETENTION.loginAttemptDays)));
+
   return {
     tokens: affected(tokens),
     sessions: affected(expiredSessions),
     inviteEmails: affected(inviteEmails),
     invites: affected(oldInvites),
     audit: affected(audit),
+    loginAttempts: affected(attempts),
   };
 }
 

@@ -68,7 +68,12 @@ export const authTokens = mysqlTable(
     userId: varchar('user_id', { length: 36 })
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    type: mysqlEnum('type', ['verify_email', 'reset_password', 'change_email']).notNull(),
+    type: mysqlEnum('type', [
+      'verify_email',
+      'reset_password',
+      'change_email',
+      'approve_email_change',
+    ]).notNull(),
     tokenHash: varchar('token_hash', { length: 64 }).notNull().unique(),
     newEmail: varchar('new_email', { length: 254 }),
     expiresAt: datetime('expires_at').notNull(),
@@ -77,6 +82,12 @@ export const authTokens = mysqlTable(
   },
   (table) => [index('auth_tokens_user_type_idx').on(table.userId, table.type)],
 );
+
+export const loginAttempts = mysqlTable('login_attempts', {
+  emailHash: varchar('email_hash', { length: 64 }).primaryKey(),
+  failures: int('failures').notNull(),
+  windowStartedAt: datetime('window_started_at').notNull(),
+});
 
 export const invites = mysqlTable('invites', {
   id: varchar('id', { length: 36 }).primaryKey(),

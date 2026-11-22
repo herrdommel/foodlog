@@ -1,0 +1,1 @@
+ALTER TABLE `auth_tokens` MODIFY COLUMN `type` enum('verify_email','reset_password','change_email','approve_email_change') NOT NULL;

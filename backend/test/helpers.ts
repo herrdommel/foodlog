@@ -26,6 +26,7 @@ const TABLES = [
   'settings',
   'oauth_accounts',
   'invites',
+  'login_attempts',
   'auth_tokens',
   'sessions',
   'user_avatars',

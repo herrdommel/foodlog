@@ -43,6 +43,20 @@
       "when": 1795303495258,
       "tag": "20261121232455_privacy_consent",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1795337927486,
+      "tag": "20261122085847_login_attempts",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1795338364928,
+      "tag": "20261122090604_approve_email_change_token",
+      "breakpoints": true
     }
   ]
 }

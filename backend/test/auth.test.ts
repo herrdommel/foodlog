@@ -1,6 +1,12 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
-import { users } from '../src/db/schema.ts';
+import { loginAttempts, users } from '../src/db/schema.ts';
+import {
+  isLoginLocked,
+  LOGIN_MAX_FAILURES,
+  LOGIN_WINDOW,
+  recordLoginFailure,
+} from '../src/services/login-throttle.ts';
 import { setBooleanSetting, PUBLIC_REGISTRATION } from '../src/services/settings.ts';
 import {
   createInvite,
@@ -204,6 +210,61 @@ describe('login and sessions', () => {
     }
     expect(attempts.at(-1)?.statusCode).toBe(429);
     expect(attempts.at(-1)?.json().error.code).toBe('rate_limited');
+  });
+});
+
+describe('login lockout per address', () => {
+  const login = (email: string, password: string) =>
+    post(t.app, '/api/auth/login', { email, password });
+  const failMany = async (email: string) => {
+    for (let i = 0; i < LOGIN_MAX_FAILURES; i++) await recordLoginFailure(t.db, email);
+  };
+
+  it('locks an address after too many failures, even for the right password', async () => {
+    await registerAndLogin(t);
+    await failMany('anna@example.com');
+    const response = await login('anna@example.com', PASSWORD);
+    expect(response.statusCode).toBe(429);
+    expect(response.json().error.code).toBe('too_many_attempts');
+    expect(response.cookies.find((c) => c.name === 'foodlog_session')).toBeUndefined();
+  });
+
+  it('treats unknown addresses exactly like known ones', async () => {
+    await failMany('nobody@example.com');
+    const response = await login('Nobody@Example.com', 'whatever-password');
+    expect(response.statusCode).toBe(429);
+    expect(response.json().error.code).toBe('too_many_attempts');
+  });
+
+  it('does not lock other addresses', async () => {
+    await registerAndLogin(t);
+    await failMany('someone-else@example.com');
+    expect((await login('anna@example.com', PASSWORD)).statusCode).toBe(200);
+  });
+
+  it('counts wrong passwords and forgets them after a good login', async () => {
+    await registerAndLogin(t);
+    for (let i = 0; i < 3; i++) await login('anna@example.com', 'wrong-password');
+    const [row] = await t.db.select().from(loginAttempts);
+    expect(row?.failures).toBe(3);
+    expect((await login('anna@example.com', PASSWORD)).statusCode).toBe(200);
+    expect(await t.db.select().from(loginAttempts)).toHaveLength(0);
+  });
+
+  it('opens again once the window has passed', async () => {
+    await failMany('anna@example.com');
+    const later = new Date(Date.now() + LOGIN_WINDOW + 1000);
+    expect(await isLoginLocked(t.db, 'anna@example.com')).toBe(true);
+    expect(await isLoginLocked(t.db, 'anna@example.com', later)).toBe(false);
+    await recordLoginFailure(t.db, 'anna@example.com', later);
+    const [row] = await t.db.select().from(loginAttempts);
+    expect(row?.failures).toBe(1);
+  });
+
+  it('keeps no readable address in the table', async () => {
+    await recordLoginFailure(t.db, 'anna@example.com');
+    const [row] = await t.db.select().from(loginAttempts);
+    expect(JSON.stringify(row)).not.toContain('anna');
   });
 });
 

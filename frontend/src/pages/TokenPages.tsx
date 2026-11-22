@@ -77,12 +77,17 @@ export function VerifyEmailPage() {
 
 export function ConfirmEmailChangePage() {
   const { t } = useTranslation();
+  const mutation = useConfirmEmailChange();
   return (
     <ConsumeTokenPage
       title={t('profile.emailConfirmTitle')}
       pendingText={t('auth.verifying')}
-      doneText={t('profile.emailConfirmed')}
-      mutation={useConfirmEmailChange()}
+      doneText={t(
+        mutation.data?.status === 'verification_sent'
+          ? 'profile.emailApproved'
+          : 'profile.emailConfirmed',
+      )}
+      mutation={mutation}
     />
   );
 }

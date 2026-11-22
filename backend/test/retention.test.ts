@@ -1,5 +1,12 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { adminAudit, authTokens, invites, sessions, users } from '../src/db/schema.ts';
+import {
+  adminAudit,
+  authTokens,
+  invites,
+  loginAttempts,
+  sessions,
+  users,
+} from '../src/db/schema.ts';
 import { hashToken, newId, newToken } from '../src/lib/crypto.ts';
 import { DAY } from '../src/lib/time.ts';
 import { runRetention, startRetentionJob } from '../src/services/retention.ts';
@@ -100,6 +107,18 @@ describe('runRetention', () => {
     expect((await t.db.select().from(adminAudit)).map((row) => row.action)).toEqual(['recent']);
   });
 
+  it('removes login attempt counters after a day', async () => {
+    await t.db.insert(loginAttempts).values([
+      { emailHash: 'a'.repeat(64), failures: 4, windowStartedAt: ago(2) },
+      { emailHash: 'b'.repeat(64), failures: 1, windowStartedAt: ago(0.1) },
+    ]);
+    const result = await runRetention(t.db, now);
+    expect(result.loginAttempts).toBe(1);
+    expect((await t.db.select().from(loginAttempts)).map((row) => row.emailHash)).toEqual([
+      'b'.repeat(64),
+    ]);
+  });
+
   it('is idempotent and reports nothing to do on an empty database', async () => {
     expect(await runRetention(t.db, now)).toEqual({
       tokens: 0,
@@ -107,6 +126,7 @@ describe('runRetention', () => {
       inviteEmails: 0,
       invites: 0,
       audit: 0,
+      loginAttempts: 0,
     });
   });
 });

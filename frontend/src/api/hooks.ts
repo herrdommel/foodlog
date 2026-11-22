@@ -111,7 +111,10 @@ export function useVerifyEmail() {
 export function useConfirmEmailChange() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (token: string) => api('/api/me/email/confirm', { body: { token } }),
+    mutationFn: (token: string) =>
+      api<{ status: 'email_changed' | 'verification_sent' }>('/api/me/email/confirm', {
+        body: { token },
+      }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: meKey }),
   });
 }

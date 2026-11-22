@@ -16,6 +16,7 @@ import { verifyPassword } from '../lib/password.ts';
 import { createAuthMail } from '../services/auth-mail.ts';
 import { resolveFeatures } from '../services/features.ts';
 import { buildAccountExport } from '../services/account-export.ts';
+import { deleteUserSessions } from '../services/sessions.ts';
 import { consumeAuthToken } from '../services/tokens.ts';
 import { findUserByEmail, toPublicUser, type UserRow } from '../services/users.ts';
 
@@ -109,10 +110,15 @@ export async function meRoutes(app: FastifyInstance, { config, db, mailer }: App
       if (body.newEmail === user.email) {
         throw new AppError(400, 'same_email', 'This is already your email address');
       }
-      if (await findUserByEmail(db, body.newEmail)) {
-        throw new AppError(409, 'email_taken', 'This email address is already in use');
+      const owner = await findUserByEmail(db, body.newEmail);
+      if (owner) {
+        await authMail.sendReset(owner, 'accountExists');
+      } else if (user.passwordHash) {
+        await authMail.sendEmailChange(user, body.newEmail);
+      } else {
+        // No password to re-authenticate with, so the current mailbox has to approve the change.
+        await authMail.sendEmailChangeApproval(user, body.newEmail);
       }
-      await authMail.sendEmailChange(user, body.newEmail);
       return reply.status(202).send({ status: 'confirmation_sent' });
     },
   );
@@ -122,15 +128,22 @@ export async function meRoutes(app: FastifyInstance, { config, db, mailer }: App
     { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } },
     async (request) => {
       const { token } = parseBody(tokenBodySchema, request.body);
-      const row = await consumeAuthToken(db, token, 'change_email');
+      const row = await consumeAuthToken(db, token, ['change_email', 'approve_email_change']);
       if (!row.newEmail) throw new AppError(400, 'invalid_token', 'The link is invalid');
       if (await findUserByEmail(db, row.newEmail)) {
         throw new AppError(409, 'email_taken', 'This email address is already in use');
       }
+      const approvedByOldAddress = row.type === 'approve_email_change';
       await db
         .update(users)
-        .set({ email: row.newEmail, emailVerifiedAt: new Date() })
+        .set({ email: row.newEmail, emailVerifiedAt: approvedByOldAddress ? null : new Date() })
         .where(eq(users.id, row.userId));
+      const keep = request.user?.id === row.userId ? request.sessionId : null;
+      await deleteUserSessions(db, row.userId, keep ?? undefined);
+      if (approvedByOldAddress) {
+        await authMail.sendVerification({ ...(await reload(row.userId)) });
+        return { status: 'verification_sent' };
+      }
       return { status: 'email_changed' };
     },
   );

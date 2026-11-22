@@ -1,11 +1,18 @@
 import type { Locale } from '@foodlog/shared';
 import type { MailMessage } from './mail.ts';
 
-type TemplateKey = 'verifyEmail' | 'resetPassword' | 'changeEmail' | 'accountExists' | 'invite';
+type TemplateKey =
+  | 'verifyEmail'
+  | 'resetPassword'
+  | 'changeEmail'
+  | 'approveEmailChange'
+  | 'accountExists'
+  | 'invite';
 
 interface Params {
   name?: string;
   url: string;
+  newEmail?: string;
 }
 
 const templates: Record<
@@ -24,6 +31,10 @@ const templates: Record<
     changeEmail: ({ name, url }) => ({
       subject: 'Foodlog I/O: Neue E-Mail-Adresse bestätigen',
       text: `Hallo ${name},\n\nbitte bestätige deine neue E-Mail-Adresse:\n${url}\n\nDer Link ist 24 Stunden gültig. Wenn du das nicht angefordert hast, kannst du diese Nachricht ignorieren.`,
+    }),
+    approveEmailChange: ({ name, url, newEmail }) => ({
+      subject: 'Foodlog I/O: Änderung der E-Mail-Adresse bestätigen',
+      text: `Hallo ${name},\n\njemand möchte die E-Mail-Adresse deines Kontos auf ${newEmail} ändern. Wenn du das warst, bestätige es hier:\n${url}\n\nDer Link ist 24 Stunden gültig. Wenn du das nicht warst, ignoriere diese Nachricht und melde dich ab allen Geräten ab, indem du dein Passwort zurücksetzt.`,
     }),
     accountExists: ({ name, url }) => ({
       subject: 'Foodlog I/O: Du hast bereits ein Konto',
@@ -46,6 +57,10 @@ const templates: Record<
     changeEmail: ({ name, url }) => ({
       subject: 'Foodlog I/O: confirm your new email address',
       text: `Hi ${name},\n\nplease confirm your new email address:\n${url}\n\nThe link is valid for 24 hours. If you did not request this, you can ignore this message.`,
+    }),
+    approveEmailChange: ({ name, url, newEmail }) => ({
+      subject: 'Foodlog I/O: approve the change of your email address',
+      text: `Hi ${name},\n\nsomeone wants to change the email address of your account to ${newEmail}. If that was you, approve it here:\n${url}\n\nThe link is valid for 24 hours. If it was not you, ignore this message and sign out everywhere by resetting your password.`,
     }),
     accountExists: ({ name, url }) => ({
       subject: 'Foodlog I/O: you already have an account',
