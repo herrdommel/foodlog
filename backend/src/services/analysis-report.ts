@@ -2,6 +2,7 @@ import { and, eq, gte, inArray, lt } from 'drizzle-orm';
 import {
   dayRangeUtc,
   shiftDate,
+  todayInTimeZone,
   utcToWallTime,
   type AnalysisDto,
   type AnalysisQuery,
@@ -11,7 +12,14 @@ import {
 } from '@foodlog/shared';
 import type { Database } from '../db/client.ts';
 import { entries, entryIngredients } from '../db/schema.ts';
-import { computeSuspects, MIN_EXPOSURES, MIN_OUTCOMES, type AnalysisEntry } from './analysis.ts';
+import {
+  computeSuspects,
+  isOutcome,
+  MIN_EXPOSURES,
+  MIN_OUTCOMES,
+  type AnalysisEntry,
+} from './analysis.ts';
+import { computeContext, type ContextEntry } from './context-analysis.ts';
 import { loadIngredientsById } from './ingredients.ts';
 import type { UserRow } from './users.ts';
 
@@ -60,14 +68,15 @@ export async function buildAnalysis(
     idsByEntry.set(link.entryId, list);
   }
 
-  const analysisEntries: AnalysisEntry[] = rows.map((row) => ({
+  const toAnalysisEntry = (row: (typeof rows)[number]): AnalysisEntry => ({
     type: row.type,
     at: row.occurredAt.getTime(),
     severity: row.severity,
     symptomType: row.symptomType as SymptomType | null,
     bristol: row.bristol,
     ingredientIds: idsByEntry.get(row.id) ?? [],
-  }));
+  });
+  const analysisEntries = rows.map(toAnalysisEntry);
 
   const suspects = computeSuspects({
     entries: analysisEntries,
@@ -87,18 +96,33 @@ export async function buildAnalysis(
     symptom: 0,
     stool: 0,
     medication: 0,
+    sleep: 0,
+    stress: 0,
   };
   const daysWithEntries = new Set<string>();
   const bristolDistribution = new Array<number>(7).fill(0);
   const symptomHeatmap = Array.from({ length: 7 }, () => new Array<number>(24).fill(0));
   const perDay = new Map<string, { count: number; maxSeverity: number }>();
   const ingredientCounts = new Map<string, number>();
+  const contextEntries: ContextEntry[] = [];
+  const outcomeDays = new Set<string>();
 
   for (const row of inPeriod) {
     entryCounts[row.type] += 1;
     const wall = utcToWallTime(row.occurredAt, timeZone);
     const date = wall.slice(0, 10);
     daysWithEntries.add(date);
+    if (row.type === 'sleep' || row.type === 'stress') {
+      contextEntries.push({
+        date,
+        type: row.type,
+        sleepMinutes: row.sleepMinutes,
+        rating: row.rating,
+      });
+    }
+    if (isOutcome(toAnalysisEntry(row), query.outcome, query.minSeverity)) {
+      outcomeDays.add(date);
+    }
     if (row.type === 'stool' && row.bristol) bristolDistribution[row.bristol - 1]! += 1;
     if (row.type === 'symptom') {
       const day = perDay.get(date) ?? { count: 0, maxSeverity: 0 };
@@ -143,6 +167,11 @@ export async function buildAnalysis(
     bristolDistribution,
     symptomHeatmap,
     suspects: { ingredients: suspects.ingredients, allergens: suspects.allergens },
+    context: computeContext({
+      entries: contextEntries,
+      outcomeDays,
+      lastCompleteDay: shiftDate(todayInTimeZone(timeZone), -1),
+    }),
     minExposures: MIN_EXPOSURES,
     minOutcomes: MIN_OUTCOMES,
   };

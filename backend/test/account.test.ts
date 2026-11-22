@@ -102,6 +102,24 @@ describe('data export', () => {
     expect((await get(t.app, '/api/me/export')).statusCode).toBe(401);
   });
 
+  it('contains sleep and stress entries', async () => {
+    await post(
+      t.app,
+      '/api/entries',
+      { type: 'sleep', occurredAt: '2026-01-10T07:00', sleepMinutes: 400, rating: 3 },
+      cookie,
+    );
+    await post(
+      t.app,
+      '/api/entries',
+      { type: 'stress', occurredAt: '2026-01-10T18:00', rating: 4 },
+      cookie,
+    );
+    const data = (await get(t.app, '/api/me/export', cookie)).json();
+    expect(data.entries[0]).toMatchObject({ type: 'sleep', sleepMinutes: 400, rating: 3 });
+    expect(data.entries[1]).toMatchObject({ type: 'stress', rating: 4, sleepMinutes: null });
+  });
+
   it('contains the data of the user and nothing from other users', async () => {
     await fillAccount();
     const bob = await registerAndLogin(t, 'bob@example.com', 'Bob');

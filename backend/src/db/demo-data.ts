@@ -127,6 +127,38 @@ export async function insertDemoEntries(
       add(day, between(17, 21), between(0, 59), { type: 'stool', bristol: between(3, 5) });
   }
 
+  const contextRandom = mulberry32(7);
+  const contextBetween = (min: number, max: number) =>
+    min + Math.floor(contextRandom() * (max - min + 1));
+  for (let offset = DAYS; offset >= 1; offset--) {
+    const day = shiftDate(today, -offset);
+    const poorSleep = contextRandom() < 0.3;
+    add(day, 7, contextBetween(0, 59), {
+      type: 'sleep',
+      sleepMinutes: poorSleep ? contextBetween(270, 345) : contextBetween(400, 520),
+      rating: poorSleep ? contextBetween(1, 2) : contextBetween(3, 5),
+    });
+    const stressed = contextRandom() < 0.35;
+    add(day, 18, contextBetween(0, 59), {
+      type: 'stress',
+      rating: stressed ? contextBetween(4, 5) : contextBetween(1, 3),
+    });
+    if (poorSleep && contextRandom() < 0.85) {
+      add(day, contextBetween(10, 16), contextBetween(0, 59), {
+        type: 'symptom',
+        symptomType: contextRandom() < 0.5 ? 'fatigue' : 'headache',
+        severity: contextBetween(3, 6),
+      });
+    }
+    if (stressed && contextRandom() < 0.85) {
+      add(day, contextBetween(19, 21), contextBetween(0, 59), {
+        type: 'symptom',
+        symptomType: 'abdominal_pain',
+        severity: contextBetween(3, 6),
+      });
+    }
+  }
+
   for (let i = 0; i < rows.length; i += 200) {
     await db.insert(entries).values(rows.slice(i, i + 200));
   }

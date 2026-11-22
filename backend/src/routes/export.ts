@@ -17,6 +17,8 @@ const HEADER = [
   'symptom_type',
   'severity',
   'bristol',
+  'sleep_minutes',
+  'rating',
   'note',
 ];
 
@@ -76,6 +78,8 @@ export async function exportRoutes(app: FastifyInstance, { db }: AppDeps) {
           row.symptomType,
           row.severity,
           row.bristol,
+          row.sleepMinutes,
+          row.rating,
           row.note,
         ];
       });

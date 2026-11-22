@@ -28,7 +28,7 @@ test('downloads the entries as csv for the selected period', async ({ page }) =>
   expect(content.charCodeAt(0)).toBe(0xfeff);
   const lines = content.slice(1).trimEnd().split('\r\n');
   expect(lines[0]).toBe(
-    'local_time,utc_time,type,title,ingredients,allergens,symptom_type,severity,bristol,note',
+    'local_time,utc_time,type,title,ingredients,allergens,symptom_type,severity,bristol,sleep_minutes,rating,note',
   );
   expect(lines.length).toBeGreaterThan(10);
   expect(content).toContain(',meal,');

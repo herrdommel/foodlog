@@ -419,6 +419,7 @@ describe('settings and feature flags', () => {
       'ai_analysis',
       'ai_photo',
       'barcode_scan',
+      'context_factors',
       'data_export',
       'google_login',
     ]);

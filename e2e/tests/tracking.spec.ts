@@ -31,6 +31,20 @@ test('logs a meal with catalog ingredients and shows allergens', async ({ page }
   await expect(card.getByText('with honey')).toBeVisible();
 });
 
+test('logs sleep and stress', async ({ page }) => {
+  await page.getByRole('button', { name: 'Sleep', exact: true }).click();
+  await page.getByLabel('Sleep duration (hours)').fill('6.5');
+  await page.getByRole('radio', { name: /^4: good/ }).check();
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByText('6 h 30 min')).toBeVisible();
+  await expect(page.getByText('good', { exact: true })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Stress', exact: true }).click();
+  await page.getByRole('radio', { name: /^5: very stressed/ }).check();
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByText('Level 5 of 5')).toBeVisible();
+});
+
 test('logs a symptom, a stool entry and medication', async ({ page }) => {
   await page.getByRole('button', { name: 'Symptom', exact: true }).click();
   await page.getByLabel('Type of symptom').selectOption('bloating');

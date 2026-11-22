@@ -30,6 +30,8 @@ export async function toEntryDtos(
     symptomType: row.symptomType as SymptomType | null,
     severity: row.severity,
     bristol: row.bristol,
+    sleepMinutes: row.sleepMinutes,
+    rating: row.rating,
     ingredients: links
       .filter((link) => link.entryId === row.id)
       .map((link) => ingredients.get(link.ingredientId))

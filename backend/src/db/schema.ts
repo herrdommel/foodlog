@@ -8,6 +8,7 @@ import {
   mysqlTable,
   int,
   primaryKey,
+  smallint,
   text,
   tinyint,
   uniqueIndex,
@@ -172,13 +173,23 @@ export const entries = mysqlTable(
     userId: varchar('user_id', { length: 36 })
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    type: mysqlEnum('type', ['meal', 'drink', 'symptom', 'stool', 'medication']).notNull(),
+    type: mysqlEnum('type', [
+      'meal',
+      'drink',
+      'symptom',
+      'stool',
+      'medication',
+      'sleep',
+      'stress',
+    ]).notNull(),
     occurredAt: datetime('occurred_at').notNull(),
     title: varchar('title', { length: 120 }),
     note: text('note'),
     symptomType: varchar('symptom_type', { length: 32 }),
     severity: tinyint('severity'),
     bristol: tinyint('bristol'),
+    sleepMinutes: smallint('sleep_minutes'),
+    rating: tinyint('rating'),
     createdAt: datetime('created_at').notNull().default(utcNow),
     updatedAt: datetime('updated_at')
       .notNull()

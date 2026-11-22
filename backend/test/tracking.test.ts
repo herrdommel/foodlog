@@ -1,5 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { eq } from 'drizzle-orm';
 import type { IngredientDto } from '@foodlog/shared';
+import { featureFlags } from '../src/db/schema.ts';
 import {
   createTestApp,
   get,
@@ -402,6 +404,64 @@ describe('entries', () => {
     await send('DELETE', `/api/ingredients/${tag.id}`);
     const list = (await get(t.app, '/api/entries?date=2026-01-10', cookie)).json();
     expect(list[0].ingredients).toEqual([]);
+  });
+});
+
+describe('context entries', () => {
+  const sleep = { type: 'sleep', occurredAt: '2026-01-10T07:00', sleepMinutes: 420, rating: 4 };
+  const stress = { type: 'stress', occurredAt: '2026-01-10T18:00', rating: 5 };
+
+  it('stores sleep and stress and returns them in the day list', async () => {
+    const slept = await post(t.app, '/api/entries', sleep, cookie);
+    expect(slept.statusCode).toBe(201);
+    expect(slept.json()).toMatchObject({
+      type: 'sleep',
+      sleepMinutes: 420,
+      rating: 4,
+      title: null,
+    });
+    const stressed = await post(t.app, '/api/entries', stress, cookie);
+    expect(stressed.json()).toMatchObject({ type: 'stress', rating: 5, sleepMinutes: null });
+    const list = (await get(t.app, '/api/entries?date=2026-01-10', cookie)).json();
+    expect(list.map((item: { type: string }) => item.type)).toEqual(['sleep', 'stress']);
+  });
+
+  it('allows sleep without a quality rating and replaces the entry on update', async () => {
+    const created = (
+      await post(t.app, '/api/entries', { ...sleep, rating: undefined }, cookie)
+    ).json();
+    expect(created.rating).toBeNull();
+    const updated = await send('PUT', `/api/entries/${created.id}`, { ...stress });
+    expect(updated.json()).toMatchObject({ type: 'stress', rating: 5, sleepMinutes: null });
+  });
+
+  it('rejects invalid values', async () => {
+    for (const body of [
+      { ...sleep, sleepMinutes: 5 },
+      { ...sleep, sleepMinutes: 1500 },
+      { ...sleep, rating: 6 },
+      { ...sleep, sleepMinutes: undefined },
+      { ...stress, rating: 0 },
+      { ...stress, rating: undefined },
+    ]) {
+      expect((await post(t.app, '/api/entries', body, cookie)).statusCode).toBe(400);
+    }
+  });
+
+  it('is blocked and hidden when the feature is switched off, but can still be deleted', async () => {
+    const created = (await post(t.app, '/api/entries', sleep, cookie)).json();
+    await t.db
+      .insert(featureFlags)
+      .values({ key: 'context_factors', enabled: false, defaultForUsers: true });
+
+    const blocked = await post(t.app, '/api/entries', stress, cookie);
+    expect(blocked.statusCode).toBe(403);
+    expect(blocked.json().error.code).toBe('feature_disabled');
+    expect((await send('PUT', `/api/entries/${created.id}`, sleep)).statusCode).toBe(403);
+    expect((await get(t.app, '/api/entries?date=2026-01-10', cookie)).json()).toEqual([]);
+    expect((await send('DELETE', `/api/entries/${created.id}`)).statusCode).toBe(204);
+
+    await t.db.delete(featureFlags).where(eq(featureFlags.key, 'context_factors'));
   });
 });
 

@@ -6,6 +6,7 @@ export const FEATURE_KEYS = [
   'data_export',
   'barcode_scan',
   'ai_photo',
+  'context_factors',
 ] as const;
 
 export const featureKeySchema = z.enum(FEATURE_KEYS);
@@ -21,6 +22,7 @@ export const FEATURE_DEFAULTS: Record<FeatureKey, { enabled: boolean; defaultFor
     data_export: { enabled: true, defaultForUsers: true },
     barcode_scan: { enabled: true, defaultForUsers: true },
     ai_photo: { enabled: true, defaultForUsers: false },
+    context_factors: { enabled: true, defaultForUsers: true },
   };
 
 export function resolveFlag(

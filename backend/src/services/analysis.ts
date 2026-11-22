@@ -2,6 +2,7 @@ import type {
   Allergen,
   AnalysisOutcome,
   Confidence,
+  EntryType,
   IngredientDto,
   SuspectDto,
   SymptomType,
@@ -13,7 +14,7 @@ const LAG_BUCKETS = 6;
 const MINUTE = 60_000;
 
 export interface AnalysisEntry {
-  type: 'meal' | 'drink' | 'symptom' | 'stool' | 'medication';
+  type: EntryType;
   at: number;
   severity: number | null;
   symptomType: SymptomType | null;

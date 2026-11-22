@@ -103,14 +103,14 @@ describe('GET /api/export/entries.csv', () => {
 
     const lines = response.body.replace(BOM, '').trimEnd().split('\r\n');
     expect(lines[0]).toBe(
-      'local_time,utc_time,type,title,ingredients,allergens,symptom_type,severity,bristol,note',
+      'local_time,utc_time,type,title,ingredients,allergens,symptom_type,severity,bristol,sleep_minutes,rating,note',
     );
     expect(lines).toHaveLength(5);
     expect(lines[1]).toBe(
-      '2026-01-10 08:30,2026-01-10T07:30:00.000Z,meal,"Frühstück, groß",Milch; Weizenbrot,fodmap; gluten; lactose; milk_protein,,,,"sagte ""lecker"""',
+      '2026-01-10 08:30,2026-01-10T07:30:00.000Z,meal,"Frühstück, groß",Milch; Weizenbrot,fodmap; gluten; lactose; milk_protein,,,,,,"sagte ""lecker"""',
     );
-    expect(lines[2]).toBe('2026-01-10 10:00,2026-01-10T09:00:00.000Z,symptom,,,,bloating,6,,');
-    expect(lines[3]).toBe('2026-01-11 07:00,2026-01-11T06:00:00.000Z,stool,,,,,,4,');
+    expect(lines[2]).toBe('2026-01-10 10:00,2026-01-10T09:00:00.000Z,symptom,,,,bloating,6,,,,');
+    expect(lines[3]).toBe('2026-01-11 07:00,2026-01-11T06:00:00.000Z,stool,,,,,,4,,,');
     expect(lines[4]).toContain(`"'=HYPERLINK(""x"")"`);
   });
 

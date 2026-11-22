@@ -44,9 +44,24 @@ export const SYMPTOM_TYPES = [
 export const symptomTypeSchema = z.enum(SYMPTOM_TYPES);
 export type SymptomType = z.infer<typeof symptomTypeSchema>;
 
-export const ENTRY_TYPES = ['meal', 'drink', 'symptom', 'stool', 'medication'] as const;
+export const ENTRY_TYPES = [
+  'meal',
+  'drink',
+  'symptom',
+  'stool',
+  'medication',
+  'sleep',
+  'stress',
+] as const;
 export const entryTypeSchema = z.enum(ENTRY_TYPES);
 export type EntryType = z.infer<typeof entryTypeSchema>;
+
+export const CONTEXT_ENTRY_TYPES = ['sleep', 'stress'] as const;
+export function isContextType(type: string): type is (typeof CONTEXT_ENTRY_TYPES)[number] {
+  return (CONTEXT_ENTRY_TYPES as readonly string[]).includes(type);
+}
+
+export const MAX_SLEEP_MINUTES = 24 * 60;
 
 export const TEMPLATE_TYPES = ['meal', 'drink', 'medication'] as const;
 export const templateTypeSchema = z.enum(TEMPLATE_TYPES);
@@ -90,6 +105,19 @@ export const entryInputSchema = z.discriminatedUnion('type', [
     type: z.literal('medication'),
     occurredAt: wallTimeSchema,
     title: titleSchema.min(1),
+    note: noteSchema,
+  }),
+  z.object({
+    type: z.literal('sleep'),
+    occurredAt: wallTimeSchema,
+    sleepMinutes: z.number().int().min(15).max(MAX_SLEEP_MINUTES),
+    rating: z.number().int().min(1).max(5).nullish(),
+    note: noteSchema,
+  }),
+  z.object({
+    type: z.literal('stress'),
+    occurredAt: wallTimeSchema,
+    rating: z.number().int().min(1).max(5),
     note: noteSchema,
   }),
 ]);
@@ -139,6 +167,8 @@ export interface EntryDto {
   symptomType: SymptomType | null;
   severity: number | null;
   bristol: number | null;
+  sleepMinutes: number | null;
+  rating: number | null;
   ingredients: IngredientDto[];
 }
 
@@ -190,6 +220,27 @@ export const exportQuerySchema = z
 
 export type Confidence = 'low' | 'medium' | 'high';
 
+export const CONTEXT_FACTORS = ['short_sleep', 'poor_sleep', 'high_stress'] as const;
+export type ContextFactor = (typeof CONTEXT_FACTORS)[number];
+
+export const SHORT_SLEEP_MINUTES = 6 * 60;
+export const POOR_SLEEP_RATING = 2;
+export const HIGH_STRESS_RATING = 4;
+
+export interface ContextFactorDto {
+  factor: ContextFactor;
+  days: number;
+  daysWithOutcome: number;
+  rate: number;
+  otherDays: number;
+  otherDaysWithOutcome: number;
+  otherRate: number;
+  relativeRisk: number;
+  ciLow: number;
+  ciHigh: number;
+  confidence: Confidence;
+}
+
 export interface SuspectDto {
   key: string;
   ingredient: IngredientDto | null;
@@ -224,6 +275,7 @@ export interface AnalysisDto {
   bristolDistribution: number[];
   symptomHeatmap: number[][];
   suspects: { ingredients: SuspectDto[]; allergens: SuspectDto[] };
+  context: ContextFactorDto[];
   minExposures: number;
   minOutcomes: number;
 }

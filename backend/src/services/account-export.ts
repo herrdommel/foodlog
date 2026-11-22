@@ -85,6 +85,8 @@ export async function buildAccountExport(db: Database, user: typeof users.$infer
       symptomType: entry.symptomType,
       severity: entry.severity,
       bristolType: entry.bristol,
+      sleepMinutes: entry.sleepMinutes,
+      rating: entry.rating,
       ingredients: entry.ingredients.map((ingredient) => ({
         name: ingredient.nameEn,
         custom: ingredient.custom,

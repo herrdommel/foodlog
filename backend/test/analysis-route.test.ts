@@ -1,4 +1,6 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { eq } from 'drizzle-orm';
+import { featureFlags } from '../src/db/schema.ts';
 import { createTestApp, get, patch, post, registerAndLogin, type TestApp } from './helpers.ts';
 
 let t: TestApp;
@@ -47,6 +49,60 @@ async function seedPattern() {
 
 const range = 'from=2026-01-01&to=2026-01-31';
 
+async function seedContext(withOutcome: (day: number, poor: boolean) => boolean) {
+  for (let day = 1; day <= 20; day++) {
+    const date = `2026-01-${String(day).padStart(2, '0')}`;
+    const poor = day <= 10;
+    await entry({
+      type: 'sleep',
+      occurredAt: `${date}T07:00`,
+      sleepMinutes: poor ? 300 : 450,
+      rating: poor ? 2 : 4,
+    });
+    await entry({ type: 'stress', occurredAt: `${date}T18:00`, rating: poor ? 5 : 2 });
+    if (withOutcome(day, poor)) {
+      await entry({
+        type: 'symptom',
+        occurredAt: `${date}T12:00`,
+        symptomType: 'fatigue',
+        severity: 5,
+      });
+    }
+  }
+}
+
+describe('context factors', () => {
+  it('compares days with and without a factor', async () => {
+    await seedContext((day, poor) => (poor ? day <= 9 : day === 15));
+    const body = (await get(t.app, `/api/analysis?${range}`, cookie)).json();
+    expect(body.context.map((item: { factor: string }) => item.factor).sort()).toEqual([
+      'high_stress',
+      'poor_sleep',
+      'short_sleep',
+    ]);
+    const stress = body.context.find((item: { factor: string }) => item.factor === 'high_stress');
+    expect(stress).toMatchObject({
+      days: 10,
+      daysWithOutcome: 9,
+      otherDays: 10,
+      otherDaysWithOutcome: 1,
+    });
+    expect(stress.relativeRisk).toBeCloseTo(9, 5);
+    expect(stress.ciLow).toBeGreaterThan(1);
+    expect(body.summary.entryCounts).toMatchObject({ sleep: 20, stress: 20 });
+  });
+
+  it('stays empty without enough data and when the feature is off', async () => {
+    expect((await get(t.app, `/api/analysis?${range}`, cookie)).json().context).toEqual([]);
+    await seedContext((day, poor) => (poor ? day <= 9 : day === 15));
+    await t.db
+      .insert(featureFlags)
+      .values({ key: 'context_factors', enabled: false, defaultForUsers: true });
+    expect((await get(t.app, `/api/analysis?${range}`, cookie)).json().context).toEqual([]);
+    await t.db.delete(featureFlags).where(eq(featureFlags.key, 'context_factors'));
+  });
+});
+
 describe('GET /api/analysis', () => {
   it('requires authentication', async () => {
     expect((await get(t.app, `/api/analysis?${range}`)).statusCode).toBe(401);
@@ -77,6 +133,8 @@ describe('GET /api/analysis', () => {
       symptom: 0,
       stool: 0,
       medication: 0,
+      sleep: 0,
+      stress: 0,
     });
     expect(body.suspects).toEqual({ ingredients: [], allergens: [] });
     expect(body.topIngredients).toEqual([]);

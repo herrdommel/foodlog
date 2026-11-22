@@ -62,3 +62,10 @@ for (const scheme of ['light', 'dark'] as const) {
     });
   });
 }
+
+test('compares days with poor sleep and high stress from demo data', async ({ page }) => {
+  const table = page.getByRole('table', { name: 'Sleep and stress' });
+  await expect(table).toBeVisible();
+  await expect(table.getByRole('rowheader', { name: 'High stress' })).toBeVisible();
+  await expect(table.getByRole('rowheader', { name: 'Short sleep' })).toBeVisible();
+});

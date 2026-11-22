@@ -1,9 +1,11 @@
-import { and, asc, eq, gte, lt } from 'drizzle-orm';
+import { and, asc, eq, gte, lt, notInArray } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import {
+  CONTEXT_ENTRY_TYPES,
   dayRangeUtc,
   entriesQuerySchema,
   entryInputSchema,
+  isContextType,
   wallTimeToUtc,
   type EntryInput,
 } from '@foodlog/shared';
@@ -13,6 +15,7 @@ import { newId } from '../lib/crypto.ts';
 import { AppError, parseBody } from '../lib/errors.ts';
 import { MINUTE } from '../lib/time.ts';
 import { toEntryDtos } from '../services/entries.ts';
+import { resolveFeatures } from '../services/features.ts';
 import { allVisible } from '../services/ingredients.ts';
 
 function toRow(input: EntryInput, timezone: string) {
@@ -24,11 +27,13 @@ function toRow(input: EntryInput, timezone: string) {
   return {
     type: input.type,
     occurredAt,
-    title: input.type === 'symptom' || input.type === 'stool' ? null : (input.title ?? null),
+    title: 'title' in input ? (input.title ?? null) : null,
     note: input.note || null,
     symptomType: input.type === 'symptom' ? input.symptomType : null,
     severity: input.type === 'symptom' ? input.severity : null,
     bristol: input.type === 'stool' ? input.bristol : null,
+    sleepMinutes: input.type === 'sleep' ? input.sleepMinutes : null,
+    rating: input.type === 'sleep' || input.type === 'stress' ? (input.rating ?? null) : null,
     ingredientIds: isFood ? [...new Set(input.ingredientIds)] : [],
   };
 }
@@ -39,6 +44,13 @@ export async function entryRoutes(app: FastifyInstance, { db }: AppDeps) {
   async function ensureIngredients(userId: string, ids: string[]) {
     if (!(await allVisible(db, userId, ids))) {
       throw new AppError(400, 'invalid_ingredient', 'Unknown ingredient');
+    }
+  }
+
+  async function ensureContextAllowed(userId: string, input: EntryInput) {
+    if (!isContextType(input.type)) return;
+    if (!(await resolveFeatures(db, userId)).context_factors) {
+      throw new AppError(403, 'feature_disabled', 'This feature is disabled');
     }
   }
 
@@ -55,11 +67,17 @@ export async function entryRoutes(app: FastifyInstance, { db }: AppDeps) {
     const { date } = parseBody(entriesQuerySchema, request.query);
     const user = request.user!;
     const { from, to } = dayRangeUtc(date, user.timezone);
+    const contextOff = !(await resolveFeatures(db, user.id)).context_factors;
     const rows = await db
       .select()
       .from(entries)
       .where(
-        and(eq(entries.userId, user.id), gte(entries.occurredAt, from), lt(entries.occurredAt, to)),
+        and(
+          eq(entries.userId, user.id),
+          gte(entries.occurredAt, from),
+          lt(entries.occurredAt, to),
+          contextOff ? notInArray(entries.type, [...CONTEXT_ENTRY_TYPES]) : undefined,
+        ),
       )
       .orderBy(asc(entries.occurredAt), asc(entries.createdAt));
     return toEntryDtos(db, rows);
@@ -68,6 +86,7 @@ export async function entryRoutes(app: FastifyInstance, { db }: AppDeps) {
   app.post('/api/entries', auth, async (request, reply) => {
     const input = parseBody(entryInputSchema, request.body);
     const user = request.user!;
+    await ensureContextAllowed(user.id, input);
     const { ingredientIds, ...row } = toRow(input, user.timezone);
     await ensureIngredients(user.id, ingredientIds);
     const id = newId();
@@ -88,6 +107,7 @@ export async function entryRoutes(app: FastifyInstance, { db }: AppDeps) {
     const input = parseBody(entryInputSchema, request.body);
     const user = request.user!;
     await ownEntry(user.id, id);
+    await ensureContextAllowed(user.id, input);
     const { ingredientIds, ...row } = toRow(input, user.timezone);
     await ensureIngredients(user.id, ingredientIds);
     await db.transaction(async (tx) => {
