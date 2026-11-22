@@ -105,6 +105,8 @@ export async function buildAccountExport(db: Database, user: typeof users.$infer
       model: settings?.model ?? null,
       consentVersion: settings?.consentVersion ?? null,
       consentAt: settings?.consentAt?.toISOString() ?? null,
+      photoConsentVersion: settings?.photoConsentVersion ?? null,
+      photoConsentAt: settings?.photoConsentAt?.toISOString() ?? null,
       storedKeys: keyRows.map((row) => ({
         provider: row.provider,
         endsIn: row.last4,

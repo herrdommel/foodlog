@@ -271,4 +271,6 @@ export const aiSettings = mysqlTable('ai_settings', {
   model: varchar('model', { length: 100 }),
   consentVersion: int('consent_version'),
   consentAt: datetime('consent_at'),
+  photoConsentVersion: int('photo_consent_version'),
+  photoConsentAt: datetime('photo_consent_at'),
 });

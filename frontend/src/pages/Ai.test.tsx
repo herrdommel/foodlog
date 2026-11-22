@@ -17,6 +17,7 @@ function settings(overrides: Partial<AiSettingsDto> = {}): AiSettingsDto {
       openai: { configured: false, last4: null },
     },
     consent: { given: false, version: 0, currentVersion: 1, at: null },
+    photoConsent: { given: false, at: null },
     ...overrides,
   };
 }

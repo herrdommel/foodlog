@@ -104,6 +104,29 @@ describe('anthropic provider', () => {
     expect(calls[0]?.body).not.toHaveProperty('temperature');
   });
 
+  it('sends an image as a base64 block in front of the text, without retrying', async () => {
+    const { fetchStub, calls } = stub(() => Response.json(anthropicMessage()));
+    await createAnthropicProvider(fetchStub).generate({
+      apiKey: 'sk-ant-key',
+      model: 'claude-test',
+      system: 'SYSTEM',
+      user: 'WHAT IS THIS',
+      image: { mediaType: 'image/jpeg', base64: 'QUJD' },
+    });
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.body).toMatchObject({
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: 'QUJD' } },
+            { type: 'text', text: 'WHAT IS THIS' },
+          ],
+        },
+      ],
+    });
+  });
+
   it('joins several text blocks and ignores others', async () => {
     const { fetchStub } = stub(() =>
       Response.json(
@@ -123,6 +146,31 @@ describe('anthropic provider', () => {
       user: 'u',
     });
     expect(text).toBe('One\nTwo');
+  });
+
+  it('sends an image as a data url input without storing it at OpenAI', async () => {
+    const { fetchStub, calls } = stub(() => Response.json(openAiResponse()));
+    await createOpenAiProvider(fetchStub).generate({
+      apiKey: 'sk-key',
+      model: 'gpt-test',
+      system: 'SYSTEM',
+      user: 'WHAT IS THIS',
+      image: { mediaType: 'image/jpeg', base64: 'QUJD' },
+    });
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.body).toMatchObject({
+      instructions: 'SYSTEM',
+      store: false,
+      input: [
+        {
+          role: 'user',
+          content: [
+            { type: 'input_text', text: 'WHAT IS THIS' },
+            { type: 'input_image', image_url: 'data:image/jpeg;base64,QUJD' },
+          ],
+        },
+      ],
+    });
   });
 
   it.each([

@@ -45,6 +45,7 @@ export const meResponse: MeResponse = {
     google_login: true,
     data_export: true,
     barcode_scan: true,
+    ai_photo: false,
   },
 };
 

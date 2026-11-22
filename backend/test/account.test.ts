@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import {
   adminAudit,
   aiKeys,
+  aiSettings,
   authTokens,
   entries,
   ingredients,
@@ -180,6 +181,16 @@ describe('data export', () => {
     expect(JSON.parse(text).aiSettings.storedKeys).toEqual([
       { provider: 'anthropic', endsIn: '1234', storedAt: expect.any(String) },
     ]);
+  });
+
+  it('includes the consent for photos', async () => {
+    const at = new Date('2026-11-01T10:00:00.000Z');
+    await t.db.insert(aiSettings).values({ userId, photoConsentVersion: 1, photoConsentAt: at });
+    const body = (await get(t.app, '/api/me/export', cookie)).json();
+    expect(body.aiSettings).toMatchObject({
+      photoConsentVersion: 1,
+      photoConsentAt: at.toISOString(),
+    });
   });
 
   it('is not blocked by the data export feature switch', async () => {

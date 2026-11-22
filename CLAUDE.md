@@ -72,7 +72,7 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Flags are defined in code (typed registry in `shared/`), rows are created on demand. Unknown keys are rejected.
 - Backend: `requireFeature(key)` route guard, returns 403 with code `feature_disabled`. Frontend: flags come with the session/me endpoint, `useFeature(key)` hook hides UI.
 - Admin UI: global toggles on the settings page, per-user toggles in user management.
-- Initial flags: `ai_analysis`, `google_login`, `data_export`. Later: `barcode_scan` (default on).
+- Initial flags: `ai_analysis`, `google_login`, `data_export`. Later: `barcode_scan` (default on), `ai_photo` (default off, also needs `ai_analysis`).
 - Every new optional feature should ship behind a flag.
 
 ## Dev mode
@@ -198,6 +198,8 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Mapping (`catalog/open-food-facts.ts`): explicit tables, no fuzzy matching. `OFF_TO_CATALOG` maps taxonomy ids to catalog keys, `OFF_ALLERGENS` maps product allergens to ours, `NAME_ALLERGENS` derives allergens of a new tag from its own name. Read `product.ingredients[]`, never `ingredients_tags` (those contain taxonomy parents such as `en:oil-and-fat`). Water, salt and E-numbers are skipped. Allergens the product declares but no ingredient explains become a proposal named after the product (`source: 'product'`) so the analysis does not lose them.
 - Review step (`IngredientSuggestions`, shared by barcode and photo): known ingredients (catalog or own tags with the same name) are used as they are, new ones are proposed as checkboxes and only created through `POST /api/ingredients` after the user confirms. Show the Open Food Facts attribution (ODbL) next to product data.
 - Scanner: `@zxing/browser` (pure JavaScript, loaded with a dynamic import) because WebAssembly would need `'wasm-unsafe-eval'` in the CSP. The nginx `Permissions-Policy` must say `camera=(self)`, the nginx test checks it. `getUserMedia` needs HTTPS (or localhost); without it the panel offers a photo of the barcode and a number field. The e2e test draws a real EAN-13 and decodes it with the real library.
+- Photo recognition: `POST /api/ai/photo` (flags `ai_analysis` and `ai_photo`, separate consent `ai_settings.photo_consent_*` with `AI_PHOTO_CONSENT_VERSION`, so the analysis consent is not touched). The photo is never stored or logged. The browser downsizes it first (the multipart limit is 2 MB), the server re-encodes it with sharp (orientation applied, max 1280 px, JPEG, all metadata including GPS dropped) and sends it as a base64 image block (Anthropic) or a data URL `input_image` (OpenAI, `store: false`). The prompt lists the catalog keys; the answer is untrusted JSON, validated with Zod, names are cleaned and capped (`parsePhotoAnswer`) and only ever become suggestions the user confirms. The mock provider answers with a fixed list (Milk, Rice, Dragon fruit).
+- Privacy text mentions both features in `docs/legal-templates`; the data export includes the photo consent.
 
 ## Conventions
 
@@ -223,4 +225,5 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - [x] M4 AI analysis (encrypted keys, consent, preview, mock provider)
 - [x] M6 privacy and operations (consent, deletion, export, retention, legal pages, backup)
 - [x] Deploy (compose, scripts with tests, deploy workflow, docs)
+- [x] Phase 2: barcode scan (Open Food Facts) and photo recognition through the user's AI key
 - [ ] Go-live (maintainer): create the GitHub repo and settings, fill the production environment, set up the server (database, nginx, `.env.production`), provide and review the legal texts, run one real AI call per provider, first release and deployment. See `docs/deployment.md`.

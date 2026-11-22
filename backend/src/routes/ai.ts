@@ -2,12 +2,15 @@ import { eq, and } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import {
   AI_CONSENT_VERSION,
+  AI_PHOTO_CONSENT_VERSION,
   aiConsentSchema,
+  aiPhotoConsentSchema,
   aiKeySchema,
   aiProviderSchema,
   aiRunSchema,
   aiSettingsUpdateSchema,
   type AiModelsDto,
+  type AiPhotoResultDto,
   type AiProviderId,
   type AiResultDto,
   type AiSettingsDto,
@@ -19,6 +22,8 @@ import { aiKeys, aiSettings } from '../db/schema.ts';
 import { AppError, parseBody } from '../lib/errors.ts';
 import { createSecretBox } from '../lib/secret-box.ts';
 import { buildAiRequest, toPreview } from '../services/ai/payload.ts';
+import { parsePhotoAnswer, PHOTO_SYSTEM, PHOTO_USER, prepareImage } from '../services/ai/photo.ts';
+import { resolveCandidates } from '../services/suggestions.ts';
 import { ProviderError, type AiProviders } from '../services/ai/providers.ts';
 
 const MAX_ANSWER_LENGTH = 20_000;
@@ -49,6 +54,13 @@ export async function aiRoutes(
 ) {
   const box = createSecretBox(encryptionKeys(config));
   const guard = { preHandler: [app.requireUser, app.requireFeature('ai_analysis')] };
+  const photoGuard = {
+    preHandler: [
+      app.requireUser,
+      app.requireFeature('ai_analysis'),
+      app.requireFeature('ai_photo'),
+    ],
+  };
   const limited = (max: number) => ({
     ...guard,
     config: { rateLimit: { max, timeWindow: '1 minute' } },
@@ -65,6 +77,7 @@ export async function aiRoutes(
       return { configured: Boolean(row), last4: row?.last4 ?? null };
     };
     const consentGiven = settings?.consentVersion === AI_CONSENT_VERSION;
+    const photoConsentGiven = settings?.photoConsentVersion === AI_PHOTO_CONSENT_VERSION;
     return {
       provider: settings?.provider ?? null,
       model: settings?.model ?? null,
@@ -74,6 +87,10 @@ export async function aiRoutes(
         version: settings?.consentVersion ?? 0,
         currentVersion: AI_CONSENT_VERSION,
         at: consentGiven ? (settings?.consentAt?.toISOString() ?? null) : null,
+      },
+      photoConsent: {
+        given: photoConsentGiven,
+        at: photoConsentGiven ? (settings?.photoConsentAt?.toISOString() ?? null) : null,
       },
     };
   }
@@ -85,6 +102,8 @@ export async function aiRoutes(
       model: string | null;
       consentVersion: number | null;
       consentAt: Date | null;
+      photoConsentVersion: number | null;
+      photoConsentAt: Date | null;
     }>,
   ) {
     await db
@@ -182,6 +201,61 @@ export async function aiRoutes(
     await updateSettings(request.user!.id, { consentVersion: null, consentAt: null });
     return settingsFor(request.user!.id);
   });
+
+  app.post('/api/ai/photo-consent', photoGuard, async (request) => {
+    parseBody(aiPhotoConsentSchema, request.body);
+    await updateSettings(request.user!.id, {
+      photoConsentVersion: AI_PHOTO_CONSENT_VERSION,
+      photoConsentAt: new Date(),
+    });
+    return settingsFor(request.user!.id);
+  });
+
+  app.delete('/api/ai/photo-consent', guard, async (request) => {
+    await updateSettings(request.user!.id, { photoConsentVersion: null, photoConsentAt: null });
+    return settingsFor(request.user!.id);
+  });
+
+  app.post(
+    '/api/ai/photo',
+    { ...photoGuard, config: { rateLimit: { max: 10, timeWindow: '1 minute' } } },
+    async (request): Promise<AiPhotoResultDto> => {
+      const user = request.user!;
+      const settings = await settingsFor(user.id);
+      if (!settings.photoConsent.given) {
+        throw new AppError(
+          403,
+          'photo_consent_required',
+          'Consent is required before a photo is sent',
+        );
+      }
+      if (!settings.provider || !settings.model) {
+        throw new AppError(
+          409,
+          'ai_not_configured',
+          'Choose a provider, a model and store a key first',
+        );
+      }
+      const file = await request.file();
+      if (!file) throw new AppError(400, 'file_required', 'No file uploaded');
+      const image = await prepareImage(await file.toBuffer());
+      const apiKey = await storedKey(user.id, settings.provider);
+      try {
+        const text = await aiProviders[settings.provider].generate({
+          apiKey,
+          model: settings.model,
+          system: PHOTO_SYSTEM[user.locale],
+          user: PHOTO_USER,
+          image,
+        });
+        const suggestions = await resolveCandidates(db, user.id, parsePhotoAnswer(text));
+        return { suggestions, provider: settings.provider, model: settings.model };
+      } catch (error) {
+        if (error instanceof AppError) throw error;
+        throw providerFailure(error);
+      }
+    },
+  );
 
   app.post('/api/ai/preview', limited(20), async (request) =>
     toPreview(await buildAiRequest(db, request.user!, parseBody(aiRunSchema, request.body))),

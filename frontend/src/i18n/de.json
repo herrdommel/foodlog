@@ -133,7 +133,9 @@
     "not_configured": "Dieser Text wurde vom Betreiber noch nicht hinterlegt.",
     "invalid_barcode": "Das ist keine gültige Barcode-Nummer. Bitte prüfe die Ziffern.",
     "product_not_found": "Zu diesem Barcode wurde kein Produkt gefunden.",
-    "product_lookup_failed": "Die Produktdatenbank ist gerade nicht erreichbar."
+    "product_lookup_failed": "Die Produktdatenbank ist gerade nicht erreichbar.",
+    "photo_consent_required": "Zuerst ist deine Einwilligung für Fotos nötig. Du kannst sie auf der KI-Seite erteilen.",
+    "file_required": "Bitte wähle zuerst ein Foto aus."
   },
   "tracking": {
     "today": "Heute",
@@ -397,7 +399,8 @@
       "ai_analysis": "KI-Auswertung",
       "google_login": "Anmeldung mit Google",
       "data_export": "Datenexport",
-      "barcode_scan": "Barcode-Scan"
+      "barcode_scan": "Barcode-Scan",
+      "ai_photo": "Foto-Erkennung"
     },
     "invites": {
       "title": "Einladungen",
@@ -506,7 +509,13 @@
       "sameData": "Es wurden genau die angezeigten Daten gesendet.",
       "differentData": "Die Daten haben sich seit der Vorschau geändert."
     },
-    "link": "KI-Auswertung"
+    "link": "KI-Auswertung",
+    "photoConsent": {
+      "title": "Einwilligung für Fotos",
+      "text": "Wenn du die Foto-Erkennung nutzt, wird das gewählte Foto an den ausgewählten Anbieter gesendet und dort ausgewertet. Es wird vorher verkleinert und von Metadaten wie dem Standort befreit und von Foodlog I/O nicht gespeichert. Ein Foto kann mehr zeigen, als du beabsichtigst, zum Beispiel Personen oder Dokumente. Zusätzlich gilt die Datenschutzerklärung des Anbieters. Du kannst deine Einwilligung jederzeit widerrufen.",
+      "checkbox": "Ich willige ein, dass Fotos, die ich auswähle, bei der Foto-Erkennung an den ausgewählten Anbieter gesendet werden.",
+      "given": "Du hast am {{date}} eingewilligt."
+    }
   },
   "legal": {
     "privacy": "Datenschutzerklärung",
@@ -538,5 +547,17 @@
     "newHint": "Diese werden als eigene Zutaten angelegt. Entferne den Haken bei dem, was du nicht möchtest.",
     "productLevel": "für das ganze Produkt angegeben",
     "add": "{{count}} zur Mahlzeit hinzufügen"
+  },
+  "photo": {
+    "open": "Aus einem Foto erkennen",
+    "title": "Aus einem Foto erkennen",
+    "notReady": "Die Foto-Erkennung braucht deinen KI-Anbieter, ein Modell, einen Key und deine Einwilligung für Fotos.",
+    "setup": "Einrichten",
+    "choose": "Foto auswählen oder aufnehmen",
+    "previewAlt": "Dein Foto",
+    "sendNote": "Dieses Foto wird mit deinem API-Key an {{provider}} ({{model}}) gesendet, ausgewertet und nicht gespeichert. Achte darauf, dass nichts darauf zu sehen ist, das du nicht teilen möchtest, zum Beispiel andere Personen.",
+    "analyse": "Zutaten erkennen",
+    "working": "Wird ausgewertet…",
+    "guess": "Das ist eine Vermutung der KI. Prüfe sie, bevor du sie hinzufügst."
   }
 }

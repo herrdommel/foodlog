@@ -27,6 +27,12 @@ export interface IngredientSuggestionsDto {
   proposed: ProposedIngredient[];
 }
 
+export interface AiPhotoResultDto {
+  suggestions: IngredientSuggestionsDto;
+  provider: 'anthropic' | 'openai';
+  model: string;
+}
+
 export interface ProductLookupDto {
   barcode: string;
   name: string;

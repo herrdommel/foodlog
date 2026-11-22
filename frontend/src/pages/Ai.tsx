@@ -18,10 +18,12 @@ import {
   useAiSettings,
   useDeleteAiKey,
   useGiveAiConsent,
+  useGiveAiPhotoConsent,
   useMe,
   useSaveAiKey,
   useUpdateAiSettings,
   useWithdrawAiConsent,
+  useWithdrawAiPhotoConsent,
 } from '../api/hooks.ts';
 import { Button, Card, ErrorMessage, Field, Notice, SelectField } from '../components/ui.tsx';
 import { readAnalysisParams, toSearchParams, type AnalysisParams } from '../lib/analysisParams.ts';
@@ -178,6 +180,48 @@ function ConsentCard({ settings }: { settings: AiSettingsDto }) {
               onChange={(event) => setChecked(event.target.checked)}
             />
             {t('ai.consent.checkbox')}
+          </label>
+          <Button type="button" disabled={!checked || give.isPending} onClick={() => give.mutate()}>
+            {t('ai.consent.give')}
+          </Button>
+        </>
+      )}
+    </Card>
+  );
+}
+
+function PhotoConsentCard({ settings }: { settings: AiSettingsDto }) {
+  const { t, i18n } = useTranslation();
+  const give = useGiveAiPhotoConsent();
+  const withdraw = useWithdrawAiPhotoConsent();
+  const [checked, setChecked] = useState(false);
+  const date = settings.photoConsent.at
+    ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'long' }).format(
+        new Date(settings.photoConsent.at),
+      )
+    : '';
+
+  return (
+    <Card title={t('ai.photoConsent.title')}>
+      <p className="text-sm">{t('ai.photoConsent.text')}</p>
+      <ErrorMessage error={give.error ?? withdraw.error} />
+      {settings.photoConsent.given ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-sm">{t('ai.photoConsent.given', { date })}</p>
+          <Button type="button" variant="secondary" onClick={() => withdraw.mutate()}>
+            {t('ai.consent.withdraw')}
+          </Button>
+        </div>
+      ) : (
+        <>
+          <label className="flex items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={checked}
+              onChange={(event) => setChecked(event.target.checked)}
+            />
+            {t('ai.photoConsent.checkbox')}
           </label>
           <Button type="button" disabled={!checked || give.isPending} onClick={() => give.mutate()}>
             {t('ai.consent.give')}
@@ -384,6 +428,7 @@ function RunCard({ settings }: { settings: AiSettingsDto }) {
 export function AiPage() {
   const { t } = useTranslation();
   const settings = useAiSettings();
+  const { data: me } = useMe();
   return (
     <>
       <h1 className="text-2xl font-bold">{t('ai.title')}</h1>
@@ -396,6 +441,7 @@ export function AiPage() {
         <>
           <ProviderCard settings={settings.data} />
           <ConsentCard settings={settings.data} />
+          {me?.features.ai_photo && <PhotoConsentCard settings={settings.data} />}
           <RunCard settings={settings.data} />
         </>
       )}

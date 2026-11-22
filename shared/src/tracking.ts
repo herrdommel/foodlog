@@ -233,6 +233,7 @@ export const aiProviderSchema = z.enum(AI_PROVIDERS);
 export type AiProviderId = z.infer<typeof aiProviderSchema>;
 
 export const AI_CONSENT_VERSION = 1;
+export const AI_PHOTO_CONSENT_VERSION = 1;
 
 export const aiKeySchema = z.object({
   apiKey: z
@@ -252,6 +253,7 @@ export const aiSettingsUpdateSchema = z
   .refine((value) => Object.keys(value).length > 0, 'no changes');
 
 export const aiConsentSchema = z.object({ version: z.literal(AI_CONSENT_VERSION) });
+export const aiPhotoConsentSchema = z.object({ version: z.literal(AI_PHOTO_CONSENT_VERSION) });
 
 export const aiRunSchema = analysisQuerySchema;
 
@@ -260,6 +262,7 @@ export interface AiSettingsDto {
   model: string | null;
   keys: Record<AiProviderId, { configured: boolean; last4: string | null }>;
   consent: { given: boolean; version: number; currentVersion: number; at: string | null };
+  photoConsent: { given: boolean; at: string | null };
 }
 
 export interface AiModelsDto {

@@ -1,8 +1,9 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AI_CONSENT_VERSION, type LegalDoc } from '@foodlog/shared';
+import { AI_CONSENT_VERSION, AI_PHOTO_CONSENT_VERSION, type LegalDoc } from '@foodlog/shared';
 import type {
   AdminSettingsDto,
   AiModelsDto,
+  AiPhotoResultDto,
   AiPreviewDto,
   AiProviderId,
   AiResultDto,
@@ -482,6 +483,28 @@ export function useGiveAiConsent() {
 
 export function useWithdrawAiConsent() {
   return useAiSettingsMutation(() => api<AiSettingsDto>('/api/ai/consent', { method: 'DELETE' }));
+}
+
+export function useGiveAiPhotoConsent() {
+  return useAiSettingsMutation(() =>
+    api<AiSettingsDto>('/api/ai/photo-consent', { body: { version: AI_PHOTO_CONSENT_VERSION } }),
+  );
+}
+
+export function useWithdrawAiPhotoConsent() {
+  return useAiSettingsMutation(() =>
+    api<AiSettingsDto>('/api/ai/photo-consent', { method: 'DELETE' }),
+  );
+}
+
+export function useRecognizePhoto() {
+  return useMutation({
+    mutationFn: (photo: Blob) => {
+      const formData = new FormData();
+      formData.append('file', photo, 'photo.jpg');
+      return api<AiPhotoResultDto>('/api/ai/photo', { formData });
+    },
+  });
 }
 
 export function useAiModels(provider: AiProviderId | null, enabled: boolean) {

@@ -133,7 +133,9 @@
     "not_configured": "The operator has not provided this text yet.",
     "invalid_barcode": "This is not a valid barcode number. Please check the digits.",
     "product_not_found": "No product was found for this barcode.",
-    "product_lookup_failed": "The product database is not reachable right now."
+    "product_lookup_failed": "The product database is not reachable right now.",
+    "photo_consent_required": "Your consent for photos is required first. You can give it on the AI page.",
+    "file_required": "Please choose a photo first."
   },
   "tracking": {
     "today": "Today",
@@ -397,7 +399,8 @@
       "ai_analysis": "AI analysis",
       "google_login": "Sign in with Google",
       "data_export": "Data export",
-      "barcode_scan": "Barcode scan"
+      "barcode_scan": "Barcode scan",
+      "ai_photo": "Photo recognition"
     },
     "invites": {
       "title": "Invitations",
@@ -506,7 +509,13 @@
       "sameData": "Exactly the data shown was sent.",
       "differentData": "The data changed since the preview."
     },
-    "link": "AI analysis"
+    "link": "AI analysis",
+    "photoConsent": {
+      "title": "Consent for photos",
+      "text": "When you use photo recognition, the photo you choose is sent to the selected provider and analysed there. It is reduced in size and stripped of metadata such as the location before it is sent, and it is not stored by Foodlog I/O. A photo can show more than you intend, for example people or documents. The provider's privacy policy applies in addition. You can withdraw your consent at any time.",
+      "checkbox": "I consent to photos I choose being sent to the selected provider when I use photo recognition.",
+      "given": "You consented on {{date}}."
+    }
   },
   "legal": {
     "privacy": "Privacy policy",
@@ -538,5 +547,17 @@
     "newHint": "These are created as your own ingredients. Uncheck what you do not want.",
     "productLevel": "declared for the whole product",
     "add": "Add {{count}} to the meal"
+  },
+  "photo": {
+    "open": "Recognise from a photo",
+    "title": "Recognise from a photo",
+    "notReady": "Photo recognition needs your AI provider, a model, a key and your consent for photos.",
+    "setup": "Set it up",
+    "choose": "Choose or take a photo",
+    "previewAlt": "Your photo",
+    "sendNote": "This photo is sent to {{provider}} ({{model}}) with your API key, analysed and not stored. Make sure it shows nothing you do not want to share, for example other people.",
+    "analyse": "Recognise ingredients",
+    "working": "Analysing…",
+    "guess": "This is a guess by the AI. Check it before you add it."
   }
 }

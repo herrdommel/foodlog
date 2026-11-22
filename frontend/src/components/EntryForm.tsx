@@ -21,6 +21,7 @@ import {
 } from '../api/hooks.ts';
 import { BarcodeLookup } from './BarcodeLookup.tsx';
 import { IngredientPicker } from './IngredientPicker.tsx';
+import { PhotoRecognition } from './PhotoRecognition.tsx';
 import { Button, Card, ErrorMessage, Field, SelectField } from './ui.tsx';
 
 const TEMPLATE_TYPES: EntryType[] = ['meal', 'drink', 'medication'];
@@ -186,6 +187,15 @@ export function EntryForm({
               const known = new Set(ingredients.map((ingredient) => ingredient.id));
               setIngredients([...ingredients, ...added.filter((item) => !known.has(item.id))]);
               if (!title.trim() && productName) setTitle(productName.slice(0, 120));
+            }}
+          />
+        )}
+
+        {isFood && me.data?.features.ai_analysis && me.data.features.ai_photo && (
+          <PhotoRecognition
+            onAdd={(added) => {
+              const known = new Set(ingredients.map((ingredient) => ingredient.id));
+              setIngredients([...ingredients, ...added.filter((item) => !known.has(item.id))]);
             }}
           />
         )}
