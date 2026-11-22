@@ -1,8 +1,13 @@
 import { createHash } from 'node:crypto';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { and, eq } from 'drizzle-orm';
-import type { AiPreviewDto, AiResultDto, AiSettingsDto } from '@foodlog/shared';
-import { aiKeys, aiSettings, userFeatureOverrides, users } from '../src/db/schema.ts';
+import {
+  AI_CONSENT_VERSION,
+  type AiPreviewDto,
+  type AiResultDto,
+  type AiSettingsDto,
+} from '@foodlog/shared';
+import { aiKeys, aiSettings, featureFlags, userFeatureOverrides, users } from '../src/db/schema.ts';
 import {
   createMockProvider,
   type AiProviders,
@@ -78,7 +83,7 @@ const query = {
 async function configure(provider = 'anthropic', key = 'sk-ant-secret-1234', model = 'mock-large') {
   await send('PUT', `/api/ai/keys/${provider}`, { apiKey: key });
   await patch(t.app, '/api/ai/settings', { provider, model }, cookie);
-  await post(t.app, '/api/ai/consent', { version: 1 }, cookie);
+  await post(t.app, '/api/ai/consent', { version: AI_CONSENT_VERSION }, cookie);
 }
 
 async function seedDiary() {
@@ -115,6 +120,68 @@ async function seedDiary() {
   );
 }
 
+describe('context entries', () => {
+  type Data = {
+    counts: Record<string, number>;
+    entries: Record<string, unknown>[];
+    sleepAndStress?: unknown[];
+  };
+
+  async function seedContext() {
+    await configure();
+    await seedDiary();
+    await post(
+      t.app,
+      '/api/entries',
+      {
+        type: 'sleep',
+        occurredAt: '2026-01-10T07:00',
+        sleepMinutes: 300,
+        rating: 2,
+        note: 'sleep secret',
+      },
+      cookie,
+    );
+    await post(
+      t.app,
+      '/api/entries',
+      { type: 'stress', occurredAt: '2026-01-10T18:00', rating: 5 },
+      cookie,
+    );
+  }
+
+  it('sends sleep and stress with the preview, without notes', async () => {
+    await seedContext();
+    const preview: AiPreviewDto = (await post(t.app, '/api/ai/preview', query, cookie)).json();
+    expect(preview.entryCount).toBe(5);
+    const data = preview.data as Data;
+    expect(data.counts).toMatchObject({ sleep: 1, stress: 1 });
+    expect(data.entries).toContainEqual(
+      expect.objectContaining({ type: 'sleep', sleepHours: 5, sleepQuality: 2 }),
+    );
+    expect(data.entries).toContainEqual(
+      expect.objectContaining({ type: 'stress', stressLevel: 5 }),
+    );
+    expect(data.sleepAndStress).toEqual([]);
+    expect(JSON.stringify(preview)).not.toContain('sleep secret');
+    expect(preview.system).toContain('sleepAndStress');
+  });
+
+  it('leaves them out when the feature is switched off', async () => {
+    await seedContext();
+    await t.db
+      .insert(featureFlags)
+      .values({ key: 'context_factors', enabled: false, defaultForUsers: true });
+    const preview: AiPreviewDto = (await post(t.app, '/api/ai/preview', query, cookie)).json();
+    expect(preview.entryCount).toBe(3);
+    const data = preview.data as Data;
+    expect(Object.keys(data.counts)).not.toContain('sleep');
+    expect(data.entries.map((entry) => entry.type)).not.toContain('stress');
+    expect(data.sleepAndStress).toBeUndefined();
+    await t.db.delete(featureFlags).where(eq(featureFlags.key, 'context_factors'));
+  });
+});
+
 describe('access', () => {
   it('requires authentication and the ai_analysis feature', async () => {
     for (const [method, url] of [
@@ -147,7 +214,7 @@ describe('api keys', () => {
       provider: null,
       model: null,
       keys: { anthropic: { configured: false }, openai: { configured: false } },
-      consent: { given: false, currentVersion: 1 },
+      consent: { given: false, currentVersion: AI_CONSENT_VERSION },
     });
   });
 
@@ -301,8 +368,8 @@ describe('consent', () => {
     expect(denied.json().error.code).toBe('consent_required');
     expect(sent).toHaveLength(0);
 
-    const given = await post(t.app, '/api/ai/consent', { version: 1 }, cookie);
-    expect(given.json().consent).toMatchObject({ given: true, version: 1 });
+    const given = await post(t.app, '/api/ai/consent', { version: AI_CONSENT_VERSION }, cookie);
+    expect(given.json().consent).toMatchObject({ given: true, version: AI_CONSENT_VERSION });
     expect(given.json().consent.at).toBeTruthy();
     expect((await post(t.app, '/api/ai/analyze', query, cookie)).statusCode).toBe(200);
 
@@ -317,7 +384,7 @@ describe('consent', () => {
     expect((await post(t.app, '/api/ai/analyze', query, cookie)).json().error.code).toBe(
       'consent_required',
     );
-    expect((await post(t.app, '/api/ai/consent', { version: 2 }, cookie)).statusCode).toBe(400);
+    expect((await post(t.app, '/api/ai/consent', { version: 99 }, cookie)).statusCode).toBe(400);
   });
 });
 
@@ -458,7 +525,7 @@ describe('failure handling', () => {
   });
 
   it('requires provider, model and key before running', async () => {
-    await post(t.app, '/api/ai/consent', { version: 1 }, cookie);
+    await post(t.app, '/api/ai/consent', { version: AI_CONSENT_VERSION }, cookie);
     expect((await post(t.app, '/api/ai/analyze', query, cookie)).json().error.code).toBe(
       'ai_not_configured',
     );

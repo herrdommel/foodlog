@@ -284,7 +284,7 @@ export const AI_PROVIDERS = ['anthropic', 'openai'] as const;
 export const aiProviderSchema = z.enum(AI_PROVIDERS);
 export type AiProviderId = z.infer<typeof aiProviderSchema>;
 
-export const AI_CONSENT_VERSION = 1;
+export const AI_CONSENT_VERSION = 2;
 export const AI_PHOTO_CONSENT_VERSION = 1;
 
 export const aiKeySchema = z.object({

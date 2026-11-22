@@ -11,13 +11,13 @@ Email: [CONTACT EMAIL FOR PRIVACY REQUESTS]
 
 ## 2. What this service does
 
-Foodlog I/O is a diary in which you record food, drinks, symptoms, stool consistency and medication. It helps you find patterns, for example possible intolerances. The statistics are hints and not a medical diagnosis.
+Foodlog I/O is a diary in which you record food, drinks, symptoms, stool consistency, medication, sleep and stress. It helps you find patterns, for example possible intolerances. The statistics are hints and not a medical diagnosis.
 
 ## 3. Which data we process and why
 
 **Account data** (name, email address, password hash, language, time zone, avatar). We need it to provide your account. Legal basis: performance of the contract, Art. 6(1)(b) GDPR. Passwords are stored only as a salted Argon2 hash.
 
-**Diary and health data** (entries, ingredients, symptoms, stool entries, medication, notes, templates). This is data concerning health, a special category under Art. 9 GDPR. We process it only to provide the diary and the analysis you use. Legal basis: your explicit consent, Art. 9(2)(a) GDPR, which you give when you register. You can withdraw it at any time by deleting your account.
+**Diary and health data** (entries, ingredients, symptoms, stool entries, medication, sleep and stress entries, notes, templates). This is data concerning health, a special category under Art. 9 GDPR. We process it only to provide the diary and the analysis you use. Legal basis: your explicit consent, Art. 9(2)(a) GDPR, which you give when you register. You can withdraw it at any time by deleting your account.
 
 **Technical data.** The server temporarily processes your IP address and request data to deliver the service and to protect it against abuse. [DESCRIBE SERVER LOG RETENTION, FOR EXAMPLE: Log files are deleted after 14 days.] Legal basis: legitimate interest in a secure operation, Art. 6(1)(f) GDPR.
 
@@ -33,7 +33,7 @@ Foodlog I/O is a diary in which you record food, drinks, symptoms, stool consist
 
 **Photo recognition.** Photo recognition is optional and requires the AI settings and your own API key. When you choose a photo and start the recognition, the photo is reduced in size, stripped of metadata such as the location, and sent to the selected provider (Anthropic or OpenAI), which suggests ingredients. We do not store the photo. A photo can show more than you intend, for example people or documents. Legal basis: your explicit consent, Art. 9(2)(a) GDPR, which you give separately for photos in the AI settings and can withdraw there. The provider processes the photo under its own terms, see the AI analysis above for the transfer to the USA.
 
-**AI analysis.** The AI analysis is optional and only runs when you start it. It requires your own API key from Anthropic or OpenAI. When you start it, the selected provider receives a summary of the period you chose: diary entries (type, time, title, ingredients, symptom, severity, stool type) and the statistical pre-analysis. Names, email address and notes are not sent. Before sending you can see exactly which data will be transmitted. Legal basis: your explicit consent, Art. 9(2)(a) GDPR, which you give separately in the AI settings and can withdraw there. Your API key is stored encrypted and is only used for your requests. The provider processes the data under its own terms (Anthropic PBC and OpenAI, both based in the USA); transfers to the USA rely on [LEGAL BASIS, FOR EXAMPLE THE EU-US DATA PRIVACY FRAMEWORK OR STANDARD CONTRACTUAL CLAUSES, TO BE CONFIRMED]. For OpenAI, we ask that the data is not stored. Please also read the providers' privacy policies.
+**AI analysis.** The AI analysis is optional and only runs when you start it. It requires your own API key from Anthropic or OpenAI. When you start it, the selected provider receives a summary of the period you chose: diary entries (type, time, title, ingredients, symptom, severity, stool type, and, if you track them, sleep duration and quality and stress level) and the statistical pre-analysis. Names, email address and notes are not sent. Before sending you can see exactly which data will be transmitted. Legal basis: your explicit consent, Art. 9(2)(a) GDPR, which you give separately in the AI settings and can withdraw there. Your API key is stored encrypted and is only used for your requests. The provider processes the data under its own terms (Anthropic PBC and OpenAI, both based in the USA); transfers to the USA rely on [LEGAL BASIS, FOR EXAMPLE THE EU-US DATA PRIVACY FRAMEWORK OR STANDARD CONTRACTUAL CLAUSES, TO BE CONFIRMED]. For OpenAI, we ask that the data is not stored. Please also read the providers' privacy policies.
 
 ## 5. How long we keep data
 

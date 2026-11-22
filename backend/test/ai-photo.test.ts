@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
 import sharp from 'sharp';
-import type { AiPhotoResultDto, AiSettingsDto } from '@foodlog/shared';
+import { AI_CONSENT_VERSION, type AiPhotoResultDto, type AiSettingsDto } from '@foodlog/shared';
 import { userFeatureOverrides, users } from '../src/db/schema.ts';
 import { AppError } from '../src/lib/errors.ts';
 import { parsePhotoAnswer } from '../src/services/ai/photo.ts';
@@ -135,7 +135,7 @@ describe('photo recognition', () => {
 
   it('needs its own consent and sends nothing without it', async () => {
     await setup({ consent: false });
-    await post(t.app, '/api/ai/consent', { version: 1 }, cookie);
+    await post(t.app, '/api/ai/consent', { version: AI_CONSENT_VERSION }, cookie);
     const response = await upload('meal.jpg', 'image/jpeg', await photo());
     expect(response.statusCode).toBe(403);
     expect(response.json().error.code).toBe('photo_consent_required');

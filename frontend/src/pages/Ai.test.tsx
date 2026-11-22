@@ -228,7 +228,7 @@ describe('consent', () => {
     await user.click(consent.getByRole('checkbox'));
     await user.click(consent.getByRole('button', { name: 'Give consent' }));
     expect(await consent.findByText(/Consent given on/)).toBeInTheDocument();
-    expect(calls).toEqual(['give {"version":1}']);
+    expect(calls).toEqual(['give {"version":2}']);
 
     await user.click(consent.getByRole('button', { name: 'Withdraw consent' }));
     await waitFor(() => expect(calls).toContain('withdraw'));
@@ -382,6 +382,7 @@ describe('analysis page link', () => {
           bristolDistribution: [0, 0, 0, 0, 0, 0, 0],
           symptomHeatmap: Array.from({ length: 7 }, () => new Array<number>(24).fill(0)),
           suspects: { ingredients: [], allergens: [] },
+          context: [],
           minExposures: 5,
           minOutcomes: 3,
         }),

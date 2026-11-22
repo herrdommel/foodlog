@@ -72,7 +72,7 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Flags are defined in code (typed registry in `shared/`), rows are created on demand. Unknown keys are rejected.
 - Backend: `requireFeature(key)` route guard, returns 403 with code `feature_disabled`. Frontend: flags come with the session/me endpoint, `useFeature(key)` hook hides UI.
 - Admin UI: global toggles on the settings page, per-user toggles in user management.
-- Initial flags: `ai_analysis`, `google_login`, `data_export`. Later: `barcode_scan` (default on), `ai_photo` (default off, also needs `ai_analysis`).
+- Initial flags: `ai_analysis`, `google_login`, `data_export`. Later: `barcode_scan` (default on), `ai_photo` (default off, also needs `ai_analysis`), `context_factors` (default on).
 - Every new optional feature should ship behind a flag.
 
 ## Dev mode
@@ -146,7 +146,7 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 ## Export notes (M3)
 
 - `GET /api/export/entries.csv?from&to` is gated by `app.requireFeature('data_export')` (global kill switch beats user overrides, 403 `feature_disabled`). The frontend hides the links when `me.features.data_export` is false. Use `requireFeature` for every new optional feature.
-- CSV: UTF-8 with BOM, CRLF, columns `local_time,utc_time,type,title,ingredients,allergens,symptom_type,severity,bristol,note`. Text cells starting with `=`, `+`, `-`, `@`, tab or CR get a leading apostrophe (spreadsheet formula injection). Do not write the BOM as a literal character, use `BOM` from `lib/csv.ts` (Prettier turns `\uFEFF` escapes into the invisible character, which ESLint rejects).
+- CSV: UTF-8 with BOM, CRLF, columns `local_time,utc_time,type,title,ingredients,allergens,symptom_type,severity,bristol,sleep_minutes,rating,note`. Text cells starting with `=`, `+`, `-`, `@`, tab or CR get a leading apostrophe (spreadsheet formula injection). Do not write the BOM as a literal character, use `BOM` from `lib/csv.ts` (Prettier turns `\uFEFF` escapes into the invisible character, which ESLint rejects).
 - The doctor report is a normal page (`/report`) with print styles, no PDF library. Charts have animations switched off, otherwise they print empty. `page.pdf()` in the E2E test only checks that printing works.
 - E2E server helpers (`/__test/*`): `invite`, `mail`, `seed-demo`, `feature`. They exist only in `backend/test/e2e-server.ts`.
 
@@ -201,6 +201,14 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Photo recognition: `POST /api/ai/photo` (flags `ai_analysis` and `ai_photo`, separate consent `ai_settings.photo_consent_*` with `AI_PHOTO_CONSENT_VERSION`, so the analysis consent is not touched). The photo is never stored or logged. The browser downsizes it first (the multipart limit is 2 MB), the server re-encodes it with sharp (orientation applied, max 1280 px, JPEG, all metadata including GPS dropped) and sends it as a base64 image block (Anthropic) or a data URL `input_image` (OpenAI, `store: false`). The prompt lists the catalog keys; the answer is untrusted JSON, validated with Zod, names are cleaned and capped (`parsePhotoAnswer`) and only ever become suggestions the user confirms. The mock provider answers with a fixed list (Milk, Rice, Dragon fruit).
 - Privacy text mentions both features in `docs/legal-templates`; the data export includes the photo consent.
 
+## Sleep and stress notes (phase 2)
+
+- Two more entry types on the same timeline, behind the flag `context_factors` (default on): `sleep` (`sleep_minutes` 15 to 1440, optional `rating` 1 to 5 for quality, the time is the wake-up time) and `stress` (`rating` 1 to 5). They share the nullable columns `sleep_minutes` and `rating` in `entries`. With the flag off, creating or updating them returns 403 `feature_disabled`, the day list hides them, the analysis returns an empty `context`; deleting stays possible. Export (CSV, JSON) always contains them.
+- Analysis (`services/context-analysis.ts`): per local day, not per meal. A day counts as exposed when it has short sleep (summed under 6 h), poor sleep (lowest rating 1 or 2) or high stress (highest rating 4 or 5); the reference is the other days that have an entry of the same kind, so days without data never count as "good". Outcome day: at least one outcome event (same outcome and minimum severity as the suspects). Only complete days (before today) count. Same guard rails as the suspects: at least 5 days on each side and 3 days with a complaint, risk ratio with 95 percent interval. All factors with enough data are listed, also without an association. It shows an association, not a cause; keep the wording.
+- Sleep and stress are part of the AI payload (entries plus the `sleepAndStress` comparison), only while `context_factors` is on for the user. This is why `AI_CONSENT_VERSION` is 2; the consent text and the privacy templates say so. Notes are still never sent.
+- Cycle tracking is not built yet. It is the most sensitive of the three and would get its own flag.
+- The demo seed adds sleep, stress and extra symptoms on bad days with its own random generator, so the lactose pattern of the existing seed is unchanged.
+
 ## Conventions
 
 - TypeScript strict, ESM, no `any`.
@@ -226,4 +234,5 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - [x] M6 privacy and operations (consent, deletion, export, retention, legal pages, backup)
 - [x] Deploy (compose, scripts with tests, deploy workflow, docs)
 - [x] Phase 2: barcode scan (Open Food Facts) and photo recognition through the user's AI key
+- [x] Phase 2: sleep and stress context factors (cycle tracking still open)
 - [ ] Go-live (maintainer): create the GitHub repo and settings, fill the production environment, set up the server (database, nginx, `.env.production`), provide and review the legal texts, run one real AI call per provider, first release and deployment. See `docs/deployment.md`.
