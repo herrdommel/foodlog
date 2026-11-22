@@ -196,6 +196,7 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 
 - Barcode: `GET /api/products/:barcode` (flag `barcode_scan`) asks Open Food Facts from the server (`OPEN_FOOD_FACTS_URL`, optional, default the public instance; the user's browser never talks to it, CSP stays `connect-src 'self'`). The barcode is validated (EAN-8, UPC-A, EAN-13, GTIN-14 with check digit) before any request. Results are cached in memory for an hour. The endpoint only suggests, it creates nothing.
 - Mapping (`catalog/open-food-facts.ts`): explicit tables, no fuzzy matching. `OFF_TO_CATALOG` maps taxonomy ids to catalog keys, `OFF_ALLERGENS` maps product allergens to ours, `NAME_ALLERGENS` derives allergens of a new tag from its own name. Read `product.ingredients[]`, never `ingredients_tags` (those contain taxonomy parents such as `en:oil-and-fat`). Water, salt and E-numbers are skipped. Allergens the product declares but no ingredient explains become a proposal named after the product (`source: 'product'`) so the analysis does not lose them.
+- Review step (`IngredientSuggestions`, shared by barcode and photo): known ingredients (catalog or own tags with the same name) are used as they are, new ones are proposed as checkboxes and only created through `POST /api/ingredients` after the user confirms. Show the Open Food Facts attribution (ODbL) next to product data.
 
 ## Conventions
 

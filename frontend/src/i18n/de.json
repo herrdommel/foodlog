@@ -130,7 +130,10 @@
     "key_unreadable": "Der gespeicherte Key ist nicht mehr lesbar. Bitte gib ihn erneut ein.",
     "email_mismatch": "Die E-Mail-Adresse stimmt nicht mit deinem Konto überein.",
     "last_admin": "Der letzte Administrator kann das Konto nicht löschen. Ernenne zuerst eine weitere Person zum Administrator.",
-    "not_configured": "Dieser Text wurde vom Betreiber noch nicht hinterlegt."
+    "not_configured": "Dieser Text wurde vom Betreiber noch nicht hinterlegt.",
+    "invalid_barcode": "Das ist keine gültige Barcode-Nummer. Bitte prüfe die Ziffern.",
+    "product_not_found": "Zu diesem Barcode wurde kein Produkt gefunden.",
+    "product_lookup_failed": "Die Produktdatenbank ist gerade nicht erreichbar."
   },
   "tracking": {
     "today": "Heute",
@@ -513,5 +516,20 @@
     "onlyGerman": "Dieser Text liegt nur auf Deutsch vor.",
     "onlyEnglish": "This text is only available in English.",
     "loading": "Wird geladen …"
+  },
+  "barcode": {
+    "open": "Barcode nachschlagen",
+    "title": "Produkt nachschlagen",
+    "number": "Barcode-Nummer",
+    "lookup": "Nachschlagen",
+    "attribution": "Produktdaten von"
+  },
+  "suggestions": {
+    "none": "Dazu wurden keine Zutaten gefunden.",
+    "known": "Bekannte Zutaten",
+    "new": "Neue Zutaten",
+    "newHint": "Diese werden als eigene Zutaten angelegt. Entferne den Haken bei dem, was du nicht möchtest.",
+    "productLevel": "für das ganze Produkt angegeben",
+    "add": "{{count}} zur Mahlzeit hinzufügen"
   }
 }

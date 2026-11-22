@@ -130,7 +130,10 @@
     "key_unreadable": "The stored key can no longer be read. Please enter it again.",
     "email_mismatch": "The email address does not match your account.",
     "last_admin": "The last administrator cannot delete the account. Make another person an administrator first.",
-    "not_configured": "The operator has not provided this text yet."
+    "not_configured": "The operator has not provided this text yet.",
+    "invalid_barcode": "This is not a valid barcode number. Please check the digits.",
+    "product_not_found": "No product was found for this barcode.",
+    "product_lookup_failed": "The product database is not reachable right now."
   },
   "tracking": {
     "today": "Today",
@@ -513,5 +516,20 @@
     "onlyGerman": "Dieser Text liegt nur auf Deutsch vor.",
     "onlyEnglish": "This text is only available in English.",
     "loading": "Loading …"
+  },
+  "barcode": {
+    "open": "Look up a barcode",
+    "title": "Look up a product",
+    "number": "Barcode number",
+    "lookup": "Look up",
+    "attribution": "Product data from"
+  },
+  "suggestions": {
+    "none": "No ingredients were found for this.",
+    "known": "Known ingredients",
+    "new": "New ingredients",
+    "newHint": "These are created as your own ingredients. Uncheck what you do not want.",
+    "productLevel": "declared for the whole product",
+    "add": "Add {{count}} to the meal"
   }
 }

@@ -13,11 +13,13 @@ import {
 } from '@foodlog/shared';
 import {
   useCreateEntry,
+  useMe,
   useCreateTemplate,
   useDeleteTemplate,
   useTemplates,
   useUpdateEntry,
 } from '../api/hooks.ts';
+import { BarcodeLookup } from './BarcodeLookup.tsx';
 import { IngredientPicker } from './IngredientPicker.tsx';
 import { Button, Card, ErrorMessage, Field, SelectField } from './ui.tsx';
 
@@ -42,6 +44,7 @@ export function EntryForm({
   const createTemplate = useCreateTemplate();
   const deleteTemplate = useDeleteTemplate();
   const templates = useTemplates();
+  const me = useMe();
 
   const [type, setType] = useState<EntryType>(initial?.type ?? initialType);
   const [time, setTime] = useState(
@@ -174,6 +177,16 @@ export function EntryForm({
             maxLength={120}
             value={title}
             onChange={(event) => setTitle(event.target.value)}
+          />
+        )}
+
+        {isFood && me.data?.features.barcode_scan && (
+          <BarcodeLookup
+            onAdd={(added, productName) => {
+              const known = new Set(ingredients.map((ingredient) => ingredient.id));
+              setIngredients([...ingredients, ...added.filter((item) => !known.has(item.id))]);
+              if (!title.trim() && productName) setTitle(productName.slice(0, 120));
+            }}
           />
         )}
 

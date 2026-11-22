@@ -20,6 +20,7 @@ import type {
   IngredientDto,
   InviteDto,
   MeResponse,
+  ProductLookupDto,
   ResetLinkDto,
   TemplateDto,
 } from '@foodlog/shared';
@@ -221,6 +222,13 @@ export function useCreateIngredient() {
     mutationFn: (body: { name: string; allergens: Allergen[] }) =>
       api<IngredientDto>('/api/ingredients', { body }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ingredients'] }),
+  });
+}
+
+export function useLookupProduct() {
+  return useMutation({
+    mutationFn: (barcode: string) =>
+      api<ProductLookupDto>(`/api/products/${encodeURIComponent(barcode)}`),
   });
 }
 
