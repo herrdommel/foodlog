@@ -189,8 +189,11 @@ describe('provider and key', () => {
     await waitFor(() => expect(patched).toEqual({ model: 'mock-large' }));
   });
 
-  it('switches the provider', async () => {
-    mockAi(readySettings);
+  it('switches to a provider that already has a key', async () => {
+    mockAi({
+      ...readySettings,
+      keys: { ...readySettings.keys, openai: { configured: true, last4: '1234' } },
+    });
     let patched: unknown;
     server.use(
       http.patch('/api/ai/settings', async ({ request }) => {
@@ -201,7 +204,34 @@ describe('provider and key', () => {
     renderApp('/ai');
     const user = userEvent.setup();
     await user.selectOptions(await screen.findByLabelText('Provider'), 'openai');
-    await waitFor(() => expect(patched).toEqual({ provider: 'openai', model: null }));
+    await waitFor(() => expect(patched).toEqual({ provider: 'openai' }));
+  });
+
+  it('lets you pick a provider without a key and enter one', async () => {
+    mockAi(readySettings);
+    let patched = false;
+    let saved: unknown;
+    server.use(
+      http.patch('/api/ai/settings', () => {
+        patched = true;
+        return HttpResponse.json(readySettings);
+      }),
+      http.put('/api/ai/keys/:provider', async ({ request, params }) => {
+        saved = { provider: params.provider, ...((await request.json()) as object) };
+        return HttpResponse.json(readySettings);
+      }),
+    );
+    renderApp('/ai');
+    const user = userEvent.setup();
+    const select = await screen.findByLabelText('Provider');
+    await user.selectOptions(select, 'openai');
+    expect(select).toHaveValue('openai');
+    expect(patched).toBe(false);
+    await user.type(await screen.findByLabelText('API key'), 'sk-openai-secret-9999');
+    await user.click(screen.getByRole('button', { name: 'Save key' }));
+    await waitFor(() =>
+      expect(saved).toEqual({ provider: 'openai', apiKey: 'sk-openai-secret-9999' }),
+    );
   });
 });
 

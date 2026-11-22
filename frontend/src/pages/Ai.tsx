@@ -36,19 +36,26 @@ function ProviderCard({ settings }: { settings: AiSettingsDto }) {
   const [apiKey, setApiKey] = useState('');
   const [replacing, setReplacing] = useState(false);
   const [chosenModel, setChosenModel] = useState<string | null>(null);
-  const provider = settings.provider ?? 'anthropic';
+  const [selected, setSelected] = useState<AiProviderId | null>(null);
+  const provider = selected ?? settings.provider ?? 'anthropic';
+  const active = settings.provider === provider;
   const keyInfo = settings.keys[provider];
   const models = useAiModels(provider, keyInfo.configured);
 
   const model =
-    chosenModel ?? settings.model ?? models.data?.suggested ?? models.data?.models[0] ?? '';
+    chosenModel ??
+    (active ? settings.model : null) ??
+    models.data?.suggested ??
+    models.data?.models[0] ??
+    '';
 
   const choose = (next: AiProviderId) => {
     setApiKey('');
     setReplacing(false);
+    setChosenModel(null);
     save.reset();
+    setSelected(next);
     if (settings.keys[next].configured) update.mutate({ provider: next });
-    else update.mutate({ provider: next, model: null }, { onError: () => undefined });
   };
 
   const submitKey = (event: FormEvent) => {
@@ -59,6 +66,7 @@ function ProviderCard({ settings }: { settings: AiSettingsDto }) {
         onSuccess: () => {
           setApiKey('');
           setReplacing(false);
+          if (!active) update.mutate({ provider });
         },
       },
     );
@@ -131,12 +139,12 @@ function ProviderCard({ settings }: { settings: AiSettingsDto }) {
               <div className="flex items-center gap-3">
                 <Button
                   type="button"
-                  disabled={!model || model === settings.model || update.isPending}
+                  disabled={!model || (active && model === settings.model) || update.isPending}
                   onClick={() => update.mutate({ model })}
                 >
                   {t('ai.provider.saveModel')}
                 </Button>
-                {settings.model && settings.model === model && (
+                {active && settings.model && settings.model === model && (
                   <span className="text-sm text-accent">{t('ai.provider.modelSaved')}</span>
                 )}
               </div>
