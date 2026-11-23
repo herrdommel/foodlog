@@ -15,7 +15,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['backend/**/*.ts', 'shared/**/*.ts', '*.js', '*.ts'],
+    files: ['backend/**/*.ts', 'shared/**/*.ts', 'scripts/**/*.mjs', '*.js', '*.ts'],
     languageOptions: { globals: globals.node },
   },
   {

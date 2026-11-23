@@ -34,6 +34,7 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Name "Foodlog I/O" and `frontend/public/brand/` are excluded from the license (all rights reserved), stated in the README.
 - When self-hosting Bricolage Grotesque, ship its `OFL.txt` next to the font files (required by the SIL OFL).
 - Only add dependencies with AGPL-compatible licenses (MIT, Apache-2.0, BSD, ISC, OFL).
+- `node scripts/licenses.mjs check` (CI) fails when a production dependency has a license outside its allow list; the only exception is sharp's LGPL libvips binary (separate shared library). `node scripts/licenses.mjs notices` runs before the frontend build and dev server and writes the gitignored `frontend/public/licenses/third-party-notices.txt` (all license texts of the bundled packages), linked from the footer next to the source code link. The backend image keeps its dependencies as `node_modules` with their license files and carries `LICENSE` and the OCI license label.
 - Before adding a dependency run `npm view <pkg> deprecated` and check maintenance status. `arctic`/`oslo` are deprecated, do not use them (Google OAuth is implemented with plain `fetch` in `backend/src/lib/google.ts`).
 
 ## Branding

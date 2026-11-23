@@ -1,5 +1,6 @@
 node_modules/
 dist/
+frontend/public/licenses/third-party-notices.txt
 coverage/
 playwright-report/
 test-results/

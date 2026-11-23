@@ -79,5 +79,7 @@ describe('legal pages', () => {
     const footer = await screen.findByRole('navigation', { name: 'Legal' });
     expect(footer.querySelector('a[href="/privacy"]')).not.toBeNull();
     expect(footer.querySelector('a[href="/imprint"]')).not.toBeNull();
+    expect(footer.querySelector('a[href="/licenses/third-party-notices.txt"]')).not.toBeNull();
+    expect(footer.querySelector('a[href^="https://github.com/herrdommel/foodlog"]')).not.toBeNull();
   });
 });

@@ -13,8 +13,10 @@ RUN pnpm --filter @foodlog/backend deploy --prod /out
 
 # node v26.13.1 on alpine
 FROM node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5
+LABEL org.opencontainers.image.licenses="AGPL-3.0-or-later"
 ENV NODE_ENV=production
 WORKDIR /app
+COPY LICENSE ./
 COPY --from=build /out/node_modules ./node_modules
 COPY --from=build /out/package.json ./
 COPY --from=build /repo/backend/dist ./dist

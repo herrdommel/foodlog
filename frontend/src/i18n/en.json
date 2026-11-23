@@ -595,6 +595,8 @@
   "legal": {
     "privacy": "Privacy policy",
     "imprint": "Imprint",
+    "source": "Source code",
+    "thirdParty": "Third-party licenses",
     "footer": "Legal",
     "notConfigured": "The operator has not provided this text yet.",
     "onlyGerman": "Dieser Text liegt nur auf Deutsch vor.",
