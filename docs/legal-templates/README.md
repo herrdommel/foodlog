@@ -23,3 +23,14 @@ If a language is missing the other one is shown with a notice. If neither exists
 ## When to update
 
 Update the privacy policy whenever the processing changes: new features that send data elsewhere, new service providers, changed retention periods (see `backend/src/services/retention.ts`) or a changed AI consent text (also bump `AI_CONSENT_VERSION`).
+
+## Local development
+
+The repository root has a gitignored `legal/` folder for this. Fill it once and the pages work in dev mode:
+
+```sh
+mkdir -p legal
+cp docs/legal-templates/*.md legal/
+```
+
+Set `LEGAL_DIR=../legal` in your `.env` (the line is in `.env.example`; the backend runs from `backend/`) and restart the backend. Edit the copies in `legal/` freely, they are never committed.
