@@ -167,7 +167,6 @@
     "mfa_not_enabled": "Richte zuerst einen zweiten Faktor ein."
   },
   "tracking": {
-    "today": "Heute",
     "previousDay": "Vorheriger Tag",
     "nextDay": "Nächster Tag",
     "goToToday": "Heute",

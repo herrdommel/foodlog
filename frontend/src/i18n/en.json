@@ -167,7 +167,6 @@
     "mfa_not_enabled": "Set up a second factor first."
   },
   "tracking": {
-    "today": "Today",
     "previousDay": "Previous day",
     "nextDay": "Next day",
     "goToToday": "Today",

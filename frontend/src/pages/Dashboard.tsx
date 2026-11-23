@@ -43,10 +43,7 @@ export function DashboardPage() {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">{formatDay(date, i18n.language)}</h1>
-          {date === today && <p className="text-sm text-fg/75">{t('tracking.today')}</p>}
-        </div>
+        <h1 className="text-2xl font-bold">{formatDay(date, i18n.language)}</h1>
         <div className="grid w-full grid-flow-col auto-cols-fr gap-2 sm:flex sm:w-auto">
           <Button
             type="button"
@@ -56,17 +53,16 @@ export function DashboardPage() {
           >
             <IconChevronLeft size={18} aria-hidden="true" />
           </Button>
-          {date !== today && (
-            <Button
-              type="button"
-              variant="secondary"
-              className="flex items-center justify-center gap-1.5"
-              onClick={() => goTo(today)}
-            >
-              <IconCalendarEvent size={16} aria-hidden="true" />
-              {t('tracking.goToToday')}
-            </Button>
-          )}
+          <Button
+            type="button"
+            variant="secondary"
+            className="flex items-center justify-center gap-1.5"
+            disabled={date === today}
+            onClick={() => goTo(today)}
+          >
+            <IconCalendarEvent size={16} aria-hidden="true" />
+            {t('tracking.goToToday')}
+          </Button>
           <Button
             type="button"
             variant="secondary"

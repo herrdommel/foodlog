@@ -203,9 +203,11 @@ describe('dashboard', () => {
     const user = userEvent.setup();
     const next = await screen.findByRole('button', { name: 'Next day' });
     expect(next).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Today' })).toBeDisabled();
     await user.click(screen.getByRole('button', { name: 'Previous day' }));
     await waitFor(() => expect(dates).toContain(shiftDate(today, -1)));
     expect(screen.getByRole('button', { name: 'Next day' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Today' })).toBeEnabled();
     await user.click(screen.getByRole('button', { name: 'Today' }));
     await waitFor(() => expect(screen.getByRole('button', { name: 'Next day' })).toBeDisabled());
   });
