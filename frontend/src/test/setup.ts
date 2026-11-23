@@ -1,8 +1,8 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll } from 'vitest';
-import { initI18n } from './i18n/index.ts';
-import { server } from './test/server.ts';
+import { initI18n } from '../i18n/index.ts';
+import { server } from './server.ts';
 
 const nodeFetch = globalThis.fetch;
 globalThis.fetch = (input, init) =>

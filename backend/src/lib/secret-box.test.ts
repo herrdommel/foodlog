@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { createSecretBox } from '../src/lib/secret-box.ts';
+import { createSecretBox } from './secret-box.ts';
 
 const key = () => randomBytes(32);
 

@@ -6,7 +6,7 @@ import {
   isOutcome,
   relativeRisk,
   type AnalysisEntry,
-} from '../src/services/analysis.ts';
+} from './analysis.ts';
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;

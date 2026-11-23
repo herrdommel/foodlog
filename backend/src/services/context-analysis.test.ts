@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeContext, type ContextEntry } from '../src/services/context-analysis.ts';
+import { computeContext, type ContextEntry } from './context-analysis.ts';
 
 const date = (day: number) => `2026-01-${String(day).padStart(2, '0')}`;
 

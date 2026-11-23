@@ -230,6 +230,7 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - TypeScript strict, ESM, no `any`.
 - Validate with Zod at every API boundary, schemas in `shared/`.
 - API errors are uniform: `{ error: { code, message } }`. UI text comes from i18n, not from the backend.
+- Test layout: unit tests sit next to the code (`foo.ts`, `foo.test.ts`), in all packages. Integration tests that build the app or need the database live in `backend/test/` together with their helpers (`helpers.ts`, `global-setup.ts`, `e2e-server.ts`); the frontend keeps its test helpers and setup in `frontend/src/test/`.
 - Every feature ships with tests: logic as unit tests, API routes as integration tests, core flows as E2E.
 
 ## Status

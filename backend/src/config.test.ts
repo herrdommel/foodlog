@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { encryptionKeys, loadConfig } from '../src/config.ts';
+import { encryptionKeys, loadConfig } from './config.ts';
 
 const base = {
   NODE_ENV: 'development',

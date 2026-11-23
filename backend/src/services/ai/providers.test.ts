@@ -6,7 +6,7 @@ import {
   createProviders,
   ProviderError,
   type ProviderErrorKind,
-} from '../src/services/ai/providers.ts';
+} from './providers.ts';
 
 interface Call {
   url: string;
