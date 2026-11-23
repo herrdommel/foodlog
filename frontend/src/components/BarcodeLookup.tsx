@@ -8,8 +8,10 @@ import { Button, ErrorMessage, Field } from './ui.tsx';
 
 export function BarcodeLookup({
   onAdd,
+  onBusyChange,
 }: {
   onAdd: (ingredients: IngredientDto[], productName: string) => void;
+  onBusyChange?: (busy: boolean) => void;
 }) {
   const { t } = useTranslation();
   const lookup = useLookupProduct();
@@ -97,6 +99,7 @@ export function BarcodeLookup({
               reset();
             }}
             onCancel={reset}
+            onBusyChange={onBusyChange}
           />
           <p className="text-xs text-fg/75">
             {t('barcode.attribution')}{' '}

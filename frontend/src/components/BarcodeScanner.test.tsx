@@ -63,8 +63,8 @@ describe('BarcodeScanner', () => {
     onResult(result('1234567890123'));
     expect(onDetected).not.toHaveBeenCalled();
     onResult(undefined);
-    onResult(result('4000000000013'));
-    expect(onDetected).toHaveBeenCalledWith('4000000000013');
+    onResult(result('2999999999779'));
+    expect(onDetected).toHaveBeenCalledWith('2999999999779');
     expect(stop).toHaveBeenCalled();
   });
 
@@ -77,12 +77,12 @@ describe('BarcodeScanner', () => {
   });
 
   it('reads a code from a photo', async () => {
-    reader.decodeFromImageUrl.mockResolvedValue(result('4000000000013'));
+    reader.decodeFromImageUrl.mockResolvedValue(result('2999999999779'));
     const onDetected = vi.fn();
     renderElement(<BarcodeScanner onDetected={onDetected} />);
     const input = screen.getByLabelText('Scan from a photo');
     await userEvent.upload(input, new File(['x'], 'code.png', { type: 'image/png' }));
-    await waitFor(() => expect(onDetected).toHaveBeenCalledWith('4000000000013'));
+    await waitFor(() => expect(onDetected).toHaveBeenCalledWith('2999999999779'));
     expect(reader.decodeFromImageUrl.mock.calls[0]![0]).toMatch(/^data:image\/png;base64,/);
   });
 

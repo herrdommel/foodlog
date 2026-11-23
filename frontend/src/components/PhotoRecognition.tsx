@@ -7,7 +7,13 @@ import { blobToDataUrl, downscaleImage } from '../lib/image.ts';
 import { IngredientSuggestions } from './IngredientSuggestions.tsx';
 import { Button, ErrorMessage, FilePicker, Notice } from './ui.tsx';
 
-export function PhotoRecognition({ onAdd }: { onAdd: (ingredients: IngredientDto[]) => void }) {
+export function PhotoRecognition({
+  onAdd,
+  onBusyChange,
+}: {
+  onAdd: (ingredients: IngredientDto[]) => void;
+  onBusyChange?: (busy: boolean) => void;
+}) {
   const { t } = useTranslation();
   const settings = useAiSettings();
   const recognize = useRecognizePhoto();
@@ -108,6 +114,7 @@ export function PhotoRecognition({ onAdd }: { onAdd: (ingredients: IngredientDto
               reset();
             }}
             onCancel={reset}
+            onBusyChange={onBusyChange}
           />
         </>
       )}

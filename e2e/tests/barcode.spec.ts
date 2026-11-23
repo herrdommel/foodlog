@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { loginViaApi, registerVerified } from './helpers.ts';
 
-const CODE = '4000000000013';
+const CODE = '2999999999779';
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('foodlog.lang', 'en'));
@@ -34,6 +34,23 @@ test('adds a scanned product with known and new ingredients to a meal', async ({
   await expect(card).toContainText('Soy lecithin');
   await expect(card).not.toContainText('Palm oil');
   await expect(card.getByText('Soy', { exact: true })).toBeVisible();
+});
+
+test('cannot be saved while the product is still being added', async ({ page }) => {
+  await page.route('**/api/ingredients', async (route) => {
+    if (route.request().method() === 'POST')
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    await route.continue();
+  });
+  await lookUp(page);
+  const panel = page.getByRole('region', { name: 'Look up a product' });
+  await expect(panel.getByText('Soy lecithin')).toBeVisible();
+  await panel.getByRole('button', { name: /^Add \d+ to the meal$/ }).click();
+
+  const save = page.getByRole('button', { name: 'Save', exact: true });
+  await expect(save).toBeDisabled();
+  await expect(page.getByLabel('Title (optional)')).toHaveValue('Acme Hazel spread');
+  await expect(save).toBeEnabled();
 });
 
 // EAN-13 drawn in the browser, so the real decoder reads a real image.
@@ -141,6 +158,7 @@ test('says so when a photo has no barcode', async ({ page }) => {
 test('reuses the tags it created when the same product is looked up again', async ({ page }) => {
   await lookUp(page);
   await page.getByRole('button', { name: /^Add \d+ to the meal$/ }).click();
+  await expect(page.getByLabel('Title (optional)')).toHaveValue('Acme Hazel spread');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByRole('listitem').filter({ hasText: 'Acme Hazel spread' })).toBeVisible();
 
@@ -153,9 +171,9 @@ test('reuses the tags it created when the same product is looked up again', asyn
 });
 
 test('explains unknown products and typos', async ({ page }) => {
-  await lookUp(page, '4000000000020');
+  await lookUp(page, '2987654321775');
   await expect(page.getByText('No product was found for this barcode.')).toBeVisible();
-  await page.getByLabel('Barcode number').fill('4000000000021');
+  await page.getByLabel('Barcode number').fill('2987654321776');
   await page.getByRole('button', { name: 'Look up', exact: true }).click();
   await expect(page.getByText('This is not a valid barcode number')).toBeVisible();
 });

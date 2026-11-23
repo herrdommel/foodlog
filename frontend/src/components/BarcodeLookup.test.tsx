@@ -7,7 +7,7 @@ import { renderElement } from '../test/render.tsx';
 import { server } from '../test/server.ts';
 import { BarcodeLookup } from './BarcodeLookup.tsx';
 
-const CODE = '4000000000013';
+const CODE = '2999999999779';
 const milk: IngredientDto = {
   id: '11111111-1111-4111-8111-111111111111',
   nameDe: 'Milch',
@@ -28,7 +28,7 @@ const product: ProductLookupDto = {
   },
 };
 
-function setup() {
+function setup(onBusyChange?: (busy: boolean) => void) {
   const created: { name: string; allergens: string[] }[] = [];
   server.use(
     http.get(`/api/products/${CODE}`, () => HttpResponse.json(product)),
@@ -45,7 +45,7 @@ function setup() {
     }),
   );
   const onAdd = vi.fn();
-  renderElement(<BarcodeLookup onAdd={onAdd} />);
+  renderElement(<BarcodeLookup onAdd={onAdd} onBusyChange={onBusyChange} />);
   return { created, onAdd };
 }
 
@@ -62,7 +62,7 @@ describe('BarcodeLookup', () => {
     const asked = vi.fn();
     server.use(http.get('/api/products/:code', () => asked() ?? HttpResponse.json({})));
     renderElement(<BarcodeLookup onAdd={vi.fn()} />);
-    await lookUp('4000000000014');
+    await lookUp('2999999999770');
     expect(await screen.findByRole('alert')).toHaveTextContent('not a valid barcode');
     expect(asked).not.toHaveBeenCalled();
   });
@@ -86,6 +86,16 @@ describe('BarcodeLookup', () => {
     const [ingredients, label] = onAdd.mock.calls[0]!;
     expect(ingredients.map((i: IngredientDto) => i.nameEn)).toEqual(['Milk', 'Soy lecithin']);
     expect(label).toBe('Acme Hazel spread');
+  });
+
+  it('reports that it is busy until the new ingredients are created and added', async () => {
+    const events: string[] = [];
+    const { onAdd } = setup((busy) => events.push(busy ? 'busy' : 'idle'));
+    onAdd.mockImplementation(() => events.push('added'));
+    const user = await lookUp();
+    await screen.findByText('New ingredients');
+    await user.click(screen.getByRole('button', { name: 'Add 3 to the meal' }));
+    await waitFor(() => expect(events).toEqual(['busy', 'added', 'idle']));
   });
 
   it('creates nothing when only known ingredients are kept', async () => {

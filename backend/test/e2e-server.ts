@@ -32,7 +32,7 @@ const mailer = createMemoryMailer();
 const app = await buildApp({ config, db, mailer, disableRateLimit: true });
 
 const OFF_FIXTURES: Record<string, unknown> = {
-  '4000000000013': {
+  '2999999999779': {
     status: 1,
     product: {
       product_name: 'Hazel spread',

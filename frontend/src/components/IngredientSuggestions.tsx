@@ -10,10 +10,12 @@ export function IngredientSuggestions({
   suggestions,
   onAdd,
   onCancel,
+  onBusyChange,
 }: {
   suggestions: IngredientSuggestionsDto;
   onAdd: (ingredients: IngredientDto[]) => void;
   onCancel: () => void;
+  onBusyChange?: (busy: boolean) => void;
 }) {
   const { t, i18n } = useTranslation();
   const create = useCreateIngredient();
@@ -30,6 +32,7 @@ export function IngredientSuggestions({
 
   const confirm = async () => {
     setBusy(true);
+    onBusyChange?.(true);
     setError(null);
     try {
       const created: IngredientDto[] = [];
@@ -41,6 +44,7 @@ export function IngredientSuggestions({
       setError(caught);
     } finally {
       setBusy(false);
+      onBusyChange?.(false);
     }
   };
 

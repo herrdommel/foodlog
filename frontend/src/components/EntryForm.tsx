@@ -66,6 +66,7 @@ export function EntryForm({
   );
   const [rating, setRating] = useState<number | null>(initial ? initial.rating : null);
   const [note, setNote] = useState(initial?.note ?? '');
+  const [adding, setAdding] = useState(false);
   const [saveTemplate, setSaveTemplate] = useState(false);
   const [templateName, setTemplateName] = useState('');
 
@@ -106,6 +107,7 @@ export function EntryForm({
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    if (adding) return;
     const body = buildInput();
     try {
       if (initial) await update.mutateAsync({ id: initial.id, body });
@@ -196,6 +198,7 @@ export function EntryForm({
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start">
             {canScan && (
               <BarcodeLookup
+                onBusyChange={setAdding}
                 onAdd={(added, productName) => {
                   const known = new Set(ingredients.map((ingredient) => ingredient.id));
                   setIngredients([...ingredients, ...added.filter((item) => !known.has(item.id))]);
@@ -205,6 +208,7 @@ export function EntryForm({
             )}
             {canPhoto && (
               <PhotoRecognition
+                onBusyChange={setAdding}
                 onAdd={(added) => {
                   const known = new Set(ingredients.map((ingredient) => ingredient.id));
                   setIngredients([...ingredients, ...added.filter((item) => !known.has(item.id))]);
@@ -363,7 +367,7 @@ export function EntryForm({
         )}
 
         <ActionRow columns={2}>
-          <Button type="submit" disabled={mutation.isPending}>
+          <Button type="submit" disabled={mutation.isPending || adding}>
             {t('tracking.save')}
           </Button>
           <Button type="button" variant="secondary" onClick={onDone}>
