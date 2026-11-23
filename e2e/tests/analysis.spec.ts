@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { loginViaApi, registerVerified, seedDemoData } from './helpers.ts';
+import { choose, loginViaApi, registerVerified, seedDemoData } from './helpers.ts';
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('foodlog.lang', 'en'));
@@ -26,11 +26,11 @@ test('shows the disclaimer, summary and suspects from demo data', async ({ page 
 });
 
 test('updates when the settings change', async ({ page }) => {
-  await page.getByLabel('Time window after eating').selectOption('3');
+  await choose(page, 'Time window after eating', '3 hours');
   await expect(page).toHaveURL(/window=3/);
-  await page.getByLabel('Complaint', { exact: true }).selectOption('stool');
+  await choose(page, 'Complaint', 'Abnormal stool (Bristol 1-2 or 6-7)');
   await expect(page).toHaveURL(/outcome=stool/);
-  await expect(page.getByLabel('Minimum severity')).toBeDisabled();
+  await expect(page.getByRole('button', { name: /^Minimum severity/ })).toBeDisabled();
 
   await page.getByRole('button', { name: '7 days' }).click();
   await expect(page.getByRole('button', { name: '7 days' })).toHaveAttribute(

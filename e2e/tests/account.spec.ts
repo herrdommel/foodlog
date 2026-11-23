@@ -66,7 +66,8 @@ test.describe('legal pages', () => {
       'mailto:operator@example.com',
     );
 
-    await page.getByLabel('Language').selectOption('de');
+    await page.getByRole('button', { name: /^Language/ }).click();
+    await page.getByRole('option', { name: 'Deutsch' }).click();
     await expect(page.getByText('Betreiber Muster, Musterstraße 1')).toBeVisible();
     await page.getByRole('link', { name: 'Datenschutzerklärung' }).click();
     await expect(page.getByText('Dies ist die Test-Datenschutzerklärung.')).toBeVisible();

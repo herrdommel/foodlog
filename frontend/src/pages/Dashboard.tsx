@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { IconCalendarEvent, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import {
   ENTRY_TYPES,
   isContextType,
@@ -53,7 +54,7 @@ export function DashboardPage() {
             aria-label={t('tracking.previousDay')}
             onClick={() => goTo(shiftDate(date, -1))}
           >
-            <span aria-hidden="true">‹</span>
+            <IconChevronLeft size={18} aria-hidden="true" />
           </Button>
           {date !== today && (
             <Button
@@ -62,19 +63,7 @@ export function DashboardPage() {
               className="flex items-center justify-center gap-1.5"
               onClick={() => goTo(today)}
             >
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect x="3" y="5" width="18" height="16" rx="2" />
-                <path d="M3 10h18M8 3v4M16 3v4" />
-              </svg>
+              <IconCalendarEvent size={16} aria-hidden="true" />
               {t('tracking.goToToday')}
             </Button>
           )}
@@ -85,7 +74,7 @@ export function DashboardPage() {
             disabled={date >= today}
             onClick={() => goTo(shiftDate(date, 1))}
           >
-            <span aria-hidden="true">›</span>
+            <IconChevronRight size={18} aria-hidden="true" />
           </Button>
         </div>
       </div>

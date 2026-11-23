@@ -122,3 +122,13 @@ export async function signOut(page: Page) {
   await page.getByRole('button', { name: 'Account menu' }).click();
   await page.getByRole('button', { name: 'Sign out' }).click();
 }
+
+export async function choose(
+  page: Page,
+  label: string,
+  option: string,
+  scope: Pick<Page, 'getByRole'> = page,
+) {
+  await scope.getByRole('button', { name: new RegExp(`^${label}( |$)`) }).click();
+  await page.getByRole('option', { name: option, exact: true }).click();
+}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { IconX } from '@tabler/icons-react';
 import type { Allergen, IngredientDto } from '@foodlog/shared';
 import { useCreateIngredient, useIngredientSearch } from '../api/hooks.ts';
 import { ingredientName } from '../lib/format.ts';
@@ -63,7 +64,7 @@ export function IngredientPicker({
                 onClick={() => onChange(selected.filter((item) => item.id !== ingredient.id))}
                 className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-fg/10"
               >
-                <span aria-hidden="true">×</span>
+                <IconX size={14} aria-hidden="true" />
               </button>
             </li>
           ))}

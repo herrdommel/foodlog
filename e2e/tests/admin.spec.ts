@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Browser, type Page } from '@playwright/test';
 import {
+  choose,
   loginViaApi,
   ORIGIN,
   PASSWORD,
@@ -201,15 +202,15 @@ test('feature overrides take effect for the user', async ({ browser }) => {
 
   await openUser(admin, email);
   const features = admin.getByRole('region', { name: 'Features' });
-  await features.getByLabel('Data export').selectOption('off');
-  await expect(features.getByLabel('Data export')).toHaveValue('off');
+  await choose(admin, 'Data export', 'Off', features);
+  await expect(features.getByRole('button', { name: 'Data export Off' })).toBeVisible();
 
   await regular.reload();
   await regular.getByRole('heading', { name: 'Analysis', exact: true }).waitFor();
   await expect(regular.getByRole('link', { name: 'Export as CSV' })).toHaveCount(0);
 
-  await features.getByLabel('Data export').selectOption('default');
-  await expect(features.getByLabel('Data export')).toHaveValue('default');
+  await choose(admin, 'Data export', 'Default', features);
+  await expect(features.getByRole('button', { name: 'Data export Default' })).toBeVisible();
   await regular.reload();
   await expect(regular.getByRole('link', { name: 'Export as CSV' })).toBeVisible();
 });

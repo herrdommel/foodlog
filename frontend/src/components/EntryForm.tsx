@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { IconX } from '@tabler/icons-react';
 import {
   MAX_SLEEP_MINUTES,
   SYMPTOM_TYPES,
@@ -22,7 +23,8 @@ import {
 import { BarcodeLookup } from './BarcodeLookup.tsx';
 import { IngredientPicker } from './IngredientPicker.tsx';
 import { PhotoRecognition } from './PhotoRecognition.tsx';
-import { ActionRow, Button, Card, ErrorMessage, Field, SelectField } from './ui.tsx';
+import { Select } from './Select.tsx';
+import { ActionRow, Button, Card, ErrorMessage, Field } from './ui.tsx';
 
 const TEMPLATE_TYPES: EntryType[] = ['meal', 'drink', 'medication'];
 
@@ -174,7 +176,7 @@ export function EntryForm({
                     onClick={() => deleteTemplate.mutate(template.id)}
                     className="rounded-r-full py-1 pl-1 pr-2 hover:bg-fg/5"
                   >
-                    <span aria-hidden="true">×</span>
+                    <IconX size={14} aria-hidden="true" />
                   </button>
                 </li>
               ))}
@@ -222,18 +224,15 @@ export function EntryForm({
 
         {type === 'symptom' && (
           <>
-            <SelectField
+            <Select
               label={t('tracking.symptomType')}
               value={symptomType}
-              onChange={(event) => setSymptomType(event.target.value as SymptomType)}
-              className="w-full rounded-lg border border-fg/20 bg-raised px-3 py-2"
-            >
-              {SYMPTOM_TYPES.map((value) => (
-                <option key={value} value={value}>
-                  {t(`tracking.symptoms.${value}`)}
-                </option>
-              ))}
-            </SelectField>
+              onChange={setSymptomType}
+              options={SYMPTOM_TYPES.map((value) => ({
+                value,
+                label: t(`tracking.symptoms.${value}`),
+              }))}
+            />
             <div className="space-y-1">
               <label htmlFor="severity" className="block text-sm font-medium">
                 {t('tracking.severity')}

@@ -7,8 +7,8 @@ import {
   type ButtonHTMLAttributes,
   type InputHTMLAttributes,
   type ReactNode,
-  type SelectHTMLAttributes,
 } from 'react';
+import { IconChevronRight } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { ApiError } from '../api/client.ts';
 
@@ -37,30 +37,6 @@ export function Field({
           {hint}
         </p>
       )}
-    </div>
-  );
-}
-
-export function SelectField({
-  label,
-  id,
-  children,
-  ...props
-}: SelectHTMLAttributes<HTMLSelectElement> & { label: string }) {
-  const generatedId = useId();
-  const selectId = id ?? generatedId;
-  return (
-    <div className="space-y-1">
-      <label htmlFor={selectId} className="block text-sm font-medium">
-        {label}
-      </label>
-      <select
-        {...props}
-        id={selectId}
-        className="w-full rounded-lg border border-fg/20 bg-raised px-3 py-2 disabled:opacity-50"
-      >
-        {children}
-      </select>
     </div>
   );
 }
@@ -197,9 +173,11 @@ export function CollapsibleCard({
           <span className="block text-lg font-semibold">{title}</span>
           {!open && <span className="block text-sm text-fg/75">{summary}</span>}
         </span>
-        <span aria-hidden="true" className="text-xl transition group-open:rotate-90">
-          ›
-        </span>
+        <IconChevronRight
+          size={20}
+          aria-hidden="true"
+          className="shrink-0 transition group-open:rotate-90"
+        />
       </summary>
       <div className="space-y-4 px-6 pb-6">{children}</div>
     </details>
@@ -233,9 +211,9 @@ export function ScrollX({ children }: { children: ReactNode }) {
       {more && (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-0 flex w-12 items-center justify-end bg-linear-to-l from-raised to-transparent pr-1 text-2xl text-fg/60 print:hidden"
+          className="pointer-events-none absolute inset-y-0 right-0 flex w-12 items-center justify-end bg-linear-to-l from-raised to-transparent pr-1 text-fg/60 print:hidden"
         >
-          ›
+          <IconChevronRight size={24} />
         </div>
       )}
     </div>

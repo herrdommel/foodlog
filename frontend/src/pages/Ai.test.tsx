@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { AiPreviewDto, AiResultDto, AiSettingsDto } from '@foodlog/shared';
 import { server } from '../test/server.ts';
 import { meResponse, mockLoggedIn, renderApp } from '../test/render.tsx';
+import { choose, selectTrigger } from '../test/select.ts';
 
 const withAi = { ...meResponse, features: { ...meResponse.features, ai_analysis: true } };
 
@@ -219,10 +220,9 @@ describe('provider and key', () => {
     );
     renderApp('/ai');
     const user = userEvent.setup();
-    const select = await screen.findByLabelText('Model');
-    await waitFor(() => expect(select).toHaveValue('mock-small'));
-    expect(screen.getByRole('option', { name: 'mock-small (Recommended)' })).toBeInTheDocument();
-    await user.selectOptions(select, 'mock-large');
+    const select = await selectTrigger('Model');
+    await waitFor(() => expect(select).toHaveTextContent('mock-small (Recommended)'));
+    await choose(user, 'Model', 'mock-large');
     await user.click(screen.getByRole('button', { name: 'Save model' }));
     await waitFor(() => expect(patched).toEqual({ model: 'mock-large' }));
   });
@@ -241,7 +241,7 @@ describe('provider and key', () => {
     );
     renderApp('/ai');
     const user = userEvent.setup();
-    await user.selectOptions(await screen.findByLabelText('Provider'), 'openai');
+    await choose(user, 'Provider', 'OpenAI');
     await waitFor(() => expect(patched).toEqual({ provider: 'openai' }));
   });
 
@@ -261,9 +261,8 @@ describe('provider and key', () => {
     );
     renderApp('/ai');
     const user = userEvent.setup();
-    const select = await screen.findByLabelText('Provider');
-    await user.selectOptions(select, 'openai');
-    expect(select).toHaveValue('openai');
+    await choose(user, 'Provider', 'OpenAI');
+    expect(await selectTrigger('Provider')).toHaveTextContent('OpenAI');
     expect(patched).toBe(false);
     await user.type(await screen.findByLabelText('API key'), 'sk-openai-secret-9999');
     await user.click(screen.getByRole('button', { name: 'Save key' }));
@@ -446,7 +445,7 @@ describe('running the analysis', () => {
     const user = userEvent.setup();
     await user.click(await screen.findByRole('button', { name: 'Show data to be sent' }));
     await screen.findByRole('region', { name: 'This data will be sent' });
-    await user.selectOptions(screen.getByLabelText('Time window after eating'), '12');
+    await choose(user, 'Time window after eating', '12 hours');
     await waitFor(() =>
       expect(
         screen.queryByRole('region', { name: 'This data will be sent' }),

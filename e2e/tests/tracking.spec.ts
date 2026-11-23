@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { loginViaApi, registerVerified } from './helpers.ts';
+import { choose, loginViaApi, registerVerified } from './helpers.ts';
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('foodlog.lang', 'en'));
@@ -47,7 +47,7 @@ test('logs sleep and stress', async ({ page }) => {
 
 test('logs a symptom, a stool entry and medication', async ({ page }) => {
   await page.getByRole('button', { name: 'Symptom', exact: true }).click();
-  await page.getByLabel('Type of symptom').selectOption('bloating');
+  await choose(page, 'Type of symptom', 'Bloating');
   await page.getByLabel('Severity').fill('7');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByText('7 out of 10')).toBeVisible();

@@ -11,6 +11,7 @@ import type {
 } from '@foodlog/shared';
 import { server } from '../../test/server.ts';
 import { meResponse, mockLoggedIn, renderApp } from '../../test/render.tsx';
+import { choose } from '../../test/select.ts';
 
 const admin = {
   ...meResponse,
@@ -175,7 +176,7 @@ describe('user detail', () => {
     const name = profile.getByLabelText('Name');
     await user.clear(name);
     await user.type(name, 'Anna B');
-    await user.selectOptions(profile.getByLabelText('Role'), 'admin');
+    await choose(user, 'Role', 'Administrator', profile);
     await user.click(profile.getByRole('button', { name: 'Save' }));
     await waitFor(() => expect(body).toEqual({ name: 'Anna B', role: 'admin' }));
   });
@@ -300,9 +301,9 @@ describe('user detail', () => {
     renderApp(`/admin/users/${anna.id}`);
     const user = userEvent.setup();
     const features = within(await screen.findByRole('region', { name: 'Features' }));
-    await user.selectOptions(features.getByLabelText('AI analysis'), 'on');
+    await choose(user, 'AI analysis', 'On', features);
     await waitFor(() => expect(calls).toContainEqual({ key: 'ai_analysis', enabled: true }));
-    await user.selectOptions(features.getByLabelText('Sign in with Google'), 'off');
+    await choose(user, 'Sign in with Google', 'Off', features);
     await waitFor(() => expect(calls).toContainEqual({ key: 'google_login', enabled: false }));
     expect(features.getByText('disabled globally')).toBeInTheDocument();
   });

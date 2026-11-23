@@ -1,12 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
-import {
-  ANALYSIS_OUTCOMES,
-  ANALYSIS_WINDOWS,
-  shiftDate,
-  todayInTimeZone,
-  type AnalysisOutcome,
-} from '@foodlog/shared';
+import { shiftDate, todayInTimeZone } from '@foodlog/shared';
 import { useAnalysis, useMe } from '../api/hooks.ts';
 import {
   BristolChart,
@@ -16,7 +10,8 @@ import {
 } from '../components/AnalysisCharts.tsx';
 import { ContextFactors } from '../components/ContextFactors.tsx';
 import { SuspectsTable } from '../components/SuspectsTable.tsx';
-import { ActionRow, Button, Card, ErrorMessage, Field, SelectField } from '../components/ui.tsx';
+import { ActionRow, Button, Card, ErrorMessage, Field } from '../components/ui.tsx';
+import { AnalysisParamFields } from '../components/AnalysisParamFields.tsx';
 import { readAnalysisParams, toSearchParams, type AnalysisParams } from '../lib/analysisParams.ts';
 
 function Tile({ label, value }: { label: string; value: number }) {
@@ -93,47 +88,7 @@ export function AnalysisPage() {
             onChange={(event) => event.target.value && update({ to: event.target.value })}
           />
         </div>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <SelectField
-            label={t('analysis.window')}
-            value={params.window}
-            onChange={(event) => update({ window: Number(event.target.value) })}
-            className="w-full rounded-lg border border-fg/20 bg-raised px-3 py-2"
-          >
-            {ANALYSIS_WINDOWS.map((hours) => (
-              <option key={hours} value={hours}>
-                {t('analysis.windowHours', { count: hours })}
-              </option>
-            ))}
-          </SelectField>
-          <SelectField
-            label={t('analysis.outcome')}
-            value={params.outcome}
-            onChange={(event) => update({ outcome: event.target.value as AnalysisOutcome })}
-            className="w-full rounded-lg border border-fg/20 bg-raised px-3 py-2"
-          >
-            {ANALYSIS_OUTCOMES.map((value) => (
-              <option key={value} value={value}>
-                {value === 'symptoms' || value === 'stool'
-                  ? t(`analysis.outcomes.${value}`)
-                  : t(`tracking.symptoms.${value}`)}
-              </option>
-            ))}
-          </SelectField>
-          <SelectField
-            label={t('analysis.minSeverity')}
-            value={params.minSeverity}
-            disabled={params.outcome === 'stool'}
-            onChange={(event) => update({ minSeverity: Number(event.target.value) })}
-            className="w-full rounded-lg border border-fg/20 bg-raised px-3 py-2 disabled:opacity-50"
-          >
-            {Array.from({ length: 11 }, (_, value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
-          </SelectField>
-        </div>
+        <AnalysisParamFields params={params} onChange={update} />
       </Card>
 
       {(me?.features.data_export || me?.features.ai_analysis) && (

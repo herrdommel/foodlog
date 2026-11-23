@@ -11,6 +11,7 @@ import {
 } from '@foodlog/shared';
 import { server } from '../test/server.ts';
 import { meResponse, mockLoggedIn, renderApp } from '../test/render.tsx';
+import { choose } from '../test/select.ts';
 
 const milk: IngredientDto = {
   id: '11111111-1111-4111-8111-111111111111',
@@ -272,7 +273,7 @@ describe('dashboard', () => {
     renderApp('/');
     const user = userEvent.setup();
     await user.click(await screen.findByRole('button', { name: 'Symptom' }));
-    await user.selectOptions(screen.getByLabelText('Type of symptom'), 'nausea');
+    await choose(user, 'Type of symptom', 'Nausea');
     fireEvent.change(screen.getByLabelText('Severity'), { target: { value: '8' } });
     await user.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() => expect(body.type).toBe('symptom'));

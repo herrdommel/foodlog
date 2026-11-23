@@ -3,13 +3,10 @@ import { Link, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import {
   AI_PROVIDERS,
-  ANALYSIS_OUTCOMES,
-  ANALYSIS_WINDOWS,
   shiftDate,
   todayInTimeZone,
   type AiProviderId,
   type AiSettingsDto,
-  type AnalysisOutcome,
 } from '@foodlog/shared';
 import {
   useAiAnalyze,
@@ -33,8 +30,9 @@ import {
   ErrorMessage,
   Field,
   Notice,
-  SelectField,
 } from '../components/ui.tsx';
+import { AnalysisParamFields } from '../components/AnalysisParamFields.tsx';
+import { Select } from '../components/Select.tsx';
 import { readAnalysisParams, toSearchParams, type AnalysisParams } from '../lib/analysisParams.ts';
 
 function ProviderCard({ settings }: { settings: AiSettingsDto }) {
@@ -94,17 +92,12 @@ function ProviderCard({ settings }: { settings: AiSettingsDto }) {
       }
     >
       <ErrorMessage error={save.error ?? remove.error ?? update.error} />
-      <SelectField
+      <Select
         label={t('ai.provider.choose')}
         value={provider}
-        onChange={(event) => choose(event.target.value as AiProviderId)}
-      >
-        {AI_PROVIDERS.map((id) => (
-          <option key={id} value={id}>
-            {t(`ai.provider.${id}`)}
-          </option>
-        ))}
-      </SelectField>
+        onChange={choose}
+        options={AI_PROVIDERS.map((id) => ({ value: id, label: t(`ai.provider.${id}`) }))}
+      />
 
       {keyInfo.configured && !replacing ? (
         <div className="space-y-3">
@@ -149,18 +142,16 @@ function ProviderCard({ settings }: { settings: AiSettingsDto }) {
           <ErrorMessage error={models.error} />
           {models.data && (
             <>
-              <SelectField
+              <Select
                 label={t('ai.provider.model')}
                 value={model}
-                onChange={(event) => setChosenModel(event.target.value)}
-              >
-                {models.data.models.map((id) => (
-                  <option key={id} value={id}>
-                    {id}
-                    {id === models.data.suggested ? ` (${t('ai.provider.suggested')})` : ''}
-                  </option>
-                ))}
-              </SelectField>
+                onChange={setChosenModel}
+                options={models.data.models.map((id) => ({
+                  value: id,
+                  label:
+                    id === models.data.suggested ? `${id} (${t('ai.provider.suggested')})` : id,
+                }))}
+              />
               <div className="flex items-center gap-3">
                 <Button
                   type="button"
@@ -346,44 +337,7 @@ function RunCard({ settings }: { settings: AiSettingsDto }) {
           </Button>
         ))}
       </ActionRow>
-      <div className="grid gap-4 sm:grid-cols-3">
-        <SelectField
-          label={t('analysis.window')}
-          value={params.window}
-          onChange={(event) => update({ window: Number(event.target.value) })}
-        >
-          {ANALYSIS_WINDOWS.map((hours) => (
-            <option key={hours} value={hours}>
-              {t('analysis.windowHours', { count: hours })}
-            </option>
-          ))}
-        </SelectField>
-        <SelectField
-          label={t('analysis.outcome')}
-          value={params.outcome}
-          onChange={(event) => update({ outcome: event.target.value as AnalysisOutcome })}
-        >
-          {ANALYSIS_OUTCOMES.map((value) => (
-            <option key={value} value={value}>
-              {value === 'symptoms' || value === 'stool'
-                ? t(`analysis.outcomes.${value}`)
-                : t(`tracking.symptoms.${value}`)}
-            </option>
-          ))}
-        </SelectField>
-        <SelectField
-          label={t('analysis.minSeverity')}
-          value={params.minSeverity}
-          disabled={params.outcome === 'stool'}
-          onChange={(event) => update({ minSeverity: Number(event.target.value) })}
-        >
-          {Array.from({ length: 11 }, (_, value) => (
-            <option key={value} value={value}>
-              {value}
-            </option>
-          ))}
-        </SelectField>
-      </div>
+      <AnalysisParamFields params={params} onChange={update} />
 
       {!ready && (
         <p role="status" className="rounded-lg bg-accent/15 px-3 py-2 text-sm">

@@ -37,7 +37,7 @@ test.describe('with the feature enabled', () => {
     await expect(page.getByLabel('API key')).toHaveCount(0);
     await expect(page.locator('body')).not.toContainText('mock-valid-key');
 
-    await expect(page.getByLabel('Model')).toHaveValue('mock-large');
+    await expect(page.getByRole('button', { name: /^Model mock-large/ })).toBeVisible();
     await page.getByRole('button', { name: 'Save model' }).click();
     await expect(page.getByText('Model saved')).toBeVisible();
 
@@ -93,7 +93,9 @@ test.describe('with the feature enabled', () => {
     await page.getByRole('heading', { name: 'Analysis', exact: true }).waitFor();
     await page.getByRole('link', { name: 'AI analysis' }).click();
     await expect(page).toHaveURL(/\/ai\?.*window=24/);
-    await expect(page.getByLabel('Time window after eating')).toHaveValue('24');
+    await expect(
+      page.getByRole('button', { name: 'Time window after eating 24 hours' }),
+    ).toBeVisible();
   });
 
   for (const scheme of ['light', 'dark'] as const) {

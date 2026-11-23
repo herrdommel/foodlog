@@ -25,6 +25,7 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Backend: TypeScript, Fastify, Drizzle ORM (MariaDB via mysql2), Zod, Argon2, httpOnly cookie sessions.
 - Database: MariaDB 12.3 (external to the app, dedicated database and user).
 - Frontend: React, Vite, TypeScript, Tailwind, TanStack Query, Recharts, i18n (German and English), dark mode, mobile-first.
+- Icons: `@tabler/icons-react` (MIT, named imports so unused icons are tree-shaken), always `aria-hidden` when the text carries the meaning. No hand-written inline SVG for icons and no glyph characters such as ×, ‹, ›. Exceptions are artwork (avatars, logo) and generated graphics (QR code, charts).
 - Tests: Vitest (backend and frontend), React Testing Library with MSW, Playwright (E2E incl. axe).
 - Monorepo: `backend/`, `frontend/`, `shared/` (Zod schemas and types).
 
@@ -130,7 +131,7 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Time handling: the API receives wall-clock strings (`YYYY-MM-DDTHH:mm`) in the user's time zone and stores UTC. Conversions and day ranges live in `shared/src/time.ts` and use Luxon (moment is legacy, do not use it). Entries more than 10 minutes in the future are rejected. `GET /api/entries?date=` returns one local day.
 - Catalog: `backend/src/catalog/ingredients.ts` (key, allergens) and `backend/src/catalog/names.ts` (display names per language) are the source of truth. `syncCatalog` rewrites them on every `db:migrate`, so catalog edits ship with a release. Custom tags are rows in `ingredients` with a `user_id`. Catalog items are read-only for users.
 - Ingredient names are data, not columns: table `ingredient_names(ingredient_id, locale, name)`, in the API `IngredientDto.names` (`Record<locale, name>`). A name a user types has no language and is stored under `und` (`NEUTRAL_LOCALE`). `localizedName(names, locale)` in `shared/` picks the requested language, then English, then `und`, then any; the frontend uses it through `ingredientName`, the server for exports and the AI payload. Server side sorting and the analysis use `referenceName` (English, then `und`), so they do not depend on a user's language. English is the reference: every catalog key needs an English name (a test checks it), other languages may be incomplete.
-- Adding a language: add it to `LOCALES` in `shared/src/auth.ts` (`users.locale` is a plain `varchar`, no migration); add a block to `CATALOG_NAMES` (missing names fall back to English); add `frontend/src/i18n/<lang>.json` and register it in `i18n/index.ts`; add `privacy.<lang>.md` and `imprint.<lang>.md` to the legal templates and mail texts; add the prompt texts for the AI analysis and photo recognition (`Record<Locale, string>`, TypeScript lists what is missing); extend the landing screenshots (`e2e/tests/screenshots.spec.ts`) and the E2E texts.
+- Adding a language: add it to `LOCALES` in `shared/src/auth.ts` and to `LANGUAGES` in `components/LanguageSelect.tsx` (name and flag from `country-flag-icons`, TypeScript lists it as missing) (`users.locale` is a plain `varchar`, no migration); add a block to `CATALOG_NAMES` (missing names fall back to English); add `frontend/src/i18n/<lang>.json` and register it in `i18n/index.ts`; add `privacy.<lang>.md` and `imprint.<lang>.md` to the legal templates and mail texts; add the prompt texts for the AI analysis and photo recognition (`Record<Locale, string>`, TypeScript lists what is missing); extend the landing screenshots (`e2e/tests/screenshots.spec.ts`) and the E2E texts.
 - Allergen assignments are informational hints, not medical advice. Keep wording accordingly in the UI.
 - Templates exist for meal, drink and medication.
 - `pnpm db:seed` creates `demo@example.com` and `admin@example.com` (passwords printed by the script) with 28 days of sample data that contains a lactose to bloating pattern. It refuses to run in production.
@@ -144,7 +145,7 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Guard rails: at least 5 exposures and 3 positive exposures, meals whose window is not finished yet are excluded, only ratios above 1 are listed. Confidence is high when the interval lower bound is above 1 with at least 10 exposures and 5 positives, medium when only the bound is above 1, otherwise low.
 - Ingredients that were always eaten in exactly the same meals are merged into one row (`alsoWith`), because the data cannot tell them apart. Keep this when changing the logic.
 - Always show the "hint, not a diagnosis" disclaimer on analysis and report pages.
-- Charts use Recharts (MIT, current). Selects use `SelectField` (separate label), never a label wrapping a select.
+- Charts use Recharts (MIT, current). No native `<select>`: use `components/Select.tsx` (listbox with its own label, options with optional icon, a search field above 12 options). `LanguageSelect` is built on it. In tests pick values with `choose` from `frontend/src/test/select.ts` (unit) and `choose` from `e2e/tests/helpers.ts` (E2E).
 
 ## Export notes (M3)
 

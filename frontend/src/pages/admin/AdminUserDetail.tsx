@@ -11,15 +11,8 @@ import {
   useUpdateAdminUser,
 } from '../../api/hooks.ts';
 import { CopyField } from '../../components/admin/CopyField.tsx';
-import {
-  ActionRow,
-  Button,
-  Card,
-  ErrorMessage,
-  Field,
-  Notice,
-  SelectField,
-} from '../../components/ui.tsx';
+import { Select } from '../../components/Select.tsx';
+import { ActionRow, Button, Card, ErrorMessage, Field, Notice } from '../../components/ui.tsx';
 import { UserStatus } from './AdminUsers.tsx';
 
 function ProfileCard({ user, isSelf }: { user: AdminUserDetailDto; isSelf: boolean }) {
@@ -61,15 +54,16 @@ function ProfileCard({ user, isSelf }: { user: AdminUserDetailDto; isSelf: boole
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />
-        <SelectField
+        <Select
           label={t('admin.users.role')}
           value={role}
           disabled={isSelf}
-          onChange={(event) => setRole(event.target.value as 'user' | 'admin')}
-        >
-          <option value="user">{t('admin.roles.user')}</option>
-          <option value="admin">{t('admin.roles.admin')}</option>
-        </SelectField>
+          onChange={setRole}
+          options={[
+            { value: 'user', label: t('admin.roles.user') },
+            { value: 'admin', label: t('admin.roles.admin') },
+          ]}
+        />
         {isSelf && <p className="text-sm text-fg/75">{t('admin.detail.selfHint')}</p>}
         <div className="grid items-center gap-2 sm:flex sm:gap-3 [&>button]:w-full sm:[&>button]:w-auto">
           <Button type="submit" disabled={!dirty || update.isPending} className="w-full sm:w-auto">
@@ -205,20 +199,21 @@ function FeaturesCard({ user }: { user: AdminUserDetailDto }) {
           const value = feature.override === null ? 'default' : feature.override ? 'on' : 'off';
           return (
             <li key={feature.key} className="grid items-end gap-2 sm:grid-cols-[1fr_auto]">
-              <SelectField
+              <Select
                 label={t(`admin.features.${feature.key}`)}
                 value={value}
-                onChange={(event) =>
+                onChange={(next) =>
                   setFeature.mutate({
                     key: feature.key,
-                    enabled: event.target.value === 'default' ? null : event.target.value === 'on',
+                    enabled: next === 'default' ? null : next === 'on',
                   })
                 }
-              >
-                <option value="default">{t('admin.detail.featureDefault')}</option>
-                <option value="on">{t('admin.detail.featureOn')}</option>
-                <option value="off">{t('admin.detail.featureOff')}</option>
-              </SelectField>
+                options={[
+                  { value: 'default', label: t('admin.detail.featureDefault') },
+                  { value: 'on', label: t('admin.detail.featureOn') },
+                  { value: 'off', label: t('admin.detail.featureOff') },
+                ]}
+              />
               <p className="pb-2 text-sm text-fg/75">
                 {feature.globalEnabled
                   ? t('admin.detail.effective', {

@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { AnalysisDto, IngredientDto, SuspectDto } from '@foodlog/shared';
 import { server } from '../test/server.ts';
 import { meResponse, mockLoggedIn, renderApp } from '../test/render.tsx';
+import { choose, selectTrigger } from '../test/select.ts';
 
 const milk: IngredientDto = {
   id: '11111111-1111-4111-8111-111111111111',
@@ -147,13 +148,13 @@ describe('analysis page', () => {
     expect(requests[0]!.get('minSeverity')).toBe('5');
 
     const user = userEvent.setup();
-    await user.selectOptions(screen.getByLabelText('Time window after eating'), '12');
+    await choose(user, 'Time window after eating', '12 hours');
     await waitFor(() => expect(requests.some((query) => query.get('window') === '12')).toBe(true));
-    await user.selectOptions(screen.getByLabelText('Complaint'), 'stool');
+    await choose(user, 'Complaint', 'Abnormal stool (Bristol 1-2 or 6-7)');
     await waitFor(() =>
       expect(requests.some((query) => query.get('outcome') === 'stool')).toBe(true),
     );
-    expect(screen.getByLabelText('Minimum severity')).toBeDisabled();
+    expect(await selectTrigger('Minimum severity')).toBeDisabled();
   });
 
   it('offers csv export and report links for the selected period', async () => {

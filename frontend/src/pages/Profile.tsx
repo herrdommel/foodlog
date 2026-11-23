@@ -1,7 +1,7 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { LOCALES, PRESET_AVATAR_COUNT, type Locale, type PublicUser } from '@foodlog/shared';
+import { PRESET_AVATAR_COUNT, type Locale, type PublicUser } from '@foodlog/shared';
 import {
   useMe,
   useDeleteAccount,
@@ -11,17 +11,11 @@ import {
   useUploadAvatar,
 } from '../api/hooks.ts';
 import { Avatar } from '../components/Avatar.tsx';
+import { LanguageSelect } from '../components/LanguageSelect.tsx';
 import { MfaCard } from '../components/MfaCard.tsx';
+import { Select } from '../components/Select.tsx';
 import { PresetAvatar } from '../components/presetAvatars.tsx';
-import {
-  ActionRow,
-  Button,
-  Card,
-  ErrorMessage,
-  Field,
-  Notice,
-  SelectField,
-} from '../components/ui.tsx';
+import { ActionRow, Button, Card, ErrorMessage, Field, Notice } from '../components/ui.tsx';
 import { setLocale } from '../i18n/index.ts';
 
 const timezones = Intl.supportedValuesOf('timeZone');
@@ -69,30 +63,18 @@ function PreferencesCard({ user }: { user: PublicUser }) {
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
-        <SelectField
+        <LanguageSelect
+          variant="field"
           label={t('common.language')}
           value={locale}
-          onChange={(event) => setLocaleState(event.target.value as Locale)}
-          className="w-full rounded-lg border border-fg/20 bg-raised px-3 py-2"
-        >
-          {LOCALES.map((value) => (
-            <option key={value} value={value}>
-              {value === 'de' ? 'Deutsch' : 'English'}
-            </option>
-          ))}
-        </SelectField>
-        <SelectField
+          onChange={setLocaleState}
+        />
+        <Select
           label={t('profile.timezone')}
           value={timezone}
-          onChange={(event) => setTimezone(event.target.value)}
-          className="w-full rounded-lg border border-fg/20 bg-raised px-3 py-2"
-        >
-          {timezones.map((value) => (
-            <option key={value} value={value}>
-              {value}
-            </option>
-          ))}
-        </SelectField>
+          onChange={setTimezone}
+          options={timezones.map((value) => ({ value, label: value }))}
+        />
         <div className="grid items-center gap-2 sm:flex sm:gap-3 [&>button]:w-full sm:[&>button]:w-auto">
           <Button type="submit" disabled={update.isPending}>
             {t('common.save')}
