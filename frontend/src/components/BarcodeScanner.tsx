@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { BrowserMultiFormatReader } from '@zxing/browser';
 import { isValidBarcode } from '@foodlog/shared';
+import { hasTouchCamera } from '../lib/device.ts';
 import { Button, FilePicker } from './ui.tsx';
 
 type Controls = { stop: () => void };
@@ -35,12 +36,23 @@ export function canUseCamera(): boolean {
   return typeof navigator !== 'undefined' && Boolean(navigator.mediaDevices?.getUserMedia);
 }
 
-export function BarcodeScanner({ onDetected }: { onDetected: (code: string) => void }) {
+// `attempt` changes whenever the person types a number or looks one up, which makes an old
+// scan error disappear.
+export function BarcodeScanner({
+  onDetected,
+  attempt = 0,
+}: {
+  onDetected: (code: string) => void;
+  attempt?: number;
+}) {
   const { t } = useTranslation();
   const video = useRef<HTMLVideoElement>(null);
   const controls = useRef<Controls | null>(null);
   const [scanning, setScanning] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [failure, setFailure] = useState<{ text: string; attempt: number } | null>(null);
+  const message = failure?.attempt === attempt ? failure.text : null;
+  const setMessage = (text: string | null) => setFailure(text ? { text, attempt } : null);
+  const live = canUseCamera();
 
   const stop = () => {
     controls.current?.stop();
@@ -93,14 +105,14 @@ export function BarcodeScanner({ onDetected }: { onDetected: (code: string) => v
   return (
     <div className="space-y-2">
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-        {canUseCamera() && !scanning && (
+        {live && !scanning && (
           <Button
             type="button"
             variant="secondary"
             className="w-full sm:w-auto"
             onClick={startCamera}
           >
-            {t('barcode.scanCamera')}
+            {t('media.camera')}
           </Button>
         )}
         {scanning && (
@@ -108,12 +120,10 @@ export function BarcodeScanner({ onDetected }: { onDetected: (code: string) => v
             {t('barcode.stopCamera')}
           </Button>
         )}
-        <FilePicker
-          label={t('barcode.takePhoto')}
-          capture
-          onFile={(file) => void readPhoto(file)}
-        />
-        <FilePicker label={t('barcode.scanPhoto')} onFile={(file) => void readPhoto(file)} />
+        {!live && hasTouchCamera() && (
+          <FilePicker label={t('media.camera')} capture onFile={(file) => void readPhoto(file)} />
+        )}
+        <FilePicker label={t('media.library')} onFile={(file) => void readPhoto(file)} />
       </div>
       {scanning && (
         <video
@@ -124,7 +134,7 @@ export function BarcodeScanner({ onDetected }: { onDetected: (code: string) => v
           className="aspect-video w-full rounded-lg bg-dark object-cover"
         />
       )}
-      {!canUseCamera() && <p className="text-xs text-fg/75">{t('barcode.noCamera')}</p>}
+      {!live && <p className="text-xs text-fg/75">{t('barcode.noCamera')}</p>}
       {message && (
         <p role="alert" className="rounded-lg bg-coral/15 px-3 py-2 text-sm">
           {message}

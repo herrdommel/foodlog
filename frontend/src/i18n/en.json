@@ -607,10 +607,7 @@
     "number": "Barcode number",
     "lookup": "Look up",
     "attribution": "Product data from",
-    "scanCamera": "Scan with camera",
     "stopCamera": "Stop camera",
-    "takePhoto": "Take a photo to scan",
-    "scanPhoto": "Scan from a photo",
     "cameraView": "Camera view",
     "cameraFailed": "The camera could not be started. Check the permission, or enter the number or use a photo.",
     "notFoundInPhoto": "No barcode could be read from this photo. Try again closer and in good light, or enter the number.",
@@ -629,8 +626,6 @@
     "title": "Recognise from a photo",
     "notReady": "Photo recognition needs your AI provider, a model, a key and your consent for photos.",
     "setup": "Set it up",
-    "choose": "Choose a photo",
-    "take": "Take a photo",
     "previewAlt": "Your photo",
     "sendNote": "This photo is sent to {{provider}} ({{model}}) with your API key, analysed and not stored. Make sure it shows nothing you do not want to share, for example other people.",
     "analyse": "Recognise ingredients",
@@ -760,5 +755,9 @@
     },
     "requiredTitle": "Second factor required",
     "requiredText": "Administrators need a second factor. Set up an authenticator app or a passkey below to use the admin area."
+  },
+  "media": {
+    "camera": "Camera",
+    "library": "Photo or file"
   }
 }

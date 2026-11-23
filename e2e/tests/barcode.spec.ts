@@ -129,7 +129,7 @@ async function barcodeImage(page: Page, code: string): Promise<Buffer> {
 
 test('reads a barcode from a photo and looks the product up', async ({ page }) => {
   await page.getByRole('button', { name: 'Look up a barcode' }).click();
-  await page.getByLabel('Scan from a photo').setInputFiles({
+  await page.getByLabel('Photo or file').setInputFiles({
     name: 'code.png',
     mimeType: 'image/png',
     buffer: await barcodeImage(page, CODE),
@@ -147,7 +147,7 @@ test('says so when a photo has no barcode', async ({ page }) => {
     canvas.getContext('2d')!.fillRect(0, 0, 200, 100);
     return canvas.toDataURL('image/png');
   });
-  await page.getByLabel('Scan from a photo').setInputFiles({
+  await page.getByLabel('Photo or file').setInputFiles({
     name: 'blank.png',
     mimeType: 'image/png',
     buffer: Buffer.from(blank.split(',')[1]!, 'base64'),

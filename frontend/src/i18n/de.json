@@ -607,10 +607,7 @@
     "number": "Barcode-Nummer",
     "lookup": "Nachschlagen",
     "attribution": "Produktdaten von",
-    "scanCamera": "Mit Kamera scannen",
     "stopCamera": "Kamera stoppen",
-    "takePhoto": "Foto zum Scannen aufnehmen",
-    "scanPhoto": "Aus einem Foto scannen",
     "cameraView": "Kameraansicht",
     "cameraFailed": "Die Kamera konnte nicht gestartet werden. Prüfe die Berechtigung oder gib die Nummer ein bzw. nutze ein Foto.",
     "notFoundInPhoto": "Aus diesem Foto konnte kein Barcode gelesen werden. Versuche es näher und bei gutem Licht oder gib die Nummer ein.",
@@ -629,8 +626,6 @@
     "title": "Aus einem Foto erkennen",
     "notReady": "Die Foto-Erkennung braucht deinen KI-Anbieter, ein Modell, einen Key und deine Einwilligung für Fotos.",
     "setup": "Einrichten",
-    "choose": "Foto auswählen",
-    "take": "Foto aufnehmen",
     "previewAlt": "Dein Foto",
     "sendNote": "Dieses Foto wird mit deinem API-Key an {{provider}} ({{model}}) gesendet, ausgewertet und nicht gespeichert. Achte darauf, dass nichts darauf zu sehen ist, das du nicht teilen möchtest, zum Beispiel andere Personen.",
     "analyse": "Zutaten erkennen",
@@ -760,5 +755,9 @@
     },
     "requiredTitle": "Zweiter Faktor erforderlich",
     "requiredText": "Administratoren brauchen einen zweiten Faktor. Richte unten eine Authenticator-App oder einen Passkey ein, um den Adminbereich zu nutzen."
+  },
+  "media": {
+    "camera": "Kamera",
+    "library": "Foto oder Datei"
   }
 }

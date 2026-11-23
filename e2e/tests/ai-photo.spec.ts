@@ -53,7 +53,7 @@ async function consent(page: Page) {
 
 async function recognise(page: Page) {
   await openPhotoPanel(page);
-  await page.getByLabel('Choose a photo').setInputFiles({
+  await page.getByLabel('Photo or file').setInputFiles({
     name: 'meal.png',
     mimeType: 'image/png',
     buffer: await samplePhoto(page),
@@ -76,7 +76,7 @@ test('sends the user to the setup while key or consent are missing', async ({ pa
   const panel = page.getByRole('region', { name: 'Recognise from a photo' });
   await expect(panel.getByText(/needs your AI provider/)).toBeVisible();
   await expect(panel.getByRole('link', { name: 'Set it up' })).toHaveAttribute('href', '/ai');
-  await expect(panel.getByLabel('Choose a photo')).toHaveCount(0);
+  await expect(panel.getByLabel('Photo or file')).toHaveCount(0);
 });
 
 test('recognises a photo and adds known and new ingredients to the meal', async ({ page }) => {

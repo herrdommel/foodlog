@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import type { IngredientDto } from '@foodlog/shared';
 import { useAiSettings, useRecognizePhoto } from '../api/hooks.ts';
+import { hasTouchCamera } from '../lib/device.ts';
 import { blobToDataUrl, downscaleImage } from '../lib/image.ts';
 import { IngredientSuggestions } from './IngredientSuggestions.tsx';
 import { Button, ErrorMessage, FilePicker, Notice } from './ui.tsx';
@@ -75,8 +76,10 @@ export function PhotoRecognition({
       {data && ready && !recognize.data && (
         <>
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-            <FilePicker label={t('photo.take')} capture onFile={(file) => void choose(file)} />
-            <FilePicker label={t('photo.choose')} onFile={(file) => void choose(file)} />
+            {hasTouchCamera() && (
+              <FilePicker label={t('media.camera')} capture onFile={(file) => void choose(file)} />
+            )}
+            <FilePicker label={t('media.library')} onFile={(file) => void choose(file)} />
           </div>
           <ErrorMessage error={prepareError} />
           {photo && (

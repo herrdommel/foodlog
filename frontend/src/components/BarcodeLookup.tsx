@@ -18,6 +18,7 @@ export function BarcodeLookup({
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState('');
   const [invalid, setInvalid] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const [product, setProduct] = useState<ProductLookupDto | null>(null);
 
   const reset = () => {
@@ -30,6 +31,7 @@ export function BarcodeLookup({
 
   const search = (value = code) => {
     const trimmed = value.trim();
+    setAttempt((count) => count + 1);
     setProduct(null);
     if (!isValidBarcode(trimmed)) {
       setInvalid(true);
@@ -67,7 +69,10 @@ export function BarcodeLookup({
             inputMode="numeric"
             autoComplete="off"
             value={code}
-            onChange={(event) => setCode(event.target.value)}
+            onChange={(event) => {
+              setCode(event.target.value);
+              setAttempt((count) => count + 1);
+            }}
             onKeyDown={(event) => {
               if (event.key === 'Enter') {
                 event.preventDefault();
@@ -81,6 +86,7 @@ export function BarcodeLookup({
         </Button>
       </div>
       <BarcodeScanner
+        attempt={attempt}
         onDetected={(detected) => {
           setCode(detected);
           search(detected);

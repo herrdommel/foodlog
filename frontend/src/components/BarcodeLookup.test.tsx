@@ -7,6 +7,19 @@ import { renderElement } from '../test/render.tsx';
 import { server } from '../test/server.ts';
 import { BarcodeLookup } from './BarcodeLookup.tsx';
 
+const reader = vi.hoisted(() => ({ decodeFromConstraints: vi.fn(), decodeFromImageUrl: vi.fn() }));
+vi.mock('@zxing/browser', () => ({
+  BrowserMultiFormatReader: class {
+    constructor() {
+      return reader;
+    }
+  },
+}));
+vi.mock('@zxing/library', () => ({
+  BarcodeFormat: { EAN_13: 1, EAN_8: 2, UPC_A: 3, UPC_E: 4 },
+  DecodeHintType: { POSSIBLE_FORMATS: 5 },
+}));
+
 const CODE = '2999999999779';
 const milk: IngredientDto = {
   id: '11111111-1111-4111-8111-111111111111',
@@ -96,6 +109,35 @@ describe('BarcodeLookup', () => {
     await screen.findByText('New ingredients');
     await user.click(screen.getByRole('button', { name: 'Add 3 to the meal' }));
     await waitFor(() => expect(events).toEqual(['busy', 'added', 'idle']));
+  });
+
+  it('removes the "no barcode in this photo" message once a number is typed', async () => {
+    reader.decodeFromImageUrl.mockRejectedValue(new Error('no code'));
+    setup();
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Look up a barcode' }));
+    await user.upload(
+      screen.getByLabelText('Photo or file'),
+      new File(['x'], 'code.png', { type: 'image/png' }),
+    );
+    expect(await screen.findByRole('alert')).toHaveTextContent('No barcode could be read');
+
+    await user.type(screen.getByLabelText('Barcode number'), '2');
+    expect(screen.queryByText(/No barcode could be read/)).not.toBeInTheDocument();
+  });
+
+  it('removes the photo message when a looked-up number replaces it', async () => {
+    reader.decodeFromImageUrl.mockRejectedValue(new Error('no code'));
+    setup();
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Look up a barcode' }));
+    await user.upload(
+      screen.getByLabelText('Photo or file'),
+      new File(['x'], 'code.png', { type: 'image/png' }),
+    );
+    await screen.findByText(/No barcode could be read/);
+    await user.click(screen.getByRole('button', { name: 'Look up' }));
+    expect(screen.queryByText(/No barcode could be read/)).not.toBeInTheDocument();
   });
 
   it('creates nothing when only known ingredients are kept', async () => {

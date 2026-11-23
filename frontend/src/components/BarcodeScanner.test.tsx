@@ -39,9 +39,25 @@ function withCamera() {
 describe('BarcodeScanner', () => {
   it('says why the live camera is missing and keeps the photo option', () => {
     renderElement(<BarcodeScanner onDetected={vi.fn()} />);
-    expect(screen.queryByRole('button', { name: 'Scan with camera' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Camera' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Camera')).not.toBeInTheDocument();
     expect(screen.getByText(/needs a secure connection/)).toBeInTheDocument();
-    expect(screen.getByText('Scan from a photo')).toBeInTheDocument();
+    expect(screen.getByText('Photo or file')).toBeInTheDocument();
+  });
+
+  it('falls back to the phone camera app when the live camera is unavailable', () => {
+    vi.stubGlobal('matchMedia', () => ({ matches: true }));
+    renderElement(<BarcodeScanner onDetected={vi.fn()} />);
+    expect(screen.getByLabelText('Camera')).toHaveAttribute('capture', 'environment');
+    expect(screen.getByLabelText('Photo or file')).not.toHaveAttribute('capture');
+  });
+
+  it('offers one camera control with a live camera, and no second one on a phone', () => {
+    withCamera();
+    vi.stubGlobal('matchMedia', () => ({ matches: true }));
+    renderElement(<BarcodeScanner onDetected={vi.fn()} />);
+    expect(screen.getByRole('button', { name: 'Camera' })).toBeInTheDocument();
+    expect(screen.queryByLabelText('Camera')).not.toBeInTheDocument();
   });
 
   it('asks for the rear camera and reports a valid code once', async () => {
@@ -54,7 +70,7 @@ describe('BarcodeScanner', () => {
     });
     const onDetected = vi.fn();
     renderElement(<BarcodeScanner onDetected={onDetected} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Scan with camera' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Camera' }));
     await waitFor(() => expect(reader.decodeFromConstraints).toHaveBeenCalled());
     expect(reader.decodeFromConstraints.mock.calls[0]![0]).toEqual({
       video: { facingMode: 'environment' },
@@ -72,7 +88,7 @@ describe('BarcodeScanner', () => {
     withCamera();
     reader.decodeFromConstraints.mockRejectedValue(new Error('denied'));
     renderElement(<BarcodeScanner onDetected={vi.fn()} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Scan with camera' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Camera' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('could not be started');
   });
 
@@ -80,7 +96,7 @@ describe('BarcodeScanner', () => {
     reader.decodeFromImageUrl.mockResolvedValue(result('2999999999779'));
     const onDetected = vi.fn();
     renderElement(<BarcodeScanner onDetected={onDetected} />);
-    const input = screen.getByLabelText('Scan from a photo');
+    const input = screen.getByLabelText('Photo or file');
     await userEvent.upload(input, new File(['x'], 'code.png', { type: 'image/png' }));
     await waitFor(() => expect(onDetected).toHaveBeenCalledWith('2999999999779'));
     expect(reader.decodeFromImageUrl.mock.calls[0]![0]).toMatch(/^data:image\/png;base64,/);
@@ -91,7 +107,7 @@ describe('BarcodeScanner', () => {
     const onDetected = vi.fn();
     renderElement(<BarcodeScanner onDetected={onDetected} />);
     await userEvent.upload(
-      screen.getByLabelText('Scan from a photo'),
+      screen.getByLabelText('Photo or file'),
       new File(['x'], 'code.png', { type: 'image/png' }),
     );
     expect(await screen.findByRole('alert')).toHaveTextContent('No barcode could be read');

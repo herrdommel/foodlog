@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { AiPhotoResultDto, AiSettingsDto } from '@foodlog/shared';
 import { renderElement } from '../test/render.tsx';
 import { server } from '../test/server.ts';
@@ -67,21 +67,34 @@ function setup(photoConsent = true) {
   return { onAdd, uploads };
 }
 
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 describe('PhotoRecognition', () => {
   it('points to the setup when the consent for photos is missing', async () => {
     setup(false);
     await userEvent.click(screen.getByRole('button', { name: 'Recognise from a photo' }));
     expect(await screen.findByText(/needs your AI provider/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Set it up' })).toHaveAttribute('href', '/ai');
-    expect(screen.queryByLabelText('Choose a photo')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Photo or file')).not.toBeInTheDocument();
   });
 
-  it('offers the camera and the gallery separately', async () => {
+  it('offers only the file picker on a desktop, where a camera button would do the same', async () => {
     setup();
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Recognise from a photo' }));
-    expect(await screen.findByLabelText('Take a photo')).toHaveAttribute('capture', 'environment');
-    expect(screen.getByLabelText('Choose a photo')).not.toHaveAttribute('capture');
+    expect(await screen.findByLabelText('Photo or file')).not.toHaveAttribute('capture');
+    expect(screen.queryByLabelText('Camera')).not.toBeInTheDocument();
+  });
+
+  it('offers the camera and the library separately on a phone', async () => {
+    vi.stubGlobal('matchMedia', () => ({ matches: true }));
+    setup();
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Recognise from a photo' }));
+    expect(await screen.findByLabelText('Camera')).toHaveAttribute('capture', 'environment');
+    expect(screen.getByLabelText('Photo or file')).not.toHaveAttribute('capture');
   });
 
   it('shows the photo and where it goes, then adds the checked suggestions', async () => {
@@ -89,7 +102,7 @@ describe('PhotoRecognition', () => {
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Recognise from a photo' }));
     await user.upload(
-      await screen.findByLabelText('Choose a photo'),
+      await screen.findByLabelText('Photo or file'),
       new File(['raw'], 'big.heic', { type: 'image/heic' }),
     );
     expect(await screen.findByRole('img', { name: 'Your photo' })).toHaveAttribute(
@@ -116,7 +129,7 @@ describe('PhotoRecognition', () => {
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Recognise from a photo' }));
     await user.upload(
-      await screen.findByLabelText('Choose a photo'),
+      await screen.findByLabelText('Photo or file'),
       new File(['raw'], 'x.png', { type: 'image/png' }),
     );
     expect(await screen.findByRole('alert')).toHaveTextContent('not a supported image');
@@ -132,7 +145,7 @@ describe('PhotoRecognition', () => {
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Recognise from a photo' }));
     await user.upload(
-      await screen.findByLabelText('Choose a photo'),
+      await screen.findByLabelText('Photo or file'),
       new File(['raw'], 'x.png', { type: 'image/png' }),
     );
     await user.click(await screen.findByRole('button', { name: 'Recognise ingredients' }));
