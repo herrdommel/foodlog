@@ -1,8 +1,11 @@
-import { Children, useRef, useState, type ReactNode } from 'react';
+import { Children, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthConfig } from '../api/hooks.ts';
 import { LanguageSwitch, LegalLinks } from '../components/Layout.tsx';
 import { Logo } from '../components/Logo.tsx';
+import { Modal } from '../components/Modal.tsx';
+import { Button } from '../components/ui.tsx';
+import { useMediaQuery } from '../lib/useMediaQuery.ts';
 import { LoginForm } from './Login.tsx';
 
 const STEPS = ['log', 'find', 'share'] as const;
@@ -55,7 +58,8 @@ export function LandingPage() {
   const config = useAuthConfig();
   const lang = i18n.language.startsWith('de') ? 'de' : 'en';
   const [openShot, setOpenShot] = useState<(typeof SHOTS)[number] | null>(null);
-  const dialog = useRef<HTMLDialogElement>(null);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const wide = useMediaQuery('(min-width: 768px)');
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-10 px-4 py-6 md:gap-16">
@@ -65,7 +69,7 @@ export function LandingPage() {
       </header>
 
       <main className="flex-1 space-y-12 md:space-y-20">
-        <section className="grid gap-10 md:grid-cols-[3fr_2fr] md:items-start">
+        <section className="grid gap-6 md:grid-cols-[3fr_2fr] md:gap-10 md:items-start">
           <div className="space-y-5">
             <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl">
               {t('landing.title')}
@@ -83,12 +87,18 @@ export function LandingPage() {
               ))}
             </ul>
           </div>
-          <div className="rounded-2xl border border-fg/10 bg-raised p-6 shadow-sm">
-            <LoginForm heading="h2" />
-            {!config.data?.publicRegistration && (
-              <p className="mt-4 text-sm text-fg/75">{t('landing.inviteOnly')}</p>
-            )}
-          </div>
+          {wide ? (
+            <div className="rounded-2xl border border-fg/10 bg-raised p-6 shadow-sm">
+              <LoginForm heading="h2" />
+              {!config.data?.publicRegistration && (
+                <p className="mt-4 text-sm text-fg/75">{t('landing.inviteOnly')}</p>
+              )}
+            </div>
+          ) : (
+            <Button type="button" onClick={() => setLoginOpen(true)}>
+              {t('auth.login')}
+            </Button>
+          )}
         </section>
 
         <section aria-labelledby="how-heading" className="space-y-6">
@@ -176,31 +186,52 @@ export function LandingPage() {
       <LegalLinks />
 
       {openShot && (
-        <dialog
-          ref={(element) => {
-            dialog.current = element;
-            if (element && !element.open) element.showModal();
-          }}
-          aria-label={t(`landing.shots.${openShot}.caption`)}
+        <Modal
+          label={t(`landing.shots.${openShot}.caption`)}
           onClose={() => setOpenShot(null)}
-          onClick={(event) => {
-            if (event.target === event.currentTarget) event.currentTarget.close();
-          }}
-          className="m-auto max-h-[92vh] max-w-[min(92vw,56rem)] overflow-auto rounded-xl bg-raised p-2 text-fg backdrop:bg-black/70"
+          className="max-w-[min(92vw,56rem)] p-2"
         >
-          <img
-            src={`/landing/${openShot}-${lang}.jpg`}
-            alt={t(`landing.shots.${openShot}.alt`)}
-            className="mx-auto h-auto max-h-[80vh] w-auto max-w-full rounded-lg"
-          />
-          <button
-            type="button"
-            onClick={() => dialog.current?.close()}
-            className="mt-2 w-full rounded-lg border border-fg/20 px-4 py-2 font-medium hover:border-accent"
-          >
-            {t('landing.close')}
-          </button>
-        </dialog>
+          {(close) => (
+            <>
+              <img
+                src={`/landing/${openShot}-${lang}.jpg`}
+                alt={t(`landing.shots.${openShot}.alt`)}
+                className="mx-auto h-auto max-h-[80vh] w-auto max-w-full rounded-lg"
+              />
+              <button
+                type="button"
+                onClick={close}
+                className="mt-2 w-full rounded-lg border border-fg/20 px-4 py-2 font-medium hover:border-accent"
+              >
+                {t('landing.close')}
+              </button>
+            </>
+          )}
+        </Modal>
+      )}
+
+      {loginOpen && !wide && (
+        <Modal
+          label={t('auth.loginTitle')}
+          onClose={() => setLoginOpen(false)}
+          className="w-[min(92vw,26rem)] p-6"
+        >
+          {(close) => (
+            <>
+              <LoginForm heading="h2" />
+              {!config.data?.publicRegistration && (
+                <p className="mt-4 text-sm text-fg/75">{t('landing.inviteOnly')}</p>
+              )}
+              <button
+                type="button"
+                onClick={close}
+                className="mt-4 w-full rounded-lg border border-fg/20 px-4 py-2 font-medium hover:border-accent"
+              >
+                {t('landing.close')}
+              </button>
+            </>
+          )}
+        </Modal>
       )}
     </div>
   );

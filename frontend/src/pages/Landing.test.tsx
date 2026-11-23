@@ -1,6 +1,6 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { meResponse, mockGuest, mockLoggedIn, renderApp } from '../test/render.tsx';
 import { http, HttpResponse } from 'msw';
 import { server } from '../test/server.ts';
@@ -65,5 +65,35 @@ describe('landing page screenshots', () => {
     expect(within(dialog).getByRole('img')).toHaveAttribute('src', '/landing/dashboard-en.jpg');
     await user.click(within(dialog).getByRole('button', { name: 'Close' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+});
+
+describe('landing page on a phone', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('keeps the sign-in form behind a button and opens it in a dialog', async () => {
+    vi.stubGlobal('matchMedia', () => ({
+      matches: false,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+    }));
+    HTMLDialogElement.prototype.showModal = function showModal() {
+      this.setAttribute('open', '');
+    };
+    HTMLDialogElement.prototype.close = function close() {
+      this.removeAttribute('open');
+      this.dispatchEvent(new Event('close'));
+    };
+    mockGuest();
+    renderApp('/');
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Sign in' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Sign in' });
+    expect(within(dialog).getByLabelText('Email')).toBeInTheDocument();
+    expect(within(dialog).getByText('Registration is currently by invitation only.')).toBeVisible();
+    await user.click(within(dialog).getByRole('button', { name: 'Close' }));
+    expect(screen.queryByLabelText('Email')).not.toBeInTheDocument();
   });
 });
