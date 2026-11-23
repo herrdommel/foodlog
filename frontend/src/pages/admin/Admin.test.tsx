@@ -12,7 +12,11 @@ import type {
 import { server } from '../../test/server.ts';
 import { meResponse, mockLoggedIn, renderApp } from '../../test/render.tsx';
 
-const admin = { ...meResponse, user: { ...meResponse.user, role: 'admin' as const } };
+const admin = {
+  ...meResponse,
+  user: { ...meResponse.user, role: 'admin' as const },
+  mfa: { ...meResponse.mfa, enabled: true, totp: true, required: true },
+};
 
 const anna: AdminUserDto = {
   id: '11111111-1111-4111-8111-111111111111',
@@ -38,6 +42,7 @@ const bob: AdminUserDto = {
 
 const annaDetail: AdminUserDetailDto = {
   ...anna,
+  mfaEnabled: false,
   features: [
     {
       key: 'ai_analysis',

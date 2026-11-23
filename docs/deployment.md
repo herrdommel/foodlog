@@ -40,7 +40,7 @@ sudo chown -R deploy:deploy /opt/foodlog /var/www/foodlog
 Copy `deploy/env.production.example` to `/opt/foodlog/.env.production` (mode `600`) and fill it in:
 
 - `FOODLOG_SUBNET`, `FOODLOG_PORT`, `DATABASE_URL`: see above.
-- `API_KEY_ENCRYPTION_KEY`: `openssl rand -base64 32`. **Back it up separately from the database.** Without it the stored AI keys are unreadable and users have to enter them again. To rotate it, put the new key in `API_KEY_ENCRYPTION_KEY`, the old one in `API_KEY_ENCRYPTION_KEY_PREVIOUS`, restart, and ask users to re-save their keys over time (new values are written with the new key).
+- `API_KEY_ENCRYPTION_KEY`: `openssl rand -base64 32`. **Back it up separately from the database.** Without it the stored AI keys and the secrets of authenticator apps are unreadable: users have to enter their AI keys again and sign in with a recovery code or ask an administrator to reset their second factor. To rotate it, put the new key in `API_KEY_ENCRYPTION_KEY`, the old one in `API_KEY_ENCRYPTION_KEY_PREVIOUS`, restart, and ask users to re-save their keys over time (new values are written with the new key).
 - SMTP settings for verification and reset mails. The sender must be allowed to send for your domain (SPF/DKIM).
 - Optional: Google sign-in. In the Google Cloud console create an OAuth client (web application) with the redirect URI `https://<your-domain>/api/auth/google/callback` and enter client id and secret.
 
@@ -122,6 +122,8 @@ printf '%s' "$PW" | docker compose --env-file .env.production -f compose.yml run
   node dist/cli/create-admin.js you@example.com "Your Name"
 ```
 
+The administrator needs a second factor before the admin area opens: sign in, open the profile and set up an authenticator app or a passkey. Passkeys need HTTPS on your real domain (the backend derives the relying party ID from `APP_URL`), and they stop working if the domain changes, so keep the authenticator app or recovery codes as a fallback.
+
 Public registration is off by default. Invite people from the admin area (Administration, Invitations), or switch public registration on in the settings. Invitation links can also be created on the server with `node dist/cli/create-invite.js`.
 
 ## 9. Backups
@@ -142,7 +144,7 @@ age -d -i key.txt foodlog-<date>.sql.gz.age | gunzip | mariadb -h <host> -u <use
 
 ## 10. Retention
 
-The backend removes data it no longer needs once a day (first run one minute after start): expired sessions and links, invited email addresses 7 days after an invitation was used or expired, invitations after 90 days, the administration log after 12 months, failed sign-in counters after a day. You can run it by hand with `docker compose ... run --rm backend node dist/cli/retention.js`. The privacy policy template states these periods; keep both in sync.
+The backend removes data it no longer needs once a day (first run one minute after start): expired sessions and links, invited email addresses 7 days after an invitation was used or expired, invitations after 90 days, the administration log after 12 months, failed sign-in counters after a day, unfinished second-factor sign-ins and passkey challenges once they expire (5 minutes). You can run it by hand with `docker compose ... run --rm backend node dist/cli/retention.js`. The privacy policy template states these periods; keep both in sync.
 
 ## 11. Operations
 

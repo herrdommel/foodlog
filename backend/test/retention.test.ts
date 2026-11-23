@@ -127,6 +127,7 @@ describe('runRetention', () => {
       invites: 0,
       audit: 0,
       loginAttempts: 0,
+      challenges: 0,
     });
   });
 });

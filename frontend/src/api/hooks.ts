@@ -20,11 +20,16 @@ import type {
   EntryInput,
   IngredientDto,
   InviteDto,
+  LoginResponse,
   MeResponse,
+  PasskeyAddedDto,
+  RecoveryCodesDto,
+  TotpSetupDto,
   ProductLookupDto,
   ResetLinkDto,
   TemplateDto,
 } from '@foodlog/shared';
+import { assertPasskey, createPasskey } from '../lib/passkeys.ts';
 import { api, ApiError } from './client.ts';
 
 export const meKey = ['me'] as const;
@@ -56,9 +61,105 @@ export function useAuthConfig() {
 export function useLogin() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (body: { email: string; password: string }) => api('/api/auth/login', { body }),
+    mutationFn: (body: { email: string; password: string }) =>
+      api<LoginResponse>('/api/auth/login', { body }),
+    onSuccess: (result) => {
+      if ('user' in result) return queryClient.invalidateQueries({ queryKey: meKey });
+    },
+  });
+}
+
+function useSignedIn<TVariables>(mutationFn: (variables: TVariables) => Promise<LoginResponse>) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: meKey }),
   });
+}
+
+export function useMfaCodeLogin(method: 'totp' | 'recovery') {
+  return useSignedIn((code: string) =>
+    api<LoginResponse>(`/api/auth/mfa/${method}`, { body: { code } }),
+  );
+}
+
+export function useMfaPasskeyLogin() {
+  return useSignedIn(async () => {
+    const { options } = await api<{ options: Parameters<typeof assertPasskey>[0] }>(
+      '/api/auth/mfa/passkey/options',
+      { method: 'POST' },
+    );
+    const response = await assertPasskey(options);
+    return api<LoginResponse>('/api/auth/mfa/passkey/verify', { body: { response } });
+  });
+}
+
+export function usePasskeyLogin() {
+  return useSignedIn(async () => {
+    const { options } = await api<{ options: Parameters<typeof assertPasskey>[0] }>(
+      '/api/auth/passkey/options',
+      { method: 'POST' },
+    );
+    const response = await assertPasskey(options);
+    return api<LoginResponse>('/api/auth/passkey/verify', { body: { response } });
+  });
+}
+
+function useMfaMutation<TVariables, TResult>(
+  mutationFn: (variables: TVariables) => Promise<TResult>,
+) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: meKey }),
+  });
+}
+
+export function useTotpSetup() {
+  return useMutation({
+    mutationFn: () => api<TotpSetupDto>('/api/me/mfa/totp/setup', { method: 'POST' }),
+  });
+}
+
+export function useTotpConfirm() {
+  return useMfaMutation((body: { code: string; password?: string }) =>
+    api<RecoveryCodesDto>('/api/me/mfa/totp/confirm', { body }),
+  );
+}
+
+export function useTotpDisable() {
+  return useMfaMutation((body: { password?: string }) =>
+    api<void>('/api/me/mfa/totp/disable', { body: { ...body } }),
+  );
+}
+
+export function useAddPasskey() {
+  return useMfaMutation(async ({ name, password }: { name: string; password?: string }) => {
+    const { options } = await api<{ options: Parameters<typeof createPasskey>[0] }>(
+      '/api/me/mfa/passkeys/options',
+      { body: { password } },
+    );
+    const response = await createPasskey(options);
+    return api<PasskeyAddedDto>('/api/me/mfa/passkeys', { body: { name, response } });
+  });
+}
+
+export function useRenamePasskey() {
+  return useMfaMutation(({ id, name }: { id: string; name: string }) =>
+    api<void>(`/api/me/mfa/passkeys/${id}`, { method: 'PATCH', body: { name } }),
+  );
+}
+
+export function useRemovePasskey() {
+  return useMfaMutation(({ id, password }: { id: string; password?: string }) =>
+    api<void>(`/api/me/mfa/passkeys/${id}/delete`, { body: { password } }),
+  );
+}
+
+export function useNewRecoveryCodes() {
+  return useMfaMutation((body: { password?: string }) =>
+    api<RecoveryCodesDto>('/api/me/mfa/recovery-codes', { body: { ...body } }),
+  );
 }
 
 export function useLogout() {
@@ -358,6 +459,14 @@ export function useAdminResetLink(id: string) {
   return useMutation({
     mutationFn: (delivery: 'email' | 'link') =>
       api<ResetLinkDto>(`/api/admin/users/${id}/reset-link`, { body: { delivery } }),
+  });
+}
+
+export function useAdminMfaReset(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => api<void>(`/api/admin/users/${id}/mfa-reset`, { method: 'POST' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin'] }),
   });
 }
 

@@ -20,6 +20,8 @@ import { googleRoutes } from './routes/google.ts';
 import { ingredientRoutes } from './routes/ingredients.ts';
 import { legalRoutes } from './routes/legal.ts';
 import { meRoutes } from './routes/me.ts';
+import { mfaLoginRoutes } from './routes/mfa-login.ts';
+import { mfaRoutes } from './routes/mfa.ts';
 import { productRoutes } from './routes/products.ts';
 import { templateRoutes } from './routes/templates.ts';
 import { createProviders, type AiProviders } from './services/ai/providers.ts';
@@ -98,6 +100,8 @@ export async function buildApp(deps: AppDeps) {
 
   await app.register(authRoutes, deps);
   await app.register(meRoutes, deps);
+  await app.register(mfaRoutes, deps);
+  await app.register(mfaLoginRoutes, deps);
   await app.register(googleRoutes, deps);
   await app.register(ingredientRoutes, deps);
   await app.register(productRoutes, deps);

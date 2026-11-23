@@ -1,4 +1,4 @@
-import { asc, eq } from 'drizzle-orm';
+import { and, asc, eq, isNull } from 'drizzle-orm';
 import type { Database } from '../db/client.ts';
 import {
   adminAudit,
@@ -6,6 +6,9 @@ import {
   aiSettings,
   entries,
   ingredients,
+  mfaRecoveryCodes,
+  mfaTotp,
+  passkeys,
   oauthAccounts,
   templateIngredients,
   templates,
@@ -18,25 +21,42 @@ import { toIngredientDtos } from './ingredients.ts';
 export const EXPORT_VERSION = 1;
 
 export async function buildAccountExport(db: Database, user: typeof users.$inferSelect) {
-  const [entryRows, customRows, templateRows, [settings], keyRows, overrides, google, actions] =
-    await Promise.all([
-      db
-        .select()
-        .from(entries)
-        .where(eq(entries.userId, user.id))
-        .orderBy(asc(entries.occurredAt), asc(entries.createdAt)),
-      db.select().from(ingredients).where(eq(ingredients.userId, user.id)),
-      db.select().from(templates).where(eq(templates.userId, user.id)),
-      db.select().from(aiSettings).where(eq(aiSettings.userId, user.id)),
-      db.select().from(aiKeys).where(eq(aiKeys.userId, user.id)),
-      db.select().from(userFeatureOverrides).where(eq(userFeatureOverrides.userId, user.id)),
-      db.select().from(oauthAccounts).where(eq(oauthAccounts.userId, user.id)),
-      db
-        .select({ action: adminAudit.action, detail: adminAudit.detail, at: adminAudit.createdAt })
-        .from(adminAudit)
-        .where(eq(adminAudit.targetUserId, user.id))
-        .orderBy(asc(adminAudit.createdAt)),
-    ]);
+  const [
+    entryRows,
+    customRows,
+    templateRows,
+    [settings],
+    keyRows,
+    overrides,
+    google,
+    actions,
+    [totp],
+    passkeyRows,
+    recoveryRows,
+  ] = await Promise.all([
+    db
+      .select()
+      .from(entries)
+      .where(eq(entries.userId, user.id))
+      .orderBy(asc(entries.occurredAt), asc(entries.createdAt)),
+    db.select().from(ingredients).where(eq(ingredients.userId, user.id)),
+    db.select().from(templates).where(eq(templates.userId, user.id)),
+    db.select().from(aiSettings).where(eq(aiSettings.userId, user.id)),
+    db.select().from(aiKeys).where(eq(aiKeys.userId, user.id)),
+    db.select().from(userFeatureOverrides).where(eq(userFeatureOverrides.userId, user.id)),
+    db.select().from(oauthAccounts).where(eq(oauthAccounts.userId, user.id)),
+    db
+      .select({ action: adminAudit.action, detail: adminAudit.detail, at: adminAudit.createdAt })
+      .from(adminAudit)
+      .where(eq(adminAudit.targetUserId, user.id))
+      .orderBy(asc(adminAudit.createdAt)),
+    db.select().from(mfaTotp).where(eq(mfaTotp.userId, user.id)),
+    db.select().from(passkeys).where(eq(passkeys.userId, user.id)),
+    db
+      .select({ id: mfaRecoveryCodes.id })
+      .from(mfaRecoveryCodes)
+      .where(and(eq(mfaRecoveryCodes.userId, user.id), isNull(mfaRecoveryCodes.usedAt))),
+  ]);
 
   const entryDtos = await toEntryDtos(db, entryRows);
   const customDtos = await toIngredientDtos(db, customRows);
@@ -114,6 +134,15 @@ export async function buildAccountExport(db: Database, user: typeof users.$infer
         endsIn: row.last4,
         storedAt: row.createdAt.toISOString(),
       })),
+    },
+    twoFactor: {
+      authenticatorApp: Boolean(totp?.confirmedAt),
+      passkeys: passkeyRows.map((row) => ({
+        name: row.name,
+        addedAt: row.createdAt.toISOString(),
+        lastUsedAt: row.lastUsedAt?.toISOString() ?? null,
+      })),
+      unusedRecoveryCodes: recoveryRows.length,
     },
     featureOverrides: overrides.map((row) => ({ feature: row.key, enabled: row.enabled })),
     actionsByAdministrators: actions.map((row) => ({

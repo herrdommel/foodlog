@@ -21,7 +21,9 @@ Foodlog I/O ist ein Tagebuch, in dem du Essen, Getränke, Symptome, Stuhlkonsist
 
 **Technische Daten.** Der Server verarbeitet vorübergehend deine IP-Adresse und Anfragedaten, um den Dienst auszuliefern und vor Missbrauch zu schützen. [SPEICHERDAUER DER SERVER-LOGS BESCHREIBEN, Z. B.: Logdateien werden nach 14 Tagen gelöscht.] Rechtsgrundlage: berechtigtes Interesse an einem sicheren Betrieb, Art. 6 Abs. 1 lit. f DSGVO.
 
-**Cookies.** Wir setzen nur einen technisch notwendigen Cookie (`foodlog_session`), der dich angemeldet hält. Er dient nicht dem Tracking. Wir nutzen keine Analyse- und keine Werbedienste.
+**Cookies.** Wir setzen nur technisch notwendige Cookies: `foodlog_session` hält dich angemeldet, und während du dich mit zweitem Faktor oder Passkey anmeldest, verbindet ein kurzlebiger Cookie (`foodlog_mfa`, `foodlog_webauthn`) die Schritte. Sie dienen nicht dem Tracking. Wir nutzen keine Analyse- und keine Werbedienste.
+
+**Zweiter Faktor und Passkeys.** Wenn du sie einschaltest, speichern wir das Geheimnis deiner Authenticator-App (verschlüsselt), den öffentlichen Schlüssel und den Namen jedes Passkeys samt Datum des Hinzufügens und der letzten Nutzung sowie Hashes deiner Wiederherstellungscodes. Der private Schlüssel eines Passkeys verlässt dein Gerät oder deinen Passwortmanager nie. Biometrische Daten verarbeiten wir nicht. Rechtsgrundlage: unser und dein berechtigtes Interesse an der Absicherung deines Kontos, Art. 6 Abs. 1 lit. f DSGVO.
 
 **E-Mails.** Wir senden E-Mails, die für dein Konto nötig sind (Bestätigung, Passwort zurücksetzen, E-Mail-Änderung, Einladungen). Sie werden über [NAME DES MAILSERVERS ODER ANBIETERS] versendet.
 
@@ -39,6 +41,7 @@ Foodlog I/O ist ein Tagebuch, in dem du Essen, Getränke, Symptome, Stuhlkonsist
 
 - Konto, Tagebuchdaten und Einstellungen: bis du dein Konto löschst. Das Löschen entfernt sie sofort und endgültig.
 - Bestätigungs- und Passwort-Links: werden 7 Tage nach Ablauf oder Verwendung entfernt.
+- Unfertige Anmeldungen mit zweitem Faktor und Passkey-Anfragen: fünf Minuten gültig, werden von der täglichen Bereinigung entfernt.
 - Zähler für fehlgeschlagene Anmeldungen (ein Hashwert der E-Mail-Adresse und eine Zahl): werden spätestens nach 24 Stunden entfernt.
 - Einladungen: die eingeladene E-Mail-Adresse wird 7 Tage nach Verwendung oder Ablauf der Einladung entfernt, die Einladung selbst nach 90 Tagen gelöscht.
 - Administrationsprotokoll (wer hat was geändert): 12 Monate. Es verweist auf Konten über eine interne ID, nicht über Name oder E-Mail.

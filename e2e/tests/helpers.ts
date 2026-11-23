@@ -73,6 +73,21 @@ export async function loginViaApi(page: Page, email: string, password = PASSWORD
     data: { email, password },
   });
   expect(response.ok()).toBe(true);
+  if (((await response.json()) as { mfaRequired?: boolean }).mfaRequired) {
+    const code = await totpCode(page, email);
+    const second = await page.request.post('/api/auth/mfa/totp', {
+      headers: { origin: ORIGIN },
+      data: { code },
+    });
+    expect(second.ok()).toBe(true);
+  }
+}
+
+export async function totpCode(page: Page, email: string): Promise<string> {
+  const response = await page.request.get('http://127.0.0.1:3100/__test/totp-code', {
+    params: { email },
+  });
+  return ((await response.json()) as { code: string }).code;
 }
 
 export async function seedDemoData(page: Page, email: string) {
@@ -96,9 +111,9 @@ export async function makeOnlyAdmin(page: Page, email: string) {
   expect(response.ok()).toBe(true);
 }
 
-export async function promoteToAdmin(page: Page, email: string) {
+export async function promoteToAdmin(page: Page, email: string, withSecondFactor = true) {
   const response = await page.request.get('http://127.0.0.1:3100/__test/promote', {
-    params: { email },
+    params: { email, mfa: String(withSecondFactor) },
   });
   expect(response.ok()).toBe(true);
 }

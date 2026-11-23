@@ -3,6 +3,8 @@ import type { Config } from '../config.ts';
 import { SESSION_TTL } from '../services/sessions.ts';
 
 export const SESSION_COOKIE = 'foodlog_session';
+export const MFA_COOKIE = 'foodlog_mfa';
+export const WEBAUTHN_COOKIE = 'foodlog_webauthn';
 
 function baseOptions(config: Config) {
   return {

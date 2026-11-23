@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import type { AdminUserDetailDto } from '@foodlog/shared';
 import {
+  useAdminMfaReset,
   useAdminResetLink,
   useAdminUser,
   useMe,
@@ -156,6 +157,42 @@ function ResetCard({ user }: { user: AdminUserDetailDto }) {
   );
 }
 
+function MfaResetCard({ user }: { user: AdminUserDetailDto }) {
+  const { t } = useTranslation();
+  const reset = useAdminMfaReset(user.id);
+  const [confirming, setConfirming] = useState(false);
+  return (
+    <Card title={t('admin.detail.mfaTitle')}>
+      <p className="text-sm text-fg/75">
+        {user.mfaEnabled ? t('admin.detail.mfaOn') : t('admin.detail.mfaOff')}
+      </p>
+      <ErrorMessage error={reset.error} />
+      {user.mfaEnabled &&
+        (confirming ? (
+          <>
+            <p className="text-sm">{t('admin.detail.mfaConfirmText')}</p>
+            <ActionRow columns={2}>
+              <Button
+                type="button"
+                disabled={reset.isPending}
+                onClick={() => reset.mutate(undefined, { onSuccess: () => setConfirming(false) })}
+              >
+                {t('admin.detail.mfaConfirm')}
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => setConfirming(false)}>
+                {t('admin.detail.cancel')}
+              </Button>
+            </ActionRow>
+          </>
+        ) : (
+          <Button type="button" variant="secondary" onClick={() => setConfirming(true)}>
+            {t('admin.detail.mfaReset')}
+          </Button>
+        ))}
+    </Card>
+  );
+}
+
 function FeaturesCard({ user }: { user: AdminUserDetailDto }) {
   const { t } = useTranslation();
   const setFeature = useSetUserFeature(user.id);
@@ -250,6 +287,7 @@ export function AdminUserDetailPage() {
           <FactsCard user={user.data} />
           <ProfileCard user={user.data} isSelf={me?.user.id === user.data.id} />
           <ResetCard user={user.data} />
+          {me?.user.id !== user.data.id && <MfaResetCard user={user.data} />}
           <FeaturesCard user={user.data} />
         </>
       )}

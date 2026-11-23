@@ -1,9 +1,10 @@
 import { eq, sql } from 'drizzle-orm';
 import { buildApp, type AppDeps } from '../src/app.ts';
-import { loadConfig, type Config } from '../src/config.ts';
+import { encryptionKeys, loadConfig, type Config } from '../src/config.ts';
 import { createDb } from '../src/db/client.ts';
-import { invites, users } from '../src/db/schema.ts';
+import { invites, mfaTotp, users } from '../src/db/schema.ts';
 import { hashToken, newId, newToken } from '../src/lib/crypto.ts';
+import { createSecretBox } from '../src/lib/secret-box.ts';
 import { DAY, inFuture } from '../src/lib/time.ts';
 import { createMemoryMailer } from '../src/services/mail.ts';
 
@@ -14,6 +15,11 @@ export const ORIGIN = 'http://localhost:5173';
 export const PASSWORD = 'correct horse battery';
 
 const TABLES = [
+  'webauthn_challenges',
+  'login_challenges',
+  'mfa_recovery_codes',
+  'passkeys',
+  'mfa_totp',
   'ai_keys',
   'ai_settings',
   'admin_audit',
@@ -130,6 +136,23 @@ export async function registerAndLogin(t: TestApp, email = 'anna@example.com', n
   return sessionCookie(login);
 }
 
+export const TOTP_SECRET = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
+
+export async function enrollTotp(t: TestApp, email: string, secret = TOTP_SECRET) {
+  const [user] = await t.db.select().from(users).where(eq(users.email, email));
+  const box = createSecretBox(encryptionKeys(t.config));
+  await t.db
+    .insert(mfaTotp)
+    .values({
+      userId: user!.id,
+      secret: box.encrypt(secret, `${user!.id}:totp`),
+      confirmedAt: new Date(),
+    })
+    .onDuplicateKeyUpdate({ set: { confirmedAt: new Date() } });
+}
+
+// Administrators need a second factor to reach the admin API.
 export async function makeAdmin(t: TestApp, email: string) {
   await t.db.update(users).set({ role: 'admin' }).where(eq(users.email, email));
+  await enrollTotp(t, email);
 }

@@ -3,6 +3,7 @@ import type { Config } from '../config.ts';
 import type { Database } from '../db/client.ts';
 import { clearSessionCookie, SESSION_COOKIE } from '../lib/cookies.ts';
 import { AppError } from '../lib/errors.ts';
+import { createMfaService } from '../services/mfa.ts';
 import { findSessionUser } from '../services/sessions.ts';
 import type { UserRow } from '../services/users.ts';
 
@@ -19,6 +20,7 @@ declare module 'fastify' {
 
 export function registerAuth(app: FastifyInstance, deps: { config: Config; db: Database }) {
   const { config, db } = deps;
+  const mfa = createMfaService({ config, db });
   app.decorateRequest('user', null);
   app.decorateRequest('sessionId', null);
 
@@ -41,5 +43,8 @@ export function registerAuth(app: FastifyInstance, deps: { config: Config; db: D
   app.decorate('requireAdmin', async (request: FastifyRequest) => {
     if (!request.user) throw new AppError(401, 'unauthenticated', 'Authentication required');
     if (request.user.role !== 'admin') throw new AppError(403, 'forbidden', 'Admin only');
+    if (!(await mfa.hasMfa(request.user.id))) {
+      throw new AppError(403, 'mfa_required', 'Administrators need a second factor');
+    }
   });
 }

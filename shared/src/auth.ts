@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { MfaStatus } from './mfa.ts';
 
 export const LOCALES = ['de', 'en'] as const;
 export const localeSchema = z.enum(LOCALES);
@@ -90,6 +91,7 @@ export interface PublicUser {
 export interface MeResponse {
   user: PublicUser;
   features: Record<string, boolean>;
+  mfa: MfaStatus;
 }
 
 export interface AuthConfig {

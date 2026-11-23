@@ -35,6 +35,7 @@ function RequireAuth() {
 function RequireAdmin() {
   const { data: me } = useMe();
   if (me?.user.role !== 'admin') return <Navigate to="/" replace />;
+  if (!me.mfa.enabled) return <Navigate to="/profile" replace />;
   return <Outlet />;
 }
 

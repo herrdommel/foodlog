@@ -11,6 +11,7 @@ import {
   useUploadAvatar,
 } from '../api/hooks.ts';
 import { Avatar } from '../components/Avatar.tsx';
+import { MfaCard } from '../components/MfaCard.tsx';
 import { PresetAvatar } from '../components/presetAvatars.tsx';
 import {
   ActionRow,
@@ -303,14 +304,26 @@ export function ProfilePage() {
   const { t } = useTranslation();
   const { data: me } = useMe();
   if (!me) return null;
+  const mfaMissing = me.mfa.required && !me.mfa.enabled;
   return (
     <>
       <h1 className="text-2xl font-bold">{t('profile.title')}</h1>
+      {mfaMissing && (
+        <div
+          role="alert"
+          className="space-y-1 rounded-lg border-l-4 border-coral bg-coral/15 px-4 py-3 text-sm"
+        >
+          <p className="font-semibold">{t('mfa.requiredTitle')}</p>
+          <p>{t('mfa.requiredText')}</p>
+        </div>
+      )}
+      {mfaMissing && <MfaCard me={me} />}
       <AccountCard user={me.user} />
       <PreferencesCard user={me.user} />
       <AvatarCard user={me.user} />
       <EmailCard user={me.user} />
       <PasswordCard />
+      {!mfaMissing && <MfaCard me={me} />}
       <DataCard />
       <DeleteCard user={me.user} />
     </>

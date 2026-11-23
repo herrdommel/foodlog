@@ -209,6 +209,17 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - Cycle tracking is not built yet. It is the most sensitive of the three and would get its own flag.
 - The demo seed adds sleep, stress and extra symptoms on bad days with its own random generator, so the lactose pattern of the existing seed is unchanged.
 
+## Two-factor and passkeys
+
+- Factors: authenticator app (TOTP, `otplib`), passkeys (WebAuthn, `@simplewebauthn/server` and `/browser`) and recovery codes. Tables `mfa_totp`, `passkeys`, `mfa_recovery_codes`, `login_challenges`, `webauthn_challenges`, all `ON DELETE CASCADE`. Backend: `services/mfa.ts` (one factory, used by `routes/mfa.ts` for management under `/api/me/mfa/*` and `routes/mfa-login.ts` for sign-in under `/api/auth/mfa/*` and `/api/auth/passkey/*`). Frontend: `components/MfaCard.tsx` on the profile, the second step in `pages/Login.tsx`, `lib/passkeys.ts` wraps the browser library (mock it in tests).
+- Sign-in: a correct password with any factor set does not open a session. It returns `{ mfaRequired, methods }` and sets the httpOnly cookie `foodlog_mfa` (hashed, 5 minutes, 5 wrong codes then it is gone). Every wrong second-step code also counts as a failed login for that address, and failures are cleared only when the whole sign-in completes. Otherwise the lock could be bypassed by starting a new sign-in per guess.
+- TOTP: secret encrypted with the same secret box as API keys (context `userId:totp`), ±1 step, `last_time_step` blocks reuse of a code. Just after setup the same code is therefore rejected once; tests use `code(secret, 30)` for the next step.
+- Passkeys are discoverable and always require user verification. That makes a passkey sign-in two factors on its own, so `/api/auth/passkey/*` has no second step. The same passkey also works as the second step after a password. Challenges are server-side, single use, bound to a purpose and expire after 5 minutes (cookie `foodlog_webauthn`). The relying party ID and origin come from `APP_URL` (no extra config): passkeys need a real domain or `localhost` and break when the domain changes. An IP address such as a LAN test URL does not work.
+- Changing factors (set up, add, remove, new recovery codes) needs the password, or for accounts without one a session younger than 10 minutes (`reauth_required`). Adding or removing a factor ends the other sessions. Recovery codes are issued with the first factor and replaced as a set.
+- Administrators must have a factor: `requireAdmin` returns 403 `mfa_required` without one and the frontend sends them to the profile. They cannot remove their last factor. An admin can reset another account's factors (`user.mfa_reset` in the audit log, ends that user's sessions), not their own. Known gap that follows from the decision "Google sign-in without app MFA": an admin who signs in with Google never enters a second factor, the gate only checks that one is configured.
+- No feature flag on purpose: a kill switch would switch off a security control.
+- Tests: `makeAdmin` in `backend/test/helpers.ts` enrolls a TOTP row, `backend/test/software-authenticator.ts` is a minimal in-memory passkey device for integration tests. E2E: promoting an admin enrolls a fixed secret in the E2E server, `loginViaApi` completes the second step through `/__test/totp-code`; the passkey flow uses Chromium's virtual authenticator.
+
 ## Start page
 
 - `/` shows the landing page (`pages/Landing.tsx`) to guests and the dashboard to signed-in users (`HomeGate` in `App.tsx`). It embeds the same `LoginForm` as `/login` and links registration only when it is open.
@@ -240,4 +251,5 @@ Web app for tracking food, stool consistency (Bristol scale), symptoms and medic
 - [x] Deploy (compose, scripts with tests, deploy workflow, docs)
 - [x] Phase 2: barcode scan (Open Food Facts) and photo recognition through the user's AI key
 - [x] Phase 2: sleep and stress context factors (cycle tracking still open)
+- [x] Two-factor (authenticator app, passkeys incl. passwordless sign-in, recovery codes), mandatory for admins
 - [ ] Go-live (maintainer): create the GitHub repo and settings, fill the production environment, set up the server (database, nginx, `.env.production`), provide and review the legal texts, run one real AI call per provider, first release and deployment. See `docs/deployment.md`.

@@ -21,7 +21,9 @@ Foodlog I/O is a diary in which you record food, drinks, symptoms, stool consist
 
 **Technical data.** The server temporarily processes your IP address and request data to deliver the service and to protect it against abuse. [DESCRIBE SERVER LOG RETENTION, FOR EXAMPLE: Log files are deleted after 14 days.] Legal basis: legitimate interest in a secure operation, Art. 6(1)(f) GDPR.
 
-**Cookies.** We only set one technically necessary cookie (`foodlog_session`) that keeps you signed in. It is not used for tracking. We use no analytics and no advertising services.
+**Cookies.** We only set technically necessary cookies: `foodlog_session` keeps you signed in, and while you sign in with a second factor or a passkey a short-lived cookie (`foodlog_mfa`, `foodlog_webauthn`) links the steps. They are not used for tracking. We use no analytics and no advertising services.
+
+**Second factor and passkeys.** If you turn them on, we store the secret of your authenticator app (encrypted), the public key and name of each passkey with the dates it was added and last used, and hashes of your recovery codes. A passkey's private key never leaves your device or password manager. We do not process biometric data. Legal basis: our legitimate interest and yours in securing your account, Art. 6(1)(f) GDPR.
 
 **Emails.** We send emails that are needed for your account (confirmation, password reset, email change, invitations). They are sent through [NAME OF THE MAIL SERVER OR PROVIDER].
 
@@ -40,6 +42,7 @@ Foodlog I/O is a diary in which you record food, drinks, symptoms, stool consist
 - Account, diary data and settings: until you delete your account. Deletion removes them immediately and permanently.
 - Confirmation and password reset links: removed 7 days after they expire or are used.
 - Invitations: the invited email address is removed 7 days after the invitation was used or expired; the invitation itself is deleted after 90 days.
+- Unfinished second-factor sign-ins and passkey challenges: valid for 5 minutes, removed by the daily cleanup.
 - Failed sign-in counters (a one-way hash of the email address and a number): removed after at most 24 hours.
 - Administration log (who changed what): 12 months. It refers to accounts by internal ID, not by name or email.
 - Backups: [DESCRIBE BACKUPS, FOR EXAMPLE: encrypted backups are kept for 30 days, so deleted data can remain there until then].

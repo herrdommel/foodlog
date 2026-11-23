@@ -90,6 +90,75 @@ export const loginAttempts = mysqlTable('login_attempts', {
   windowStartedAt: datetime('window_started_at').notNull(),
 });
 
+export const mfaTotp = mysqlTable('mfa_totp', {
+  userId: varchar('user_id', { length: 36 })
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  secret: varchar('secret', { length: 255 }).notNull(),
+  confirmedAt: datetime('confirmed_at'),
+  lastTimeStep: int('last_time_step').notNull().default(0),
+  createdAt: datetime('created_at').notNull().default(utcNow),
+});
+
+export const passkeys = mysqlTable(
+  'passkeys',
+  {
+    id: varchar('id', { length: 36 }).primaryKey(),
+    userId: varchar('user_id', { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    credentialId: varchar('credential_id', { length: 700 }).notNull().unique(),
+    publicKey: mediumBlob('public_key').notNull(),
+    counter: int('counter').notNull().default(0),
+    transports: varchar('transports', { length: 120 }),
+    backedUp: boolean('backed_up').notNull().default(false),
+    name: varchar('name', { length: 60 }).notNull(),
+    createdAt: datetime('created_at').notNull().default(utcNow),
+    lastUsedAt: datetime('last_used_at'),
+  },
+  (table) => [index('passkeys_user_id_idx').on(table.userId)],
+);
+
+export const mfaRecoveryCodes = mysqlTable(
+  'mfa_recovery_codes',
+  {
+    id: varchar('id', { length: 36 }).primaryKey(),
+    userId: varchar('user_id', { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    codeHash: varchar('code_hash', { length: 64 }).notNull(),
+    usedAt: datetime('used_at'),
+  },
+  (table) => [index('mfa_recovery_codes_user_id_idx').on(table.userId)],
+);
+
+export const loginChallenges = mysqlTable(
+  'login_challenges',
+  {
+    id: varchar('id', { length: 64 }).primaryKey(),
+    userId: varchar('user_id', { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    attempts: int('attempts').notNull().default(0),
+    expiresAt: datetime('expires_at').notNull(),
+  },
+  (table) => [index('login_challenges_user_id_idx').on(table.userId)],
+);
+
+export const webauthnChallenges = mysqlTable(
+  'webauthn_challenges',
+  {
+    id: varchar('id', { length: 64 }).primaryKey(),
+    userId: varchar('user_id', { length: 36 }).references(() => users.id, {
+      onDelete: 'cascade',
+    }),
+    purpose: mysqlEnum('purpose', ['register', 'login_mfa', 'login']).notNull(),
+    challenge: varchar('challenge', { length: 255 }).notNull(),
+    expiresAt: datetime('expires_at').notNull(),
+  },
+  (table) => [index('webauthn_challenges_user_id_idx').on(table.userId)],
+);
+
 export const invites = mysqlTable('invites', {
   id: varchar('id', { length: 36 }).primaryKey(),
   tokenHash: varchar('token_hash', { length: 64 }).notNull().unique(),

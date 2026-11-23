@@ -8,16 +8,25 @@ import {
   tokenBodySchema,
   emailSchema,
   type AuthConfig,
+  type LoginResponse,
+  type MfaRequiredResponse,
 } from '@foodlog/shared';
 import { z } from 'zod';
 import type { AppDeps } from '../app.ts';
 import { invites, users } from '../db/schema.ts';
-import { clearSessionCookie, SESSION_COOKIE, setSessionCookie } from '../lib/cookies.ts';
+import {
+  clearSessionCookie,
+  MFA_COOKIE,
+  SESSION_COOKIE,
+  setSessionCookie,
+  setShortLivedCookie,
+} from '../lib/cookies.ts';
 import { hashToken, newId } from '../lib/crypto.ts';
 import { AppError, parseBody } from '../lib/errors.ts';
 import { hashPassword, verifyPassword } from '../lib/password.ts';
 import { isFeatureEnabledGlobally } from '../services/features.ts';
 import { createAuthMail } from '../services/auth-mail.ts';
+import { createMfaService } from '../services/mfa.ts';
 import { PUBLIC_REGISTRATION, getBooleanSetting } from '../services/settings.ts';
 import {
   clearLoginFailures,
@@ -33,6 +42,7 @@ const mailLimited = { rateLimit: { max: 5, timeWindow: '1 minute' } };
 
 export async function authRoutes(app: FastifyInstance, { config, db, mailer }: AppDeps) {
   const authMail = createAuthMail({ config, db, mailer, log: app.log });
+  const mfa = createMfaService({ config, db });
 
   app.get('/api/auth/config', async (): Promise<AuthConfig> => {
     const googleConfigured = Boolean(config.GOOGLE_CLIENT_ID && config.GOOGLE_CLIENT_SECRET);
@@ -111,26 +121,36 @@ export async function authRoutes(app: FastifyInstance, { config, db, mailer }: A
     return { status: 'verified' };
   });
 
-  app.post('/api/auth/login', { config: strict }, async (request, reply) => {
-    const body = parseBody(loginSchema, request.body);
-    if (await isLoginLocked(db, body.email)) {
-      throw new AppError(429, 'too_many_attempts', 'Too many failed attempts, try again later');
-    }
-    const user = await findUserByEmail(db, body.email);
-    const valid = await verifyPassword(user?.passwordHash ?? null, body.password);
-    if (!user || !valid) {
-      await recordLoginFailure(db, body.email);
-      throw new AppError(401, 'invalid_credentials', 'Invalid email or password');
-    }
-    await clearLoginFailures(db, body.email);
-    if (!user.active) throw new AppError(403, 'account_disabled', 'This account is disabled');
-    if (!user.emailVerifiedAt) {
-      throw new AppError(403, 'email_not_verified', 'Please verify your email address first');
-    }
-    const token = await createSession(db, user.id);
-    setSessionCookie(reply, config, token);
-    return { user: await toPublicUser(db, user) };
-  });
+  app.post(
+    '/api/auth/login',
+    { config: strict },
+    async (request, reply): Promise<LoginResponse> => {
+      const body = parseBody(loginSchema, request.body);
+      if (await isLoginLocked(db, body.email)) {
+        throw new AppError(429, 'too_many_attempts', 'Too many failed attempts, try again later');
+      }
+      const user = await findUserByEmail(db, body.email);
+      const valid = await verifyPassword(user?.passwordHash ?? null, body.password);
+      if (!user || !valid) {
+        await recordLoginFailure(db, body.email);
+        throw new AppError(401, 'invalid_credentials', 'Invalid email or password');
+      }
+      if (!user.active) throw new AppError(403, 'account_disabled', 'This account is disabled');
+      if (!user.emailVerifiedAt) {
+        throw new AppError(403, 'email_not_verified', 'Please verify your email address first');
+      }
+      const methods = await mfa.methodsFor(user.id);
+      if (methods.length > 0) {
+        // Failures stay on record until the second factor is accepted, otherwise the code could be guessed without limit.
+        setShortLivedCookie(reply, config, MFA_COOKIE, await mfa.createPending(user.id));
+        return { mfaRequired: true, methods } satisfies MfaRequiredResponse;
+      }
+      await clearLoginFailures(db, body.email);
+      const token = await createSession(db, user.id);
+      setSessionCookie(reply, config, token);
+      return { user: await toPublicUser(db, user) };
+    },
+  );
 
   app.post('/api/auth/logout', async (request, reply) => {
     const token = request.cookies[SESSION_COOKIE];

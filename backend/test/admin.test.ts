@@ -5,6 +5,7 @@ import { users } from '../src/db/schema.ts';
 import {
   createTestApp,
   get,
+  enrollTotp,
   makeAdmin,
   ORIGIN,
   PASSWORD,
@@ -205,6 +206,10 @@ describe('editing users', () => {
 
   it('promotes and demotes users', async () => {
     await patch(t.app, `/api/admin/users/${userId}`, { role: 'admin' }, adminCookie);
+    expect((await get(t.app, '/api/admin/users', userCookie)).json().error.code).toBe(
+      'mfa_required',
+    );
+    await enrollTotp(t, 'anna@example.com');
     expect((await get(t.app, '/api/admin/users', userCookie)).statusCode).toBe(200);
     await patch(t.app, `/api/admin/users/${userId}`, { role: 'user' }, adminCookie);
     expect((await get(t.app, '/api/admin/users', userCookie)).statusCode).toBe(403);

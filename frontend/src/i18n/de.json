@@ -9,7 +9,8 @@
     "back": "Zurück zur Anmeldung",
     "language": "Sprache",
     "logout": "Abmelden",
-    "or": "oder"
+    "or": "oder",
+    "cancel": "Abbrechen"
   },
   "nav": {
     "dashboard": "Übersicht",
@@ -46,7 +47,21 @@
     "resetDone": "Dein Passwort wurde geändert. Du kannst dich jetzt anmelden.",
     "missingToken": "Der Link ist unvollständig.",
     "acceptPrivacy": "Ich habe die <privacy>Datenschutzerklärung</privacy> gelesen und willige in die Verarbeitung meiner Gesundheitsdaten zur Bereitstellung der App ein (Art. 9 Abs. 2 lit. a DSGVO). Die Einwilligung kann ich jederzeit widerrufen, indem ich mein Konto lösche.",
-    "privacyRequired": "Bitte stimme der Datenschutzerklärung zu, um dich zu registrieren."
+    "privacyRequired": "Bitte stimme der Datenschutzerklärung zu, um dich zu registrieren.",
+    "passkeyLogin": "Stattdessen Passkey verwenden",
+    "mfa": {
+      "title": "Zweiter Schritt",
+      "text": "Bestätige, dass du es bist.",
+      "usePasskey": "Passkey verwenden",
+      "codeLabel": "Code aus deiner Authenticator-App",
+      "codeHint": "Sechs Ziffern",
+      "recoveryLabel": "Wiederherstellungscode",
+      "recoveryHint": "Einer der gespeicherten Codes. Jeder gilt nur einmal.",
+      "confirm": "Bestätigen",
+      "useRecovery": "Wiederherstellungscode verwenden",
+      "useApp": "Authenticator-App verwenden",
+      "back": "Zurück zur Anmeldung"
+    }
   },
   "profile": {
     "title": "Profil",
@@ -135,7 +150,18 @@
     "product_not_found": "Zu diesem Barcode wurde kein Produkt gefunden.",
     "product_lookup_failed": "Die Produktdatenbank ist gerade nicht erreichbar.",
     "photo_consent_required": "Zuerst ist deine Einwilligung für Fotos nötig. Du kannst sie auf der KI-Seite erteilen.",
-    "file_required": "Bitte wähle zuerst ein Foto aus."
+    "file_required": "Bitte wähle zuerst ein Foto aus.",
+    "invalid_code": "Der Code ist nicht korrekt.",
+    "mfa_expired": "Die Anmeldung ist abgelaufen. Bitte starte neu.",
+    "reauth_required": "Bitte melde dich erneut an, um das zu ändern.",
+    "mfa_required": "Administratoren brauchen einen zweiten Faktor. Richte ihn im Profil ein.",
+    "passkey_rejected": "Der Passkey konnte nicht geprüft werden.",
+    "passkey_exists": "Dieser Passkey ist bereits registriert.",
+    "invalid_challenge": "Die Anfrage ist abgelaufen. Bitte versuche es erneut.",
+    "passkey_cancelled": "Die Passkey-Abfrage wurde abgebrochen oder ist abgelaufen.",
+    "passkey_failed": "Der Passkey konnte auf diesem Gerät nicht verwendet werden.",
+    "totp_already_enabled": "Eine Authenticator-App ist bereits eingerichtet.",
+    "mfa_not_enabled": "Richte zuerst einen zweiten Faktor ein."
   },
   "tracking": {
     "today": "Heute",
@@ -433,7 +459,13 @@
       "featureOn": "An",
       "featureOff": "Aus",
       "effective": "Wirksam: {{value}}",
-      "globallyOff": "global deaktiviert"
+      "globallyOff": "global deaktiviert",
+      "mfaTitle": "Zwei-Faktor-Authentifizierung",
+      "mfaOn": "Dieses Konto hat einen zweiten Faktor.",
+      "mfaOff": "Dieses Konto hat keinen zweiten Faktor.",
+      "mfaReset": "Zweite Faktoren zurücksetzen",
+      "mfaConfirmText": "Das entfernt Authenticator-App, alle Passkeys und Wiederherstellungscodes und beendet alle Sitzungen dieses Nutzers.",
+      "mfaConfirm": "Jetzt zurücksetzen"
     },
     "features": {
       "ai_analysis": "KI-Auswertung",
@@ -493,7 +525,8 @@
         "invite.create": "Einladung erstellt",
         "invite.revoke": "Einladung widerrufen",
         "setting.public_registration": "Öffentliche Registrierung geändert",
-        "feature.update": "Funktion global geändert"
+        "feature.update": "Funktion global geändert",
+        "user.mfa_reset": "Zweite Faktoren zurückgesetzt"
       },
       "deletedAccount": "gelöschtes Konto",
       "valueOn": "an",
@@ -677,5 +710,54 @@
       "open": "Der Code ist Open Source (AGPL). Du kannst prüfen, was er tut, oder ihn selbst betreiben.",
       "hint": "Foodlog I/O gibt Hinweise, keine Diagnosen. Es ersetzt keine ärztliche Beratung."
     }
+  },
+  "mfa": {
+    "title": "Zwei-Faktor-Authentifizierung",
+    "text": "Schützt dein Konto, falls jemand dein Passwort erfährt.",
+    "passwordLabel": "Passwort zur Bestätigung",
+    "totp": {
+      "title": "Authenticator-App",
+      "active": "Die Authenticator-App ist aktiv.",
+      "remove": "Authenticator-App entfernen",
+      "scan": "Scanne diesen Code mit deiner Authenticator-App.",
+      "qrLabel": "QR-Code für die Authenticator-App",
+      "manual": "Oder gib diesen Schlüssel von Hand ein:",
+      "codeLabel": "Code aus der App",
+      "confirm": "Bestätigen und aktivieren",
+      "setup": "Authenticator-App einrichten",
+      "off": "Nicht eingerichtet"
+    },
+    "passkeys": {
+      "title": "Passkeys",
+      "nameLabel": "Name des Passkeys",
+      "nameHint": "Zum Beispiel das Gerät, auf dem er liegt.",
+      "add": "Passkey hinzufügen",
+      "unsupported": "Dieser Browser unterstützt keine Passkeys.",
+      "added": "Hinzugefügt am {{date}}",
+      "lastUsed": "Zuletzt genutzt am {{date}}",
+      "neverUsed": "Noch nicht genutzt",
+      "synced": "Synchronisiert",
+      "rename": "{{name}} umbenennen",
+      "renameShort": "Umbenennen",
+      "remove": "{{name}} entfernen",
+      "removeShort": "Entfernen",
+      "none": "Noch keine",
+      "count_one": "{{count}} Passkey",
+      "count_other": "{{count}} Passkeys",
+      "create": "Passkey erstellen"
+    },
+    "codes": {
+      "heading": "Wiederherstellungscodes",
+      "text_one": "Noch {{count}} Wiederherstellungscode übrig. Nutze einen, falls du deinen zweiten Faktor verlierst.",
+      "text_other": "Noch {{count}} Wiederherstellungscodes übrig. Nutze einen, falls du deinen zweiten Faktor verlierst.",
+      "renew": "Neue Wiederherstellungscodes erstellen",
+      "title": "Deine Wiederherstellungscodes",
+      "savePrompt": "Bewahre sie sicher auf. Sie werden nur einmal angezeigt und jeder gilt nur einmal. Neue Codes ersetzen die alten.",
+      "copy": "Codes kopieren",
+      "copied": "Kopiert.",
+      "saved": "Ich habe sie gespeichert"
+    },
+    "requiredTitle": "Zweiter Faktor erforderlich",
+    "requiredText": "Administratoren brauchen einen zweiten Faktor. Richte unten eine Authenticator-App oder einen Passkey ein, um den Adminbereich zu nutzen."
   }
 }

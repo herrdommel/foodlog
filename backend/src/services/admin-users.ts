@@ -7,7 +7,14 @@ import {
   type AdminUserDto,
 } from '@foodlog/shared';
 import type { Database } from '../db/client.ts';
-import { entries, featureFlags, oauthAccounts, userFeatureOverrides } from '../db/schema.ts';
+import {
+  entries,
+  featureFlags,
+  mfaTotp,
+  oauthAccounts,
+  passkeys,
+  userFeatureOverrides,
+} from '../db/schema.ts';
 import type { UserRow } from './users.ts';
 
 export async function toAdminUsers(db: Database, rows: UserRow[]): Promise<AdminUserDto[]> {
@@ -43,13 +50,16 @@ export async function toAdminUsers(db: Database, rows: UserRow[]): Promise<Admin
 }
 
 export async function toAdminUserDetail(db: Database, row: UserRow): Promise<AdminUserDetailDto> {
-  const [[dto], flags, overrides] = await Promise.all([
+  const [[dto], flags, overrides, [totp], keys] = await Promise.all([
     toAdminUsers(db, [row]),
     db.select().from(featureFlags),
     db.select().from(userFeatureOverrides).where(eq(userFeatureOverrides.userId, row.id)),
+    db.select().from(mfaTotp).where(eq(mfaTotp.userId, row.id)),
+    db.select({ id: passkeys.id }).from(passkeys).where(eq(passkeys.userId, row.id)),
   ]);
   return {
     ...dto!,
+    mfaEnabled: Boolean(totp?.confirmedAt) || keys.length > 0,
     features: FEATURE_KEYS.map((key) => {
       const flag = flags.find((item) => item.key === key);
       const override = overrides.find((item) => item.key === key)?.enabled ?? null;

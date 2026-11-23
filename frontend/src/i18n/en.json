@@ -9,7 +9,8 @@
     "back": "Back to sign in",
     "language": "Language",
     "logout": "Sign out",
-    "or": "or"
+    "or": "or",
+    "cancel": "Cancel"
   },
   "nav": {
     "dashboard": "Overview",
@@ -46,7 +47,21 @@
     "resetDone": "Your password has been changed. You can sign in now.",
     "missingToken": "The link is incomplete.",
     "acceptPrivacy": "I have read the <privacy>privacy policy</privacy> and consent to the processing of my health data to provide the app (Art. 9(2)(a) GDPR). I can withdraw my consent at any time by deleting my account.",
-    "privacyRequired": "Please accept the privacy policy to register."
+    "privacyRequired": "Please accept the privacy policy to register.",
+    "passkeyLogin": "Use a passkey instead",
+    "mfa": {
+      "title": "Second step",
+      "text": "Confirm that it is you.",
+      "usePasskey": "Use a passkey",
+      "codeLabel": "Code from your authenticator app",
+      "codeHint": "Six digits",
+      "recoveryLabel": "Recovery code",
+      "recoveryHint": "One of the codes you saved. Each works once.",
+      "confirm": "Confirm",
+      "useRecovery": "Use a recovery code",
+      "useApp": "Use the authenticator app",
+      "back": "Back to sign-in"
+    }
   },
   "profile": {
     "title": "Profile",
@@ -135,7 +150,18 @@
     "product_not_found": "No product was found for this barcode.",
     "product_lookup_failed": "The product database is not reachable right now.",
     "photo_consent_required": "Your consent for photos is required first. You can give it on the AI page.",
-    "file_required": "Please choose a photo first."
+    "file_required": "Please choose a photo first.",
+    "invalid_code": "The code is not correct.",
+    "mfa_expired": "The sign-in expired. Please start again.",
+    "reauth_required": "Please sign in again to change this.",
+    "mfa_required": "Administrators need a second factor. Set one up in your profile.",
+    "passkey_rejected": "The passkey could not be verified.",
+    "passkey_exists": "This passkey is already registered.",
+    "invalid_challenge": "The request expired. Please try again.",
+    "passkey_cancelled": "The passkey request was cancelled or timed out.",
+    "passkey_failed": "The passkey could not be used on this device.",
+    "totp_already_enabled": "An authenticator app is already set up.",
+    "mfa_not_enabled": "Set up a second factor first."
   },
   "tracking": {
     "today": "Today",
@@ -433,7 +459,13 @@
       "featureOn": "On",
       "featureOff": "Off",
       "effective": "Effective: {{value}}",
-      "globallyOff": "disabled globally"
+      "globallyOff": "disabled globally",
+      "mfaTitle": "Two-factor authentication",
+      "mfaOn": "This account has a second factor.",
+      "mfaOff": "This account has no second factor.",
+      "mfaReset": "Reset second factors",
+      "mfaConfirmText": "This removes the authenticator app, all passkeys and recovery codes and ends all sessions of this user.",
+      "mfaConfirm": "Reset now"
     },
     "features": {
       "ai_analysis": "AI analysis",
@@ -493,7 +525,8 @@
         "invite.create": "Invitation created",
         "invite.revoke": "Invitation revoked",
         "setting.public_registration": "Public registration changed",
-        "feature.update": "Feature changed globally"
+        "feature.update": "Feature changed globally",
+        "user.mfa_reset": "Second factors reset"
       },
       "deletedAccount": "deleted account",
       "valueOn": "on",
@@ -677,5 +710,54 @@
       "open": "The code is open source (AGPL), so you can check what it does or run it yourself.",
       "hint": "Foodlog I/O gives hints, not diagnoses. It does not replace medical advice."
     }
+  },
+  "mfa": {
+    "title": "Two-factor authentication",
+    "text": "Protects your account if someone learns your password.",
+    "passwordLabel": "Password to confirm changes",
+    "totp": {
+      "title": "Authenticator app",
+      "active": "The authenticator app is active.",
+      "remove": "Remove authenticator app",
+      "scan": "Scan this code with your authenticator app.",
+      "qrLabel": "QR code for the authenticator app",
+      "manual": "Or enter this key by hand:",
+      "codeLabel": "Code from the app",
+      "confirm": "Confirm and activate",
+      "setup": "Set up authenticator app",
+      "off": "Not set up"
+    },
+    "passkeys": {
+      "title": "Passkeys",
+      "nameLabel": "Passkey name",
+      "nameHint": "For example the device it lives on.",
+      "add": "Add a passkey",
+      "unsupported": "This browser does not support passkeys.",
+      "added": "Added {{date}}",
+      "lastUsed": "Last used {{date}}",
+      "neverUsed": "Not used yet",
+      "synced": "Synced",
+      "rename": "Rename {{name}}",
+      "renameShort": "Rename",
+      "remove": "Remove {{name}}",
+      "removeShort": "Remove",
+      "none": "None yet",
+      "count_one": "{{count}} passkey",
+      "count_other": "{{count}} passkeys",
+      "create": "Create passkey"
+    },
+    "codes": {
+      "heading": "Recovery codes",
+      "text_one": "{{count}} recovery code left. Use one if you lose your second factor.",
+      "text_other": "{{count}} recovery codes left. Use one if you lose your second factor.",
+      "renew": "Create new recovery codes",
+      "title": "Your recovery codes",
+      "savePrompt": "Save them somewhere safe. They are shown only once and each works once. New codes replace the old ones.",
+      "copy": "Copy codes",
+      "copied": "Copied.",
+      "saved": "I saved them"
+    },
+    "requiredTitle": "Second factor required",
+    "requiredText": "Administrators need a second factor. Set up an authenticator app or a passkey below to use the admin area."
   }
 }

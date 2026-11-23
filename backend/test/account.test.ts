@@ -23,7 +23,6 @@ import {
   PASSWORD,
   post,
   registerAndLogin,
-  sessionCookie,
   type TestApp,
 } from './helpers.ts';
 
@@ -224,18 +223,14 @@ describe('data export', () => {
 
   it('lists sign-in methods and actions taken by administrators without naming them', async () => {
     await t.db.insert(oauthAccounts).values({ provider: 'google', providerUserId: 'g-1', userId });
-    const admin = await registerAndLogin(t, 'admin@example.com', 'Admin');
+    const adminSession = await registerAndLogin(t, 'admin@example.com', 'Admin');
     await makeAdmin(t, 'admin@example.com');
-    const adminSession = sessionCookie(
-      await post(t.app, '/api/auth/login', { email: 'admin@example.com', password: PASSWORD }),
-    );
     await t.app.inject({
       method: 'PATCH',
       url: `/api/admin/users/${userId}`,
       payload: { name: 'Anna B' },
       headers: { origin: ORIGIN, cookie: adminSession },
     });
-    void admin;
     const data = (await get(t.app, '/api/me/export', cookie)).json();
     expect(data.profile.signInMethods).toEqual(['password', 'google']);
     expect(data.actionsByAdministrators).toEqual([
@@ -308,11 +303,8 @@ describe('account deletion', () => {
   });
 
   it('keeps the activity log but drops the reference to the deleted account', async () => {
-    await registerAndLogin(t, 'admin@example.com', 'Admin');
+    const adminSession = await registerAndLogin(t, 'admin@example.com', 'Admin');
     await makeAdmin(t, 'admin@example.com');
-    const adminSession = sessionCookie(
-      await post(t.app, '/api/auth/login', { email: 'admin@example.com', password: PASSWORD }),
-    );
     await t.app.inject({
       method: 'PATCH',
       url: `/api/admin/users/${userId}`,

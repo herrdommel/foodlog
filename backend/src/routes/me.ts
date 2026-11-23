@@ -14,6 +14,7 @@ import { clearSessionCookie } from '../lib/cookies.ts';
 import { AppError, parseBody } from '../lib/errors.ts';
 import { verifyPassword } from '../lib/password.ts';
 import { createAuthMail } from '../services/auth-mail.ts';
+import { createMfaService } from '../services/mfa.ts';
 import { resolveFeatures } from '../services/features.ts';
 import { buildAccountExport } from '../services/account-export.ts';
 import { deleteUserSessions } from '../services/sessions.ts';
@@ -24,10 +25,15 @@ const AVATAR_FORMATS = new Set(['jpeg', 'png', 'webp', 'gif']);
 
 export async function meRoutes(app: FastifyInstance, { config, db, mailer }: AppDeps) {
   const authMail = createAuthMail({ config, db, mailer, log: app.log });
+  const mfa = createMfaService({ config, db });
   const auth = { preHandler: app.requireUser };
 
   async function meResponse(user: UserRow): Promise<MeResponse> {
-    return { user: await toPublicUser(db, user), features: await resolveFeatures(db, user.id) };
+    return {
+      user: await toPublicUser(db, user),
+      features: await resolveFeatures(db, user.id),
+      mfa: await mfa.status(user),
+    };
   }
 
   async function reload(userId: string): Promise<UserRow> {

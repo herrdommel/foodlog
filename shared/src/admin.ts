@@ -66,6 +66,7 @@ export interface AdminUserFeatureDto {
 }
 
 export interface AdminUserDetailDto extends AdminUserDto {
+  mfaEnabled: boolean;
   features: AdminUserFeatureDto[];
 }
 

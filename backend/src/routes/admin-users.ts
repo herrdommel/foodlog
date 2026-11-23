@@ -17,6 +17,7 @@ import { HOUR } from '../lib/time.ts';
 import { toAdminUserDetail, toAdminUsers } from '../services/admin-users.ts';
 import { recordAudit } from '../services/audit.ts';
 import { createAuthMail } from '../services/auth-mail.ts';
+import { createMfaService } from '../services/mfa.ts';
 import { deleteUserSessions } from '../services/sessions.ts';
 import { createAuthToken } from '../services/tokens.ts';
 import { findUserByEmail } from '../services/users.ts';
@@ -30,6 +31,7 @@ function escapeLike(value: string): string {
 export async function adminUserRoutes(app: FastifyInstance, { config, db, mailer }: AppDeps) {
   const admin = { preHandler: app.requireAdmin };
   const authMail = createAuthMail({ config, db, mailer, log: app.log });
+  const mfa = createMfaService({ config, db });
 
   async function target(id: string) {
     const [user] = await db.select().from(users).where(eq(users.id, id));
@@ -152,6 +154,23 @@ export async function adminUserRoutes(app: FastifyInstance, { config, db, mailer
         targetUserId: user.id,
       });
       return { delivery, link };
+    },
+  );
+
+  app.post(
+    '/api/admin/users/:id/mfa-reset',
+    { ...admin, config: { rateLimit: { max: 20, timeWindow: '1 minute' } } },
+    async (request, reply) => {
+      const { id } = parseBody(idSchema, request.params);
+      const actor = request.user!;
+      if (id === actor.id) {
+        throw new AppError(409, 'cannot_modify_self', 'You cannot change your own account here');
+      }
+      const user = await target(id);
+      await mfa.clearAll(user.id);
+      await deleteUserSessions(db, user.id);
+      await recordAudit(db, { actorId: actor.id, action: 'user.mfa_reset', targetUserId: user.id });
+      return reply.status(204).send();
     },
   );
 

@@ -48,6 +48,7 @@ export const meResponse: MeResponse = {
     ai_photo: false,
     context_factors: true,
   },
+  mfa: { enabled: false, totp: false, passkeys: [], recoveryCodesLeft: 0, required: false },
 };
 
 export function mockGuest(config = { publicRegistration: false, googleLogin: false }) {
