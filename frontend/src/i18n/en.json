@@ -18,7 +18,8 @@
     "ingredients": "Ingredients",
     "analysis": "Analysis",
     "admin": "Admin",
-    "ai": "AI"
+    "ai": "AI",
+    "account": "Account menu"
   },
   "auth": {
     "loginTitle": "Sign in",

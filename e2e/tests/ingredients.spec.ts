@@ -50,6 +50,7 @@ test('shows usage and warns before deleting an ingredient used in entries', asyn
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByRole('listitem').filter({ hasText: 'Stew' })).toBeVisible();
 
+  await page.getByRole('button', { name: 'Account menu' }).click();
   await page.getByRole('link', { name: 'Ingredients' }).click();
   const mine = page.getByRole('region', { name: 'My ingredients' });
   await expect(mine.getByText('used in 1 entry')).toBeVisible();

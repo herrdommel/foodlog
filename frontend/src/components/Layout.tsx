@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import type { Locale } from '@foodlog/shared';
@@ -59,10 +59,91 @@ export function PublicLayout({
   );
 }
 
-export function AppLayout() {
+function AccountMenu() {
   const { t } = useTranslation();
   const { data: me } = useMe();
   const logout = useLogout();
+  const { pathname } = useLocation();
+  const [openFor, setOpenFor] = useState<string | null>(null);
+  const open = openFor === pathname;
+  const setOpen = (value: boolean) => setOpenFor(value ? pathname : null);
+  const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (event: MouseEvent | KeyboardEvent) => {
+      if (event instanceof KeyboardEvent) {
+        if (event.key !== 'Escape') return;
+        trigger.current?.focus();
+      } else if (root.current?.contains(event.target as Node)) {
+        return;
+      }
+      setOpenFor(null);
+    };
+    document.addEventListener('mousedown', close);
+    document.addEventListener('keydown', close);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      document.removeEventListener('keydown', close);
+    };
+  }, [open]);
+
+  if (!me) return null;
+  const item = 'block w-full rounded-lg px-3 py-2 text-left text-sm font-medium hover:bg-fg/5';
+  return (
+    <div ref={root} className="relative shrink-0">
+      <button
+        ref={trigger}
+        type="button"
+        aria-label={t('nav.account')}
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1.5 rounded-full py-0.5 pl-0.5 pr-2 hover:bg-fg/5"
+      >
+        <Avatar user={me.user} />
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`}
+        >
+          <path d="m5 8 5 5 5-5" />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full z-20 mt-2 w-64 rounded-xl border border-fg/10 bg-raised p-2 shadow-lg">
+          <p className="truncate px-3 py-1 text-sm font-semibold">{me.user.name}</p>
+          <p className="break-all px-3 pb-2 text-xs text-fg/75">{me.user.email}</p>
+          <div className="border-t border-fg/10 pt-2">
+            <Link to="/ingredients" className={item}>
+              {t('nav.ingredients')}
+            </Link>
+            <Link to="/profile" className={item}>
+              {t('nav.profile')}
+            </Link>
+            {me.user.role === 'admin' && (
+              <Link to="/admin" className={item}>
+                {t('nav.admin')}
+              </Link>
+            )}
+            <button type="button" onClick={() => logout.mutate()} className={item}>
+              {t('common.logout')}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function AppLayout() {
+  const { t } = useTranslation();
+  const { data: me } = useMe();
   const nav = useRef<HTMLElement>(null);
   const { pathname } = useLocation();
   useEffect(() => {
@@ -73,7 +154,7 @@ export function AppLayout() {
   const link = ({ isActive }: { isActive: boolean }) =>
     `shrink-0 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium ${isActive ? 'bg-accent/20 text-fg' : 'hover:bg-fg/5'}`;
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 pb-8">
+    <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 pb-8">
       <header className="flex flex-wrap items-center justify-between gap-3 py-4 print:hidden">
         <Logo />
         <nav
@@ -91,28 +172,8 @@ export function AppLayout() {
               {t('nav.ai')}
             </NavLink>
           )}
-          <NavLink to="/ingredients" className={link}>
-            {t('nav.ingredients')}
-          </NavLink>
-          <NavLink to="/profile" className={link}>
-            {t('nav.profile')}
-          </NavLink>
-          {me?.user.role === 'admin' && (
-            <NavLink to="/admin" className={link}>
-              {t('nav.admin')}
-            </NavLink>
-          )}
         </nav>
-        <div className="flex items-center gap-3">
-          {me && <Avatar user={me.user} />}
-          <button
-            type="button"
-            onClick={() => logout.mutate()}
-            className="text-sm font-medium hover:text-accent"
-          >
-            {t('common.logout')}
-          </button>
-        </div>
+        <AccountMenu />
       </header>
       <main className="flex-1 space-y-6 py-4">
         <Outlet />

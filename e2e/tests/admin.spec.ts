@@ -44,10 +44,13 @@ async function openUser(admin: Page, email: string) {
 test('only admins see the admin area', async ({ browser }) => {
   const { page: admin } = await adminPage(browser);
   await admin.goto('/');
+  await admin.getByRole('button', { name: 'Account menu' }).click();
   await expect(admin.getByRole('link', { name: 'Admin' })).toBeVisible();
 
   const { page: regular } = await userPage(browser);
   await regular.goto('/');
+  await regular.getByRole('button', { name: 'Account menu' }).click();
+  await expect(regular.getByRole('link', { name: 'Profile' })).toBeVisible();
   await expect(regular.getByRole('link', { name: 'Admin' })).toHaveCount(0);
   await regular.goto('/admin/users');
   await expect(regular).toHaveURL(/\/$/);

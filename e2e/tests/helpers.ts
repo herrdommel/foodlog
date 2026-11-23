@@ -117,3 +117,8 @@ export async function promoteToAdmin(page: Page, email: string, withSecondFactor
   });
   expect(response.ok()).toBe(true);
 }
+
+export async function signOut(page: Page) {
+  await page.getByRole('button', { name: 'Account menu' }).click();
+  await page.getByRole('button', { name: 'Sign out' }).click();
+}

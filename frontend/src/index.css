@@ -11,6 +11,7 @@
   --text: var(--color-ink);
   --accent: var(--color-brand);
   --highlight: var(--color-coral);
+  --danger: #b42318;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,6 +21,7 @@
     --text: var(--color-cream);
     --accent: #4cb38e;
     --highlight: var(--color-coral);
+    --danger: #ff8f85;
   }
 }
 
@@ -35,6 +37,7 @@
   --color-fg: var(--text);
   --color-accent: var(--accent);
   --color-highlight: var(--highlight);
+  --color-danger: var(--danger);
 }
 
 body {

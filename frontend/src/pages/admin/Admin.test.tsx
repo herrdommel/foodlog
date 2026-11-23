@@ -77,6 +77,7 @@ describe('admin access', () => {
     mockAdmin();
     server.use(http.get('/api/entries', () => HttpResponse.json([])));
     renderApp('/');
+    await userEvent.click(await screen.findByRole('button', { name: 'Account menu' }));
     expect(await screen.findByRole('link', { name: 'Admin' })).toBeInTheDocument();
   });
 
@@ -85,6 +86,8 @@ describe('admin access', () => {
     server.use(http.get('/api/entries', () => HttpResponse.json([])));
     renderApp('/admin/users');
     expect(await screen.findByRole('button', { name: 'Meal' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Account menu' }));
+    expect(screen.getByRole('link', { name: 'Profile' })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Admin' })).not.toBeInTheDocument();
   });
 });

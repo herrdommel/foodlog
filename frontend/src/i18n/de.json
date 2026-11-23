@@ -18,7 +18,8 @@
     "ingredients": "Zutaten",
     "analysis": "Auswertung",
     "admin": "Admin",
-    "ai": "KI"
+    "ai": "KI",
+    "account": "Kontomenü"
   },
   "auth": {
     "loginTitle": "Anmelden",

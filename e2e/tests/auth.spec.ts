@@ -6,6 +6,7 @@ import {
   loginViaApi,
   PASSWORD,
   registerVerified,
+  signOut,
   uniqueEmail,
 } from './helpers.ts';
 
@@ -45,7 +46,7 @@ test('registers with an invitation, confirms the email and signs in', async ({ p
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByRole('button', { name: 'Meal', exact: true })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  await signOut(page);
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
 });
 

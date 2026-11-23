@@ -69,11 +69,15 @@ export function Button({
   variant = 'primary',
   className = '',
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' }) {
-  const styles =
-    variant === 'primary'
-      ? 'bg-brand text-cream hover:bg-brand-hover'
-      : 'border border-fg/20 bg-raised hover:border-accent';
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: 'primary' | 'secondary' | 'danger' | 'dangerOutline';
+}) {
+  const styles = {
+    primary: 'bg-brand text-cream hover:bg-brand-hover',
+    secondary: 'border border-fg/20 bg-raised hover:border-accent',
+    danger: 'bg-danger text-surface hover:brightness-90',
+    dangerOutline: 'border border-danger bg-raised text-danger hover:bg-danger/10',
+  }[variant];
   return (
     <button
       {...props}

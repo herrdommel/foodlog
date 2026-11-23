@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { loginViaApi, PASSWORD, promoteToAdmin, registerVerified } from './helpers.ts';
+import { loginViaApi, PASSWORD, promoteToAdmin, registerVerified, signOut } from './helpers.ts';
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('foodlog.lang', 'en'));
@@ -51,7 +51,7 @@ test('sets up an authenticator app and needs its code at sign-in', async ({ page
   await card.getByRole('button', { name: 'I saved them' }).click();
   await expect(card.getByText('The authenticator app is active.')).toBeVisible();
 
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  await signOut(page);
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password').fill(PASSWORD);
@@ -66,7 +66,7 @@ test('sets up an authenticator app and needs its code at sign-in', async ({ page
   await page.getByRole('button', { name: 'Confirm' }).click();
   await expect(page.getByRole('button', { name: 'Meal', exact: true })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  await signOut(page);
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password').fill(PASSWORD);
@@ -94,12 +94,12 @@ test('registers a passkey and signs in with it, with and without the password', 
   await card.getByRole('button', { name: 'I saved them' }).click();
   await expect(card.getByText('Test laptop')).toBeVisible();
 
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  await signOut(page);
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
   await page.getByRole('button', { name: 'Use a passkey instead' }).click();
   await expect(page.getByRole('button', { name: 'Meal', exact: true })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  await signOut(page);
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password').fill(PASSWORD);
@@ -116,6 +116,7 @@ test('sends an administrator without a second factor to the profile with an expl
   await promoteToAdmin(page, email, false);
   await loginViaApi(page, email);
   await page.goto('/');
+  await page.getByRole('button', { name: 'Account menu' }).click();
   await page.getByRole('link', { name: 'Admin' }).click();
 
   await expect(page).toHaveURL(/\/profile$/);

@@ -259,7 +259,7 @@ function DeleteCard({ user }: { user: PublicUser }) {
       {!open ? (
         <Button
           type="button"
-          variant="secondary"
+          variant="dangerOutline"
           onClick={() => setOpen(true)}
           className="w-full sm:w-auto"
         >
@@ -287,7 +287,7 @@ function DeleteCard({ user }: { user: PublicUser }) {
             />
           )}
           <ActionRow columns={2}>
-            <Button type="submit" disabled={remove.isPending}>
+            <Button type="submit" variant="danger" disabled={remove.isPending}>
               {t('profile.delete.submit')}
             </Button>
             <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
