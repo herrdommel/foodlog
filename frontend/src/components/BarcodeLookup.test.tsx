@@ -23,8 +23,7 @@ vi.mock('@zxing/library', () => ({
 const CODE = '2999999999779';
 const milk: IngredientDto = {
   id: '11111111-1111-4111-8111-111111111111',
-  nameDe: 'Milch',
-  nameEn: 'Milk',
+  names: { de: 'Milch', en: 'Milk' },
   custom: false,
   allergens: ['lactose', 'milk_protein'],
 };
@@ -50,8 +49,7 @@ function setup(onBusyChange?: (busy: boolean) => void) {
       created.push(body);
       return HttpResponse.json({
         id: `new-${created.length}`,
-        nameDe: body.name,
-        nameEn: body.name,
+        names: { und: body.name },
         custom: true,
         allergens: body.allergens,
       });
@@ -97,7 +95,10 @@ describe('BarcodeLookup', () => {
     await waitFor(() => expect(onAdd).toHaveBeenCalled());
     expect(created).toEqual([{ name: 'Soy lecithin', allergens: ['soy'] }]);
     const [ingredients, label] = onAdd.mock.calls[0]!;
-    expect(ingredients.map((i: IngredientDto) => i.nameEn)).toEqual(['Milk', 'Soy lecithin']);
+    expect(ingredients.map((i: IngredientDto) => i.names.en ?? i.names.und)).toEqual([
+      'Milk',
+      'Soy lecithin',
+    ]);
     expect(label).toBe('Acme Hazel spread');
   });
 

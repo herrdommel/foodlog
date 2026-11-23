@@ -1,6 +1,6 @@
 import { and, asc, eq, gte, inArray, lt } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
-import { dayRangeUtc, exportQuerySchema, utcToWallTime } from '@foodlog/shared';
+import { dayRangeUtc, exportQuerySchema, localizedName, utcToWallTime } from '@foodlog/shared';
 import type { AppDeps } from '../app.ts';
 import { entries, entryIngredients } from '../db/schema.ts';
 import { toCsv } from '../lib/csv.ts';
@@ -65,7 +65,7 @@ export async function exportRoutes(app: FastifyInstance, { db }: AppDeps) {
           .map((link) => ingredients.get(link.ingredientId))
           .filter((ingredient) => ingredient !== undefined);
         const names = linked
-          .map((ingredient) => (user.locale === 'de' ? ingredient.nameDe : ingredient.nameEn))
+          .map((ingredient) => localizedName(ingredient.names, user.locale))
           .sort((a, b) => a.localeCompare(b, user.locale));
         const allergens = [...new Set(linked.flatMap((ingredient) => ingredient.allergens))].sort();
         return [

@@ -4,9 +4,10 @@ import {
   ingredientInputSchema,
   ingredientSearchSchema,
   ingredientUpdateSchema,
+  NEUTRAL_LOCALE,
 } from '@foodlog/shared';
 import type { AppDeps } from '../app.ts';
-import { ingredientAllergens, ingredients } from '../db/schema.ts';
+import { ingredientAllergens, ingredientNames, ingredients } from '../db/schema.ts';
 import { newId } from '../lib/crypto.ts';
 import { AppError, parseBody } from '../lib/errors.ts';
 import {
@@ -30,11 +31,11 @@ export async function ingredientRoutes(app: FastifyInstance, { db }: AppDeps) {
 
   app.get('/api/ingredients', auth, async (request) => {
     const { q, limit, offset, scope } = parseBody(ingredientSearchSchema, request.query);
-    return searchIngredients(db, request.user!.id, q, limit, scope, offset);
+    return searchIngredients(db, request.user!.id, q, limit, request.user!.locale, scope, offset);
   });
 
   app.get('/api/ingredients/mine', auth, async (request) =>
-    listCustomIngredients(db, request.user!.id),
+    listCustomIngredients(db, request.user!.id, request.user!.locale),
   );
 
   app.post('/api/ingredients', auth, async (request, reply) => {
@@ -45,7 +46,10 @@ export async function ingredientRoutes(app: FastifyInstance, { db }: AppDeps) {
     }
     const id = newId();
     await db.transaction(async (tx) => {
-      await tx.insert(ingredients).values({ id, userId, nameDe: body.name, nameEn: body.name });
+      await tx.insert(ingredients).values({ id, userId });
+      await tx
+        .insert(ingredientNames)
+        .values({ ingredientId: id, locale: NEUTRAL_LOCALE, name: body.name });
       if (body.allergens.length > 0) {
         await tx
           .insert(ingredientAllergens)
@@ -66,10 +70,10 @@ export async function ingredientRoutes(app: FastifyInstance, { db }: AppDeps) {
     }
     await db.transaction(async (tx) => {
       if (body.name !== undefined) {
+        await tx.delete(ingredientNames).where(eq(ingredientNames.ingredientId, id));
         await tx
-          .update(ingredients)
-          .set({ nameDe: body.name, nameEn: body.name })
-          .where(eq(ingredients.id, id));
+          .insert(ingredientNames)
+          .values({ ingredientId: id, locale: NEUTRAL_LOCALE, name: body.name });
       }
       if (body.allergens !== undefined) {
         await tx.delete(ingredientAllergens).where(eq(ingredientAllergens.ingredientId, id));

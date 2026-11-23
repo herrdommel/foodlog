@@ -94,7 +94,7 @@ describe('photo recognition', () => {
     expect(response.statusCode).toBe(200);
     const body: AiPhotoResultDto = response.json();
     expect(body).toMatchObject({ provider: 'anthropic', model: 'mock-large' });
-    expect(body.suggestions.matched.map((i) => i.nameEn).sort()).toEqual(['Milk', 'Rice']);
+    expect(body.suggestions.matched.map((i) => i.names.en).sort()).toEqual(['Milk', 'Rice']);
     expect(body.suggestions.proposed.map((p) => p.name)).toEqual(['Dragon fruit']);
   });
 

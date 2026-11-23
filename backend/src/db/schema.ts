@@ -1,4 +1,5 @@
 import { sql } from 'drizzle-orm';
+import type { Locale } from '@foodlog/shared';
 import {
   boolean,
   customType,
@@ -31,7 +32,7 @@ export const users = mysqlTable('users', {
   avatar: varchar('avatar', { length: 16 }).notNull().default('preset:1'),
   role: mysqlEnum('role', ['user', 'admin']).notNull().default('user'),
   active: boolean('active').notNull().default(true),
-  locale: mysqlEnum('locale', ['de', 'en']).notNull().default('de'),
+  locale: varchar('locale', { length: 8 }).$type<Locale>().notNull().default('de'),
   timezone: varchar('timezone', { length: 64 }).notNull().default('Europe/Berlin'),
   createdAt: datetime('created_at').notNull().default(utcNow),
   updatedAt: datetime('updated_at')
@@ -217,11 +218,24 @@ export const ingredients = mysqlTable(
     id: varchar('id', { length: 36 }).primaryKey(),
     catalogKey: varchar('catalog_key', { length: 64 }).unique(),
     userId: varchar('user_id', { length: 36 }).references(() => users.id, { onDelete: 'cascade' }),
-    nameDe: varchar('name_de', { length: 80 }).notNull(),
-    nameEn: varchar('name_en', { length: 80 }).notNull(),
     createdAt: datetime('created_at').notNull().default(utcNow),
   },
   (table) => [index('ingredients_user_id_idx').on(table.userId)],
+);
+
+export const ingredientNames = mysqlTable(
+  'ingredient_names',
+  {
+    ingredientId: varchar('ingredient_id', { length: 36 })
+      .notNull()
+      .references(() => ingredients.id, { onDelete: 'cascade' }),
+    locale: varchar('locale', { length: 8 }).notNull(),
+    name: varchar('name', { length: 80 }).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.ingredientId, table.locale] }),
+    index('ingredient_names_name_idx').on(table.name),
+  ],
 );
 
 export const ingredientAllergens = mysqlTable(

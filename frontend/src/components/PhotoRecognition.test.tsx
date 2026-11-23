@@ -31,8 +31,7 @@ const result: AiPhotoResultDto = {
     matched: [
       {
         id: '11111111-1111-4111-8111-111111111111',
-        nameDe: 'Milch',
-        nameEn: 'Milk',
+        names: { de: 'Milch', en: 'Milk' },
         custom: false,
         allergens: ['lactose'],
       },
@@ -55,8 +54,7 @@ function setup(photoConsent = true) {
       const body = (await request.json()) as { name: string; allergens: string[] };
       return HttpResponse.json({
         id: 'new-1',
-        nameDe: body.name,
-        nameEn: body.name,
+        names: { und: body.name },
         custom: true,
         allergens: [],
       });
@@ -117,10 +115,11 @@ describe('PhotoRecognition', () => {
 
     await user.click(screen.getByRole('button', { name: 'Add 2 to the meal' }));
     await waitFor(() => expect(onAdd).toHaveBeenCalled());
-    expect(onAdd.mock.calls[0]![0].map((i: { nameEn: string }) => i.nameEn)).toEqual([
-      'Milk',
-      'Dragon fruit',
-    ]);
+    expect(
+      onAdd.mock.calls[0]![0].map(
+        (i: { names: { en?: string; und?: string } }) => i.names.en ?? i.names.und,
+      ),
+    ).toEqual(['Milk', 'Dragon fruit']);
   });
 
   it('explains a photo that cannot be read', async () => {

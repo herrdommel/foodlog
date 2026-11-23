@@ -11,7 +11,7 @@ import {
 import { AllergenCheckboxes } from '../components/AllergenCheckboxes.tsx';
 import { AllergenChips } from '../components/AllergenChips.tsx';
 import { Button, Card, ErrorMessage, Field } from '../components/ui.tsx';
-import { ingredientName } from '../lib/format.ts';
+import { ingredientName, typedName } from '../lib/format.ts';
 
 function CreateCard() {
   const { t } = useTranslation();
@@ -60,7 +60,7 @@ function CustomRow({ ingredient }: { ingredient: CustomIngredientDto }) {
   const update = useUpdateIngredient();
   const remove = useDeleteIngredient();
   const [mode, setMode] = useState<'view' | 'edit' | 'delete'>('view');
-  const [name, setName] = useState(ingredient.nameDe);
+  const [name, setName] = useState(typedName(ingredient));
   const [allergens, setAllergens] = useState<Allergen[]>(ingredient.allergens);
   const label = ingredientName(ingredient, i18n.language);
 
@@ -96,7 +96,7 @@ function CustomRow({ ingredient }: { ingredient: CustomIngredientDto }) {
               type="button"
               variant="secondary"
               onClick={() => {
-                setName(ingredient.nameDe);
+                setName(typedName(ingredient));
                 setAllergens(ingredient.allergens);
                 update.reset();
                 setMode('view');

@@ -1,7 +1,12 @@
-import type { IngredientDto } from '@foodlog/shared';
+import { localizedName, NEUTRAL_LOCALE, referenceName, type IngredientDto } from '@foodlog/shared';
 
 export function ingredientName(ingredient: IngredientDto, language: string): string {
-  return language === 'de' ? ingredient.nameDe : ingredient.nameEn;
+  return localizedName(ingredient.names, language);
+}
+
+// The name a person typed for their own ingredient, as it is edited.
+export function typedName(ingredient: IngredientDto): string {
+  return ingredient.names[NEUTRAL_LOCALE] ?? referenceName(ingredient.names);
 }
 
 export function formatTime(iso: string, timeZone: string, language: string): string {

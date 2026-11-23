@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { IngredientNames } from './ingredient-names.ts';
 import { isDateString, isWallTime } from './time.ts';
 
 export const ALLERGENS = [
@@ -148,8 +149,7 @@ export const templateInputSchema = z.object({
 
 export interface IngredientDto {
   id: string;
-  nameDe: string;
-  nameEn: string;
+  names: IngredientNames;
   custom: boolean;
   allergens: Allergen[];
 }

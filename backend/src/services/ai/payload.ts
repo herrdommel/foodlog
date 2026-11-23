@@ -3,6 +3,7 @@ import { and, asc, eq, gte, lt, notInArray } from 'drizzle-orm';
 import {
   CONTEXT_ENTRY_TYPES,
   dayRangeUtc,
+  localizedName,
   isContextType,
   utcToWallTime,
   type AiPreviewDto,
@@ -65,8 +66,7 @@ export async function buildAiRequest(
 ): Promise<AiRequest> {
   const analysis = await buildAnalysis(db, user, query);
   const withContext = (await resolveFeatures(db, user.id)).context_factors;
-  const name = (ingredient: IngredientDto) =>
-    user.locale === 'de' ? ingredient.nameDe : ingredient.nameEn;
+  const name = (ingredient: IngredientDto) => localizedName(ingredient.names, user.locale);
 
   const from = dayRangeUtc(query.from, user.timezone).from;
   const to = dayRangeUtc(query.to, user.timezone).to;

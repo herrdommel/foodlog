@@ -8,24 +8,21 @@ import { mockLoggedIn, renderApp } from '../test/render.tsx';
 
 const soup: CustomIngredientDto = {
   id: '33333333-3333-4333-8333-333333333333',
-  nameDe: 'Omas Suppe',
-  nameEn: 'Omas Suppe',
+  names: { und: 'Omas Suppe' },
   custom: true,
   allergens: ['celery'],
   entryCount: 3,
 };
 const plain: CustomIngredientDto = {
   id: '44444444-4444-4444-8444-444444444444',
-  nameDe: 'Mein Tag',
-  nameEn: 'Mein Tag',
+  names: { und: 'Mein Tag' },
   custom: true,
   allergens: [],
   entryCount: 0,
 };
 const milk: IngredientDto = {
   id: '11111111-1111-4111-8111-111111111111',
-  nameDe: 'Milch',
-  nameEn: 'Milk',
+  names: { de: 'Milch', en: 'Milk' },
   custom: false,
   allergens: ['lactose', 'milk_protein'],
 };

@@ -15,22 +15,19 @@ const NOW = Date.UTC(2026, 11, 1);
 
 const milk: IngredientDto = {
   id: 'milk',
-  nameDe: 'Milch',
-  nameEn: 'Milk',
+  names: { de: 'Milch', en: 'Milk' },
   custom: false,
   allergens: ['lactose', 'milk_protein'],
 };
 const yogurt: IngredientDto = {
   id: 'yogurt',
-  nameDe: 'Joghurt',
-  nameEn: 'Yogurt',
+  names: { de: 'Joghurt', en: 'Yogurt' },
   custom: false,
   allergens: ['lactose'],
 };
 const rice: IngredientDto = {
   id: 'rice',
-  nameDe: 'Reis',
-  nameEn: 'Rice',
+  names: { de: 'Reis', en: 'Rice' },
   custom: false,
   allergens: [],
 };
@@ -257,9 +254,9 @@ describe('computeSuspects', () => {
     const result = run(entries);
     const grouped = result.ingredients.filter((item) => item.exposures === 10);
     expect(grouped).toHaveLength(1);
-    expect(grouped[0]?.key).toBe('yogurt');
-    expect(grouped[0]?.alsoWith.map((i) => i.id)).toEqual(['milk']);
-    expect(result.ingredients.some((item) => item.key === 'milk')).toBe(false);
+    expect(grouped[0]?.key).toBe('milk');
+    expect(grouped[0]?.alsoWith.map((i) => i.id)).toEqual(['yogurt']);
+    expect(result.ingredients.some((item) => item.key === 'yogurt')).toBe(false);
   });
 
   it('keeps ingredients separate when their meals differ', () => {

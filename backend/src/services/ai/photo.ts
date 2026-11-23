@@ -2,6 +2,7 @@ import sharp from 'sharp';
 import { z } from 'zod';
 import type { Locale } from '@foodlog/shared';
 import { CATALOG } from '../../catalog/ingredients.ts';
+import { CATALOG_NAMES } from '../../catalog/names.ts';
 import { AppError } from '../../lib/errors.ts';
 import { allergensFromName, cleanName, type Candidate } from '../suggestions.ts';
 import type { ImageInput } from './providers.ts';
@@ -12,7 +13,7 @@ const MAX_ITEMS = 20;
 const FORMATS = new Set(['jpeg', 'png', 'webp', 'gif', 'heif']);
 const CATALOG_KEYS = new Set(CATALOG.map(([key]) => key));
 
-const catalogList = CATALOG.map(([key, , en]) => `${key}: ${en}`).join('\n');
+const catalogList = CATALOG.map(([key]) => `${key}: ${CATALOG_NAMES.en?.[key]}`).join('\n');
 
 export const PHOTO_SYSTEM: Record<Locale, string> = {
   en: `You identify the food and drink visible in one photo for a personal food diary.

@@ -1,5 +1,5 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { featureFlags, ingredients } from '../src/db/schema.ts';
+import { featureFlags, ingredientNames, ingredients } from '../src/db/schema.ts';
 import { newId } from '../src/lib/crypto.ts';
 import { createTestApp, get, post, registerAndLogin, type TestApp } from './helpers.ts';
 
@@ -65,7 +65,9 @@ describe('product lookup', () => {
   it('takes known catalog entries and proposes the rest', async () => {
     const body = (await lookup()).json();
     expect(body).toMatchObject({ barcode: CODE, name: 'Hazel spread', brand: 'Acme' });
-    const matched = body.suggestions.matched.map((i: { nameEn: string }) => i.nameEn).sort();
+    const matched = body.suggestions.matched
+      .map((i: { names: { en: string } }) => i.names.en)
+      .sort();
     expect(matched).toEqual(['Milk', 'Sugar']);
     const proposed = body.suggestions.proposed.map((p: { name: string }) => p.name);
     expect(proposed).toEqual(['Palm oil', 'Soy lecithin', 'Wheat flour']);
@@ -74,7 +76,7 @@ describe('product lookup', () => {
   it('skips water, additives and taxonomy parents', async () => {
     const body = (await lookup()).json();
     const names = [
-      ...body.suggestions.matched.map((i: { nameEn: string }) => i.nameEn),
+      ...body.suggestions.matched.map((i: { names: { en: string } }) => i.names.en),
       ...body.suggestions.proposed.map((p: { name: string }) => p.name),
     ];
     expect(names).not.toContain('Water');
@@ -114,9 +116,10 @@ describe('product lookup', () => {
   it('reuses an own tag with the same name instead of proposing it again', async () => {
     const id = newId();
     const [user] = await t.db.query.users.findMany();
+    await t.db.insert(ingredients).values({ id, userId: user!.id });
     await t.db
-      .insert(ingredients)
-      .values({ id, userId: user!.id, nameDe: 'Palm oil', nameEn: 'Palm oil' });
+      .insert(ingredientNames)
+      .values({ ingredientId: id, locale: 'und', name: 'Palm oil' });
     const body = (await lookup()).json();
     expect(body.suggestions.matched.some((i: { id: string }) => i.id === id)).toBe(true);
     expect(body.suggestions.proposed.map((p: { name: string }) => p.name)).not.toContain(

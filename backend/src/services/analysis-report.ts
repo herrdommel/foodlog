@@ -1,6 +1,7 @@
 import { and, eq, gte, inArray, lt } from 'drizzle-orm';
 import {
   dayRangeUtc,
+  referenceName,
   shiftDate,
   todayInTimeZone,
   utcToWallTime,
@@ -147,7 +148,11 @@ export async function buildAnalysis(
   const topIngredients = [...ingredientCounts]
     .map(([id, count]) => ({ ingredient: ingredients.get(id) as IngredientDto, count }))
     .filter((item) => item.ingredient)
-    .sort((a, b) => b.count - a.count || a.ingredient.nameDe.localeCompare(b.ingredient.nameDe))
+    .sort(
+      (a, b) =>
+        b.count - a.count ||
+        referenceName(a.ingredient.names).localeCompare(referenceName(b.ingredient.names)),
+    )
     .slice(0, 10);
 
   return {

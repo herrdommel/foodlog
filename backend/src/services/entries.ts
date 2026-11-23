@@ -1,5 +1,5 @@
 import { inArray } from 'drizzle-orm';
-import type { EntryDto, SymptomType } from '@foodlog/shared';
+import { referenceName, type EntryDto, type SymptomType } from '@foodlog/shared';
 import type { Database } from '../db/client.ts';
 import { entryIngredients, type entries } from '../db/schema.ts';
 import { loadIngredientsById } from './ingredients.ts';
@@ -36,6 +36,6 @@ export async function toEntryDtos(
       .filter((link) => link.entryId === row.id)
       .map((link) => ingredients.get(link.ingredientId))
       .filter((dto) => dto !== undefined)
-      .sort((a, b) => a.nameDe.localeCompare(b.nameDe)),
+      .sort((a, b) => referenceName(a.names).localeCompare(referenceName(b.names))),
   }));
 }

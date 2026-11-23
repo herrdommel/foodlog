@@ -1,11 +1,12 @@
-import type {
-  Allergen,
-  AnalysisOutcome,
-  Confidence,
-  EntryType,
-  IngredientDto,
-  SuspectDto,
-  SymptomType,
+import {
+  referenceName,
+  type Allergen,
+  type AnalysisOutcome,
+  type Confidence,
+  type EntryType,
+  type IngredientDto,
+  type SuspectDto,
+  type SymptomType,
 } from '@foodlog/shared';
 
 export const MIN_EXPOSURES = 5;
@@ -182,7 +183,9 @@ export function computeSuspects(input: {
 
   const ingredientSuspects: SuspectDto[] = [];
   for (const group of groups.values()) {
-    const [first, ...rest] = group.sort((a, b) => a.nameDe.localeCompare(b.nameDe));
+    const [first, ...rest] = group.sort((a, b) =>
+      referenceName(a.names).localeCompare(referenceName(b.names)),
+    );
     const result = suspect(
       first!.id,
       first!,

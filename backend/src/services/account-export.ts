@@ -1,4 +1,5 @@
 import { and, asc, eq, isNull } from 'drizzle-orm';
+import { referenceName } from '@foodlog/shared';
 import type { Database } from '../db/client.ts';
 import {
   adminAudit,
@@ -73,9 +74,10 @@ export async function buildAccountExport(db: Database, user: typeof users.$infer
   const linkedByTemplate = new Map(templateLinks);
   const names = new Map<string, string>();
   for (const entry of entryDtos) {
-    for (const ingredient of entry.ingredients) names.set(ingredient.id, ingredient.nameEn);
+    for (const ingredient of entry.ingredients)
+      names.set(ingredient.id, referenceName(ingredient.names));
   }
-  for (const dto of customDtos) names.set(dto.id, dto.nameEn);
+  for (const dto of customDtos) names.set(dto.id, referenceName(dto.names));
 
   return {
     exportVersion: EXPORT_VERSION,
@@ -108,12 +110,15 @@ export async function buildAccountExport(db: Database, user: typeof users.$infer
       sleepMinutes: entry.sleepMinutes,
       rating: entry.rating,
       ingredients: entry.ingredients.map((ingredient) => ({
-        name: ingredient.nameEn,
+        name: referenceName(ingredient.names),
         custom: ingredient.custom,
         allergens: ingredient.allergens,
       })),
     })),
-    customIngredients: customDtos.map((dto) => ({ name: dto.nameEn, allergens: dto.allergens })),
+    customIngredients: customDtos.map((dto) => ({
+      name: referenceName(dto.names),
+      allergens: dto.allergens,
+    })),
     templates: templateRows.map((row) => ({
       name: row.name,
       type: row.type,

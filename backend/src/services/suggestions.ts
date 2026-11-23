@@ -1,7 +1,7 @@
 import { and, inArray, isNull, or, eq } from 'drizzle-orm';
 import type { Allergen, IngredientDto, IngredientSuggestionsDto } from '@foodlog/shared';
 import type { Database } from '../db/client.ts';
-import { ingredients } from '../db/schema.ts';
+import { ingredientNames, ingredients } from '../db/schema.ts';
 import { NAME_ALLERGENS } from '../catalog/open-food-facts.ts';
 import { toIngredientDtos } from './ingredients.ts';
 
@@ -43,8 +43,15 @@ export async function resolveCandidates(
               or(isNull(ingredients.userId), eq(ingredients.userId, userId)),
               or(
                 keys.length > 0 ? inArray(ingredients.catalogKey, keys) : undefined,
-                names.length > 0 ? inArray(ingredients.nameDe, names) : undefined,
-                names.length > 0 ? inArray(ingredients.nameEn, names) : undefined,
+                names.length > 0
+                  ? inArray(
+                      ingredients.id,
+                      db
+                        .select({ id: ingredientNames.ingredientId })
+                        .from(ingredientNames)
+                        .where(inArray(ingredientNames.name, names)),
+                    )
+                  : undefined,
               ),
             ),
           );
@@ -52,7 +59,7 @@ export async function resolveCandidates(
   const byKey = new Map(rows.flatMap((row) => (row.catalogKey ? [[row.catalogKey, row.id]] : [])));
   const byName = new Map<string, string>();
   for (const row of rows) {
-    for (const name of [row.nameDe, row.nameEn]) {
+    for (const name of Object.values(dtos.get(row.id)?.names ?? {})) {
       const known = byName.get(name.toLowerCase());
       if (!known || row.userId === null) byName.set(name.toLowerCase(), row.id);
     }

@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
 import type { IngredientDto } from '@foodlog/shared';
-import { featureFlags } from '../src/db/schema.ts';
+import { featureFlags, ingredientNames } from '../src/db/schema.ts';
 import {
   createTestApp,
   get,
@@ -54,20 +54,34 @@ describe('authentication', () => {
 describe('ingredient catalog', () => {
   it('finds catalog entries by German and English name with allergens', async () => {
     const german = await search('milch');
-    expect(german.map((i) => i.nameDe)).toContain('Milch');
-    expect(german.find((i) => i.nameDe === 'Milch')).toMatchObject({
-      nameEn: 'Milk',
+    expect(german.map((i) => i.names.de)).toContain('Milch');
+    expect(german.find((i) => i.names.de === 'Milch')).toMatchObject({
+      names: { de: 'Milch', en: 'Milk' },
       custom: false,
       allergens: ['lactose', 'milk_protein'],
     });
-    expect((await search('yogurt')).map((i) => i.nameDe)).toContain('Joghurt');
+    expect((await search('yogurt')).map((i) => i.names.de)).toContain('Joghurt');
+  });
+
+  it('stores one name per language and finds an entry by a name in any language', async () => {
+    const [milk] = await search('milk');
+    expect(milk?.names).toEqual({ de: 'Milch', en: 'Milk' });
+    await t.db
+      .insert(ingredientNames)
+      .values({ ingredientId: milk!.id, locale: 'fr', name: 'Lait' });
+    expect((await search('lait')).map((i) => i.id)).toContain(milk!.id);
+    expect((await search('lait')).find((i) => i.id === milk!.id)?.names.fr).toBe('Lait');
+  });
+
+  it('sorts by the name in the language of the user, falling back to English', async () => {
+    const german = (await search('')).map((i) => i.names.de ?? i.names.en);
+    expect(german).toEqual([...german].sort((a, b) => a!.localeCompare(b!, 'de')));
   });
 
   it('ranks prefix matches first', async () => {
     const results = await search('ei');
     expect(
-      results[0]?.nameDe.toLowerCase().startsWith('ei') ||
-        results[0]?.nameEn.toLowerCase().startsWith('ei'),
+      Object.values(results[0]?.names ?? {}).some((name) => name.toLowerCase().startsWith('ei')),
     ).toBe(true);
   });
 
@@ -126,7 +140,7 @@ describe('custom tags', () => {
       cookie,
     );
     expect(updated.json()).toMatchObject({
-      nameDe: 'Linsensuppe',
+      names: { und: 'Linsensuppe' },
       allergens: ['fodmap', 'gluten'],
     });
 
@@ -178,7 +192,7 @@ describe('custom tags', () => {
 
     const mine = (await get(t.app, '/api/ingredients/mine', cookie)).json();
     expect(
-      mine.map((i: { nameDe: string; entryCount: number }) => [i.nameDe, i.entryCount]),
+      mine.map((i: { names: { und: string }; entryCount: number }) => [i.names.und, i.entryCount]),
     ).toEqual([
       ['Benutzt', 2],
       ['Unbenutzt', 0],
@@ -221,7 +235,7 @@ describe('entries', () => {
       title: 'Frühstück',
       note: 'war lecker',
     });
-    expect(created.json().ingredients.map((i: IngredientDto) => i.nameDe)).toEqual([
+    expect(created.json().ingredients.map((i: IngredientDto) => i.names.de)).toEqual([
       'Milch',
       'Weizenbrot',
     ]);

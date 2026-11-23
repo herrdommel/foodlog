@@ -159,7 +159,7 @@ describe('GET /api/analysis', () => {
     expect(monday[10]).toBeGreaterThan(0);
 
     const top = body.suspects.ingredients[0];
-    expect(top.ingredient.nameEn).toBe('Milk');
+    expect(top.ingredient.names.en).toBe('Milk');
     expect(top).toMatchObject({ exposures: 10, exposuresWithOutcome: 8, confidence: 'high' });
     expect(top.relativeRisk).toBeCloseTo(17, 3);
     expect(top.ciLow).toBeGreaterThan(1);
@@ -173,7 +173,7 @@ describe('GET /api/analysis', () => {
     const stool = (
       await get(t.app, `/api/analysis?${range}&outcome=stool&window=3`, cookie)
     ).json();
-    expect(stool.suspects.ingredients[0].ingredient.nameEn).toBe('Milk');
+    expect(stool.suspects.ingredients[0].ingredient.names.en).toBe('Milk');
     const nausea = (await get(t.app, `/api/analysis?${range}&outcome=nausea`, cookie)).json();
     expect(nausea.suspects.ingredients).toEqual([]);
   });

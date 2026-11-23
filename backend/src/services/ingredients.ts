@@ -1,7 +1,12 @@
-import { and, asc, count, eq, inArray, isNull, like, or, sql } from 'drizzle-orm';
-import type { Allergen, CustomIngredientDto, IngredientDto } from '@foodlog/shared';
+import { and, count, eq, inArray, isNull, like, or, sql } from 'drizzle-orm';
+import { type Allergen, type CustomIngredientDto, type IngredientDto } from '@foodlog/shared';
 import type { Database } from '../db/client.ts';
-import { entryIngredients, ingredientAllergens, ingredients } from '../db/schema.ts';
+import {
+  entryIngredients,
+  ingredientAllergens,
+  ingredientNames,
+  ingredients,
+} from '../db/schema.ts';
 
 function escapeLike(value: string): string {
   return value.replace(/[\\%_]/g, (char) => `\\${char}`);
@@ -25,16 +30,30 @@ export async function toIngredientDtos(
         rows.map((row) => row.id),
       ),
     );
+  const nameRows = await db
+    .select()
+    .from(ingredientNames)
+    .where(
+      inArray(
+        ingredientNames.ingredientId,
+        rows.map((row) => row.id),
+      ),
+    );
   const byIngredient = new Map<string, Allergen[]>();
   for (const row of allergenRows) {
     const list = byIngredient.get(row.ingredientId) ?? [];
     list.push(row.allergen as Allergen);
     byIngredient.set(row.ingredientId, list);
   }
+  const namesByIngredient = new Map<string, Record<string, string>>();
+  for (const row of nameRows) {
+    const names = namesByIngredient.get(row.ingredientId) ?? {};
+    names[row.locale] = row.name;
+    namesByIngredient.set(row.ingredientId, names);
+  }
   return rows.map((row) => ({
     id: row.id,
-    nameDe: row.nameDe,
-    nameEn: row.nameEn,
+    names: namesByIngredient.get(row.id) ?? {},
     custom: row.userId !== null,
     allergens: (byIngredient.get(row.id) ?? []).sort(),
   }));
@@ -60,11 +79,22 @@ export async function allVisible(db: Database, userId: string, ids: string[]): P
   return rows.length === unique.length;
 }
 
+// Ingredients that have a name in any language matching the condition.
+function withName(condition: ReturnType<typeof like>) {
+  return sql`${ingredients.id} IN (SELECT ${ingredientNames.ingredientId} FROM ${ingredientNames} WHERE ${condition})`;
+}
+
+// The name shown for a language, with the same fallbacks as `localizedName`.
+function displayName(locale: string) {
+  return sql<string>`(SELECT ${ingredientNames.name} FROM ${ingredientNames} WHERE ${ingredientNames.ingredientId} = ${ingredients.id} ORDER BY ${ingredientNames.locale} = ${locale} DESC, ${ingredientNames.locale} = 'en' DESC, ${ingredientNames.locale} = 'und' DESC, ${ingredientNames.locale} LIMIT 1)`;
+}
+
 export async function searchIngredients(
   db: Database,
   userId: string,
   query: string,
   limit: number,
+  locale: string,
   scope: 'all' | 'catalog' = 'all',
   offset = 0,
 ): Promise<IngredientDto[]> {
@@ -76,14 +106,12 @@ export async function searchIngredients(
     .where(
       and(
         scope === 'catalog' ? isNull(ingredients.userId) : visibleTo(userId),
-        query
-          ? or(like(ingredients.nameDe, pattern), like(ingredients.nameEn, pattern))
-          : undefined,
+        query ? withName(like(ingredientNames.name, pattern)) : undefined,
       ),
     )
     .orderBy(
-      sql`(${ingredients.nameDe} LIKE ${prefix} OR ${ingredients.nameEn} LIKE ${prefix}) DESC`,
-      ingredients.nameDe,
+      ...(query ? [sql`${withName(like(ingredientNames.name, prefix))} DESC`] : []),
+      displayName(locale),
       ingredients.id,
     )
     .limit(limit)
@@ -100,19 +128,20 @@ export async function nameTaken(
   const rows = await db
     .select({ id: ingredients.id })
     .from(ingredients)
-    .where(and(visibleTo(userId), or(eq(ingredients.nameDe, name), eq(ingredients.nameEn, name))));
+    .where(and(visibleTo(userId), withName(eq(ingredientNames.name, name))));
   return rows.some((row) => row.id !== exceptId);
 }
 
 export async function listCustomIngredients(
   db: Database,
   userId: string,
+  locale: string,
 ): Promise<CustomIngredientDto[]> {
   const rows = await db
     .select()
     .from(ingredients)
     .where(eq(ingredients.userId, userId))
-    .orderBy(asc(ingredients.nameDe));
+    .orderBy(displayName(locale), ingredients.id);
   if (rows.length === 0) return [];
   const [dtos, counts] = await Promise.all([
     toIngredientDtos(db, rows),

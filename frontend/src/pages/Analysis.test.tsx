@@ -8,8 +8,7 @@ import { meResponse, mockLoggedIn, renderApp } from '../test/render.tsx';
 
 const milk: IngredientDto = {
   id: '11111111-1111-4111-8111-111111111111',
-  nameDe: 'Milch',
-  nameEn: 'Milk',
+  names: { de: 'Milch', en: 'Milk' },
   custom: false,
   allergens: ['lactose', 'milk_protein'],
 };
@@ -29,7 +28,7 @@ const milkSuspect: SuspectDto = {
   medianLagMinutes: 135,
   lagHistogram: [0, 3, 5, 1, 0, 0],
   alsoWith: [
-    { id: 'oats', nameDe: 'Haferflocken', nameEn: 'Oats', custom: false, allergens: ['gluten'] },
+    { id: 'oats', names: { de: 'Haferflocken', en: 'Oats' }, custom: false, allergens: ['gluten'] },
   ],
 };
 

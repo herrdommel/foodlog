@@ -28,10 +28,8 @@ export function IngredientPicker({
   const trimmed = query.trim();
   const results = trimmed && debounced === trimmed ? (search.data ?? []) : [];
   const available = results.filter((ingredient) => !selectedIds.has(ingredient.id));
-  const exactMatch = results.some(
-    (ingredient) =>
-      ingredient.nameDe.toLowerCase() === trimmed.toLowerCase() ||
-      ingredient.nameEn.toLowerCase() === trimmed.toLowerCase(),
+  const exactMatch = results.some((ingredient) =>
+    Object.values(ingredient.names).some((name) => name.toLowerCase() === trimmed.toLowerCase()),
   );
   const canCreate = trimmed !== '' && debounced === trimmed && !search.isFetching && !exactMatch;
 

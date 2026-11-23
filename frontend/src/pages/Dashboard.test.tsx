@@ -14,15 +14,13 @@ import { meResponse, mockLoggedIn, renderApp } from '../test/render.tsx';
 
 const milk: IngredientDto = {
   id: '11111111-1111-4111-8111-111111111111',
-  nameDe: 'Milch',
-  nameEn: 'Milk',
+  names: { de: 'Milch', en: 'Milk' },
   custom: false,
   allergens: ['lactose', 'milk_protein'],
 };
 const oats: IngredientDto = {
   id: '22222222-2222-4222-8222-222222222222',
-  nameDe: 'Haferflocken',
-  nameEn: 'Oats',
+  names: { de: 'Haferflocken', en: 'Oats' },
   custom: false,
   allergens: ['gluten'],
 };
@@ -83,8 +81,8 @@ function mockCommon(options: { entries?: EntryDto[]; templates?: TemplateDto[] }
       const q = (new URL(request.url).searchParams.get('q') ?? '').toLowerCase();
       const all = [milk, oats];
       return HttpResponse.json(
-        all.filter(
-          (item) => item.nameEn.toLowerCase().includes(q) || item.nameDe.toLowerCase().includes(q),
+        all.filter((item) =>
+          Object.values(item.names).some((name) => name.toLowerCase().includes(q)),
         ),
       );
     }),
@@ -240,8 +238,7 @@ describe('dashboard', () => {
     let created: unknown;
     const custom: IngredientDto = {
       id: '33333333-3333-4333-8333-333333333333',
-      nameDe: 'Omas Suppe',
-      nameEn: 'Omas Suppe',
+      names: { und: 'Omas Suppe' },
       custom: true,
       allergens: ['celery'],
     };
