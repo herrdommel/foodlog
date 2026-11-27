@@ -2,7 +2,7 @@ name: foodlog-dev
 
 services:
   db:
-    image: mariadb:12.3
+    image: mariadb:13.0
     environment:
       MARIADB_ROOT_PASSWORD: root
       MARIADB_DATABASE: foodlog
