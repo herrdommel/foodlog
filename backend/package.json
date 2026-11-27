@@ -18,7 +18,7 @@
     "retention:run": "tsx --env-file-if-exists=../.env src/cli/retention.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^1.12.0",
+    "@anthropic-ai/sdk": "^1.13.0",
     "@fastify/cookie": "^11.1.5",
     "@fastify/helmet": "^13.2.0",
     "@fastify/multipart": "^10.1.9",
@@ -29,7 +29,7 @@
     "fastify": "^5.12.8",
     "mysql2": "^3.24.6",
     "nodemailer": "^10.6.1",
-    "openai": "^7.62.0",
+    "openai": "^7.63.0",
     "otplib": "13.6.0",
     "sharp": "^0.35.5",
     "zod": "^4.6.7"
