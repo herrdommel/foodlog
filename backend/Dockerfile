@@ -16,6 +16,7 @@ FROM node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6
 LABEL org.opencontainers.image.licenses="AGPL-3.0-or-later"
 ENV NODE_ENV=production
 WORKDIR /app
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 COPY LICENSE ./
 COPY --from=build /out/node_modules ./node_modules
 COPY --from=build /out/package.json ./
